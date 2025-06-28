@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teste Direto HTML</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(45deg, #ff6b6b, #4ecdc4);
+            color: white;
+            padding: 50px;
+            text-align: center;
+            min-height: 100vh;
+            margin: 0;
+        }
+        .container {
+            background: rgba(0,0,0,0.7);
+            padding: 30px;
+            border-radius: 10px;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        button {
+            background: #ff6b6b;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            font-size: 16px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 10px;
+        }
+        button:hover {
+            background: #ff5252;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🌟 TESTE STANDALONE HTML</h1>
+        <p>Este é um teste independente para verificar se o navegador está funcionando.</p>
+        <p id="time">Carregando horário...</p>
+        <button onclick="testJS()">Clique para testar JavaScript</button>
+        <button onclick="window.location.href='http://localhost:3001'">Voltar para React App</button>
+        
+        <div style="margin-top: 30px; padding: 20px; background: rgba(255,255,255,0.1); border-radius: 5px;">
+            <h3>Checklist de Teste:</h3>
+            <ul style="text-align: left; display: inline-block;">
+                <li>✅ HTML carregando</li>
+                <li>✅ CSS aplicado</li>
+                <li id="js-status">❓ JavaScript aguardando teste</li>
+                <li id="nav-status">❓ Navegação aguardando teste</li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        console.log('🟢 HTML standalone carregado com sucesso!')
+        
+        // Atualizar horário
+        function updateTime() {
+            document.getElementById('time').textContent = 'Horário: ' + new Date().toLocaleString()
+        }
+        updateTime()
+        setInterval(updateTime, 1000)
+        
+        // Testar JavaScript
+        function testJS() {
+            document.getElementById('js-status').innerHTML = '✅ JavaScript funcionando'
+            alert('🎉 JavaScript está funcionando perfeitamente!')
+        }
+        
+        // Testar navegação
+        document.addEventListener('DOMContentLoaded', function() {
+            document.getElementById('nav-status').innerHTML = '✅ DOM carregado'
+        })
+        
+        console.log('📊 Informações do navegador:')
+        console.log('User Agent:', navigator.userAgent)
+        console.log('URL atual:', window.location.href)
+        console.log('LocalStorage disponível:', typeof Storage !== 'undefined')
+    </script>
+</body>
+</html>
