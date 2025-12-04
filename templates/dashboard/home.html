@@ -1,0 +1,578 @@
+{% extends 'dashboard/layout.html' %}
+
+{% block title %}Dashboard · AutoV7{% endblock %}
+
+{% block dashboard_title %}Meu painel{% endblock %}
+
+{% block dashboard_content %}
+<style>
+    .client-dashboard-grid {
+        display: grid;
+        grid-template-columns: minmax(0, 1.8fr) minmax(0, 1.1fr);
+        gap: 1.5rem;
+    }
+
+    .client-dashboard-header {
+        margin-bottom: 1.5rem;
+    }
+
+    .client-dashboard-title {
+        font-size: 1.85rem;
+        font-weight: 600;
+        letter-spacing: -0.03em;
+        margin-bottom: 0.4rem;
+    }
+
+    .client-dashboard-subtitle {
+        font-size: 0.95rem;
+        color: var(--panel-muted);
+    }
+
+    .client-quick-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.75rem;
+        margin-top: 1rem;
+    }
+
+    .client-chip-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4rem;
+        font-size: 0.85rem;
+        padding: 0.45rem 0.85rem;
+        border-radius: 999px;
+        text-decoration: none;
+        background: rgba(15, 23, 42, 0.9);
+        border: 1px solid rgba(148, 163, 184, 0.45);
+        color: #e5e7eb;
+    }
+
+    .client-chip-link span {
+        opacity: 0.9;
+    }
+
+    .client-chip-link.primary {
+        border-color: rgba(56, 189, 248, 0.8);
+        background: radial-gradient(circle at top, rgba(56, 189, 248, 0.18), transparent 65%);
+        color: #f9fafb;
+    }
+
+    .client-chip-link.purple {
+        border-color: rgba(129, 140, 248, 0.8);
+        background: radial-gradient(circle at top, rgba(129, 140, 248, 0.22), transparent 68%);
+    }
+
+    .client-stats-grid {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 1rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .client-stat-card {
+        position: relative;
+        padding: 0.9rem 1rem;
+        border-radius: 1rem;
+        background: rgba(15, 23, 42, 0.9);
+        border: 1px solid rgba(148, 163, 184, 0.35);
+        box-shadow: 0 18px 40px rgba(15, 23, 42, 0.7);
+    }
+
+    .client-stat-heading {
+        display: flex;
+        align-items: center;
+        gap: 0.4rem;
+        font-size: 0.78rem;
+        text-transform: uppercase;
+        letter-spacing: 0.16em;
+        color: rgba(148, 163, 184, 0.9);
+        margin-bottom: 0.45rem;
+    }
+
+    .client-stat-value {
+        font-size: 1.6rem;
+        font-weight: 600;
+    }
+
+    .client-stat-pill {
+        position: absolute;
+        right: 0.85rem;
+        top: 0.75rem;
+        font-size: 0.7rem;
+        padding: 0.2rem 0.55rem;
+        border-radius: 999px;
+        background: rgba(15, 23, 42, 0.9);
+        border: 1px solid rgba(148, 163, 184, 0.45);
+        color: var(--panel-muted);
+    }
+
+    .client-stat-pill.success {
+        border-color: rgba(74, 222, 128, 0.75);
+        color: #bbf7d0;
+    }
+
+    .client-panel-card {
+        border-radius: 1.25rem;
+        border: 1px solid rgba(148, 163, 184, 0.4);
+        background: linear-gradient(135deg, rgba(15, 23, 42, 0.96), rgba(15, 23, 42, 0.9));
+        padding: 1rem 1.1rem;
+        margin-bottom: 1.25rem;
+    }
+
+    .client-panel-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 0.75rem;
+        margin-bottom: 0.75rem;
+    }
+
+    .client-panel-title {
+        display: flex;
+        align-items: center;
+        gap: 0.55rem;
+        font-size: 0.95rem;
+        font-weight: 500;
+    }
+
+    .client-panel-title small {
+        font-size: 0.78rem;
+        color: var(--panel-muted);
+    }
+
+    .client-badge {
+        font-size: 0.75rem;
+        border-radius: 999px;
+        padding: 0.25rem 0.6rem;
+        background: rgba(15, 23, 42, 0.9);
+        border: 1px solid rgba(148, 163, 184, 0.5);
+        color: var(--panel-muted);
+    }
+
+    .client-appointment-item {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 0.9rem;
+        padding: 0.75rem 0.2rem;
+        border-bottom: 1px solid rgba(15, 23, 42, 0.85);
+    }
+
+    .client-appointment-main {
+        display: flex;
+        gap: 0.65rem;
+    }
+
+    .client-appointment-icon {
+        width: 32px;
+        height: 32px;
+        border-radius: 0.9rem;
+        display: grid;
+        place-items: center;
+        background: radial-gradient(circle at top, rgba(56, 189, 248, 0.25), transparent 70%);
+        color: #e0f2fe;
+    }
+
+    .client-appointment-title {
+        font-size: 0.9rem;
+        font-weight: 500;
+    }
+
+    .client-appointment-meta {
+        font-size: 0.78rem;
+        color: var(--panel-muted);
+    }
+
+    .client-status-pill {
+        font-size: 0.75rem;
+        padding: 0.25rem 0.6rem;
+        border-radius: 999px;
+        border: 1px solid rgba(56, 189, 248, 0.7);
+        background: rgba(8, 47, 73, 0.8);
+        color: #e0f2fe;
+        white-space: nowrap;
+    }
+
+    .client-status-pill.pending {
+        border-color: rgba(251, 191, 36, 0.85);
+        background: rgba(120, 53, 15, 0.7);
+        color: #fffbeb;
+    }
+
+    .client-status-pill.completed {
+        border-color: rgba(74, 222, 128, 0.85);
+        background: rgba(22, 101, 52, 0.78);
+        color: #dcfce7;
+    }
+
+    .client-vehicles-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+        gap: 0.8rem;
+    }
+
+    .client-vehicle-card {
+        padding: 0.8rem 0.9rem;
+        border-radius: 1rem;
+        background: rgba(15, 23, 42, 0.96);
+        border: 1px solid rgba(148, 163, 184, 0.4);
+        display: flex;
+        gap: 0.65rem;
+    }
+
+    .client-vehicle-icon {
+        width: 32px;
+        height: 32px;
+        border-radius: 0.9rem;
+        display: grid;
+        place-items: center;
+        background: linear-gradient(135deg, rgba(56, 189, 248, 0.4), rgba(59, 130, 246, 0.7));
+        color: #f9fafb;
+    }
+
+    .client-vehicle-title {
+        font-size: 0.9rem;
+        font-weight: 500;
+    }
+
+    .client-vehicle-meta {
+        font-size: 0.8rem;
+        color: var(--panel-muted);
+    }
+
+    .client-help-card {
+        border-radius: 1.1rem;
+        padding: 0.85rem 0.95rem;
+        background: rgba(15, 23, 42, 0.9);
+        border: 1px solid rgba(148, 163, 184, 0.45);
+        display: flex;
+        gap: 0.7rem;
+        margin-bottom: 0.7rem;
+    }
+
+    .client-help-icon {
+        width: 30px;
+        height: 30px;
+        border-radius: 0.9rem;
+        display: grid;
+        place-items: center;
+        background: rgba(8, 47, 73, 0.9);
+        color: #bae6fd;
+    }
+
+    .client-help-title {
+        font-size: 0.9rem;
+        font-weight: 500;
+        margin-bottom: 0.15rem;
+    }
+
+    .client-help-text {
+        font-size: 0.8rem;
+        color: var(--panel-muted);
+    }
+
+    .client-help-link {
+        font-size: 0.8rem;
+        color: #38bdf8;
+        text-decoration: none;
+    }
+
+    .client-empty {
+        text-align: center;
+        padding: 1.5rem 1rem 1.25rem;
+    }
+
+    .client-empty-title {
+        font-size: 1.1rem;
+        font-weight: 500;
+        margin-bottom: 0.35rem;
+    }
+
+    .client-empty-text {
+        font-size: 0.88rem;
+        color: var(--panel-muted);
+        margin-bottom: 0.9rem;
+    }
+
+    .client-empty-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.6rem;
+        justify-content: center;
+    }
+
+    .client-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4rem;
+        border-radius: 999px;
+        padding: 0.45rem 0.9rem;
+        font-size: 0.82rem;
+        border: 1px solid rgba(148, 163, 184, 0.6);
+        background: rgba(15, 23, 42, 0.95);
+        color: #e5e7eb;
+        text-decoration: none;
+    }
+
+    .client-btn.primary {
+        border-color: rgba(56, 189, 248, 0.9);
+        background: radial-gradient(circle at top, rgba(56, 189, 248, 0.3), transparent 65%);
+        color: #f9fafb;
+    }
+
+    @media (max-width: 1024px) {
+        .client-dashboard-grid {
+            grid-template-columns: minmax(0, 1fr);
+        }
+
+        .client-stats-grid {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+    }
+
+    @media (max-width: 640px) {
+        .client-stats-grid {
+            grid-template-columns: minmax(0, 1fr);
+        }
+
+        .client-dashboard-title {
+            font-size: 1.5rem;
+        }
+    }
+</style>
+
+<section class="client-dashboard-header">
+    <div>
+        <h1 class="client-dashboard-title">Bem-vindo de volta, {{ user.first_name }}! 👋</h1>
+        <p class="client-dashboard-subtitle">Aqui está um resumo da sua conta, veículos e agendamentos recentes.</p>
+    </div>
+    <div class="client-quick-actions">
+        <a href="/dashboard/booking/" class="client-chip-link primary">
+            <i data-lucide="calendar-plus" class="w-4 h-4"></i>
+            <span>Novo agendamento</span>
+        </a>
+        <a href="/dashboard/vehicles/" class="client-chip-link">
+            <i data-lucide="car" class="w-4 h-4"></i>
+            <span>Adicionar veículo</span>
+        </a>
+        <a href="/dashboard/appointments/" class="client-chip-link purple">
+            <i data-lucide="history" class="w-4 h-4"></i>
+            <span>Ver histórico</span>
+        </a>
+    </div>
+</section>
+
+<div class="client-stats-grid">
+    <div class="client-stat-card">
+        <div class="client-stat-heading">
+            <i data-lucide="car" class="w-3 h-3"></i>
+            <span>Veículos cadastrados</span>
+        </div>
+        <div class="client-stat-value">{{ user_vehicles }}</div>
+    </div>
+
+    <div class="client-stat-card">
+        <div class="client-stat-heading">
+            <i data-lucide="calendar" class="w-3 h-3"></i>
+            <span>Total de agendamentos</span>
+        </div>
+        <div class="client-stat-value">{{ user_appointments }}</div>
+        <div class="client-stat-pill">Últimos 12 meses</div>
+    </div>
+
+    <div class="client-stat-card">
+        <div class="client-stat-heading">
+            <i data-lucide="check-circle" class="w-3 h-3"></i>
+            <span>Serviços concluídos</span>
+        </div>
+        <div class="client-stat-value">{{ completed_appointments }}</div>
+        <div class="client-stat-pill success">Cliente ativo</div>
+    </div>
+
+    <div class="client-stat-card">
+        <div class="client-stat-heading">
+            <i data-lucide="gift" class="w-3 h-3"></i>
+            <span>Pontos de fidelidade</span>
+        </div>
+        <div class="client-stat-value">{{ loyalty_points|default:0 }}</div>
+    </div>
+</div>
+
+<div class="client-dashboard-grid">
+    <div>
+        <div class="client-panel-card">
+            <div class="client-panel-header">
+                <div class="client-panel-title">
+                    <i data-lucide="calendar" class="w-4 h-4"></i>
+                    <span>Próximos agendamentos</span>
+                </div>
+                <a href="/dashboard/appointments/" class="client-badge">Ver todos</a>
+            </div>
+
+            {% if upcoming_appointments %}
+                {% for appointment in upcoming_appointments %}
+                <div class="client-appointment-item">
+                    <div class="client-appointment-main">
+                        <div class="client-appointment-icon">
+                            <i data-lucide="calendar-clock" class="w-4 h-4"></i>
+                        </div>
+                        <div>
+                            <div class="client-appointment-title">Agendamento #{{ appointment.id }}</div>
+                            <div class="client-appointment-meta">
+                                {{ appointment.data_agendamento|date:"d/m/Y" }} às {{ appointment.horario_agendamento }}<br>
+                                {% if appointment.veiculo %}
+                                    {{ appointment.veiculo.marca }} {{ appointment.veiculo.modelo }} · {{ appointment.veiculo.placa }}
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    <div>
+                        <span class="client-status-pill {% if appointment.situacao == 'pending' %}pending{% elif appointment.situacao == 'completed' %}completed{% endif %}">
+                            {% if appointment.situacao == 'pending' %}Pendente{% elif appointment.situacao == 'confirmed' %}Confirmado{% elif appointment.situacao == 'completed' %}Concluído{% else %}{{ appointment.get_situacao_display }}{% endif %}
+                        </span>
+                    </div>
+                </div>
+                {% endfor %}
+            {% else %}
+                <div class="client-empty">
+                    <div class="client-empty-title">Nenhum agendamento futuro</div>
+                    <p class="client-empty-text">Agende seu próximo cuidado automotivo em poucos cliques.</p>
+                    <div class="client-empty-actions">
+                        <a href="/dashboard/booking/" class="client-btn primary">
+                            <i data-lucide="calendar-plus" class="w-4 h-4"></i>
+                            <span>Novo agendamento</span>
+                        </a>
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+
+        <div class="client-panel-card">
+            <div class="client-panel-header">
+                <div class="client-panel-title">
+                    <i data-lucide="car" class="w-4 h-4"></i>
+                    <span>Seus veículos</span>
+                </div>
+                <a href="/dashboard/vehicles/" class="client-badge">Gerenciar</a>
+            </div>
+
+            {% if recent_vehicles %}
+            <div class="client-vehicles-grid">
+                {% for vehicle in recent_vehicles %}
+                <div class="client-vehicle-card">
+                    <div class="client-vehicle-icon">
+                        <i data-lucide="car" class="w-4 h-4"></i>
+                    </div>
+                    <div>
+                        <div class="client-vehicle-title">{{ vehicle.marca }} {{ vehicle.modelo }}</div>
+                        <div class="client-vehicle-meta">{{ vehicle.ano }} · {{ vehicle.placa }}</div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+                <div class="client-empty">
+                    <div class="client-empty-title">Nenhum veículo cadastrado</div>
+                    <p class="client-empty-text">Cadastre seu veículo para acompanhar histórico, serviços e próximos agendamentos.</p>
+                    <div class="client-empty-actions">
+                        <a href="/dashboard/vehicles/" class="client-btn primary">
+                            <i data-lucide="car" class="w-4 h-4"></i>
+                            <span>Cadastrar veículo</span>
+                        </a>
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <div>
+        <div class="client-panel-card">
+            <div class="client-panel-header">
+                <div class="client-panel-title">
+                    <i data-lucide="sparkles" class="w-4 h-4"></i>
+                    <span>Dicas e informações</span>
+                </div>
+            </div>
+
+            <div>
+                <div class="client-help-card">
+                    <div class="client-help-icon">
+                        <i data-lucide="lightbulb" class="w-4 h-4"></i>
+                    </div>
+                    <div>
+                        <div class="client-help-title">Manutenção regular</div>
+                        <div class="client-help-text">Mantenha seu veículo sempre limpo para preservar a pintura, interior e valorização.</div>
+                    </div>
+                </div>
+
+                <div class="client-help-card">
+                    <div class="client-help-icon">
+                        <i data-lucide="gift" class="w-4 h-4"></i>
+                    </div>
+                    <div>
+                        <div class="client-help-title">Programa de fidelidade</div>
+                        <div class="client-help-text">Cada serviço gera pontos para você trocar por descontos e benefícios.</div>
+                    </div>
+                </div>
+
+                <div class="client-help-card">
+                    <div class="client-help-icon">
+                        <i data-lucide="clock" class="w-4 h-4"></i>
+                    </div>
+                    <div>
+                        <div class="client-help-title">Agende com antecedência</div>
+                        <div class="client-help-text">Garanta seus melhores horários agendando com até 30 dias de antecedência.</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="client-panel-card">
+            <div class="client-panel-header">
+                <div class="client-panel-title">
+                    <i data-lucide="headphones" class="w-4 h-4"></i>
+                    <span>Precisa de ajuda?</span>
+                </div>
+            </div>
+
+            <div>
+                <div class="client-help-card">
+                    <div class="client-help-icon">
+                        <i data-lucide="phone" class="w-4 h-4"></i>
+                    </div>
+                    <div>
+                        <div class="client-help-title">Telefone</div>
+                        <div class="client-help-text">(11) 99999-9999</div>
+                    </div>
+                </div>
+
+                <div class="client-help-card">
+                    <div class="client-help-icon">
+                        <i data-lucide="mail" class="w-4 h-4"></i>
+                    </div>
+                    <div>
+                        <div class="client-help-title">E-mail</div>
+                        <div class="client-help-text">contato@autov7.com</div>
+                    </div>
+                </div>
+
+                <div class="client-help-card">
+                    <div class="client-help-icon">
+                        <i data-lucide="message-circle" class="w-4 h-4"></i>
+                    </div>
+                    <div>
+                        <div class="client-help-title">WhatsApp</div>
+                        <div class="client-help-text">Atendimento online e rápido.</div>
+                        <a href="https://wa.me/5511999999999" target="_blank" class="client-help-link">Abrir conversa</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    lucide.createIcons();
+</script>
+{% endblock %}

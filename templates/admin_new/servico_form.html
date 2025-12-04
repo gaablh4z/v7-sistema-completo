@@ -1,0 +1,68 @@
+{% extends 'admin_new/base.html' %}
+
+{% block page_subtitle %}
+    {% if servico %}Editar informações do serviço{% else %}Cadastrar novo serviço{% endif %}
+{% endblock %}
+
+{% block page_actions %}
+<div class="flex items-center space-x-3">
+    <a href="{% url 'admin_new:servicos' %}" class="btn-secondary">
+        <i data-lucide="arrow-left" class="w-5 h-5 mr-2"></i>
+        Voltar
+    </a>
+    <button type="submit" form="servicoForm" class="btn-primary">
+        <i data-lucide="save" class="w-5 h-5 mr-2"></i>
+        {% if servico %}Atualizar{% else %}Cadastrar{% endif %}
+    </button>
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto">
+    <form id="servicoForm" method="POST" class="space-y-6">
+        {% csrf_token %}
+        
+        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
+            <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-6">Informações do Serviço</h3>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="form-group md:col-span-2">
+                    <label for="nome" class="form-label">Nome do Serviço *</label>
+                    <input type="text" id="nome" name="nome" 
+                           value="{{ servico.nome|default:'' }}" 
+                           class="form-input" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="preco" class="form-label">Preço (R$) *</label>
+                    <input type="number" id="preco" name="preco" step="0.01" min="0"
+                           value="{{ servico.preco|default:'' }}" 
+                           class="form-input" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="duracao_minutos" class="form-label">Duração (minutos) *</label>
+                    <input type="number" id="duracao_minutos" name="duracao_minutos" min="1"
+                           value="{{ servico.duracao_minutos|default:'' }}" 
+                           class="form-input" required>
+                </div>
+                
+                <div class="form-group md:col-span-2">
+                    <label for="descricao" class="form-label">Descrição</label>
+                    <textarea id="descricao" name="descricao" rows="4" 
+                              class="form-textarea">{{ servico.descricao|default:'' }}</textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label class="flex items-center">
+                        <input type="checkbox" name="ativo" 
+                               {% if not servico or servico.ativo %}checked{% endif %}
+                               class="rounded border-gray-300 text-admin-primary focus:ring-admin-primary focus:ring-offset-0">
+                        <span class="ml-2 text-sm text-gray-900 dark:text-gray-100">Serviço ativo</span>
+                    </label>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+{% endblock %}

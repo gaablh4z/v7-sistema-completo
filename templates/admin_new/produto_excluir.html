@@ -1,0 +1,103 @@
+{% extends 'admin_new/base.html' %}
+
+{% block page_subtitle %}Confirmar exclusão do produto{% endblock %}
+
+{% block page_actions %}
+    <a href="{% url 'admin_new:estoque' %}" class="btn-secondary">
+        <i data-lucide="arrow-left" class="w-5 h-5 mr-2"></i>
+        Voltar ao Estoque
+    </a>
+{% endblock %}
+
+{% block content %}
+<div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
+    <div class="text-center mb-8">
+        <div class="w-20 h-20 bg-red-100 dark:bg-red-900 rounded-full flex items-center justify-center mx-auto mb-4">
+            <i data-lucide="alert-triangle" class="w-10 h-10 text-red-600 dark:text-red-400"></i>
+        </div>
+        
+        <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-2">Confirmar Exclusão</h2>
+        <p class="text-gray-600 dark:text-gray-400">Esta ação não pode ser desfeita. Tem certeza que deseja excluir este produto?</p>
+    </div>
+
+    <!-- Informações do Produto -->
+    <div class="bg-gray-50 dark:bg-gray-700 rounded-lg p-6 mb-6">
+        <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Informações do Produto</h3>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+                <span class="text-sm font-medium text-gray-600 dark:text-gray-400">Nome:</span>
+                <p class="text-gray-900 dark:text-white font-semibold">{{ produto.nome }}</p>
+            </div>
+            
+            <div>
+                <span class="text-sm font-medium text-gray-600 dark:text-gray-400">Categoria:</span>
+                <p class="text-gray-900 dark:text-white">{{ produto.categoria.nome|default:"Sem categoria" }}</p>
+            </div>
+            
+            <div>
+                <span class="text-sm font-medium text-gray-600 dark:text-gray-400">SKU:</span>
+                <p class="text-gray-900 dark:text-white">{{ produto.sku|default:"N/A" }}</p>
+            </div>
+            
+            <div>
+                <span class="text-sm font-medium text-gray-600 dark:text-gray-400">Quantidade em Estoque:</span>
+                <p class="text-gray-900 dark:text-white font-semibold">{{ produto.quantidade }} unidades</p>
+            </div>
+            
+            <div>
+                <span class="text-sm font-medium text-gray-600 dark:text-gray-400">Preço Unitário:</span>
+                <p class="text-gray-900 dark:text-white">R$ {{ produto.preco_unitario|floatformat:2 }}</p>
+            </div>
+            
+            <div>
+                <span class="text-sm font-medium text-gray-600 dark:text-gray-400">Valor Total em Estoque:</span>
+                <p class="text-gray-900 dark:text-white font-semibold">R$ {{ valor_total_estoque|floatformat:2 }}</p>
+            </div>
+        </div>
+
+        {% if produto.descricao %}
+        <div class="mt-4">
+            <span class="text-sm font-medium text-gray-600 dark:text-gray-400">Descrição:</span>
+            <p class="text-gray-900 dark:text-white">{{ produto.descricao }}</p>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Avisos -->
+    <div class="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4 mb-6">
+        <div class="flex items-start">
+            <i data-lucide="alert-triangle" class="w-5 h-5 text-red-600 dark:text-red-400 mt-0.5 mr-3"></i>
+            <div>
+                <h4 class="text-sm font-medium text-red-800 dark:text-red-200 mb-1">Atenção!</h4>
+                <div class="text-sm text-red-700 dark:text-red-300">
+                    <ul class="list-disc list-inside space-y-1">
+                        <li>Este produto será removido permanentemente do sistema</li>
+                        <li>Todos os dados relacionados serão perdidos</li>
+                        {% if produto.quantidade > 0 %}
+                        <li class="font-medium">Há {{ produto.quantidade }} unidades em estoque que serão perdidas</li>
+                        {% endif %}
+                        <li>Esta ação não pode ser desfeita</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Formulário de Confirmação -->
+    <form method="POST" class="text-center">
+        {% csrf_token %}
+        
+        <div class="flex justify-center space-x-4">
+            <a href="{% url 'admin_new:estoque' %}" class="btn-secondary">
+                <i data-lucide="x" class="w-4 h-4 mr-2"></i>
+                Cancelar
+            </a>
+            <button type="submit" class="btn-danger">
+                <i data-lucide="trash-2" class="w-4 h-4 mr-2"></i>
+                Sim, Excluir Produto
+            </button>
+        </div>
+    </form>
+</div>
+{% endblock %}

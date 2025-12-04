@@ -1,0 +1,368 @@
+/**
+ * Estilos para WebSocket Notifications
+ * AutoV7 Sistema Completo
+ */
+
+/* Status de Conexão */
+.connection-status,
+.admin-connection-status {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    padding: 8px 16px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    z-index: 9999;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.connection-status.status-connected,
+.admin-connection-status.status-connected {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+}
+
+.connection-status.status-disconnected,
+.admin-connection-status.status-disconnected {
+    background: #6c757d;
+    color: white;
+}
+
+.connection-status.status-error,
+.admin-connection-status.status-error {
+    background: #dc3545;
+    color: white;
+    animation: pulse-error 2s infinite;
+}
+
+@keyframes pulse-error {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.6; }
+}
+
+/* Notificações Visuais */
+.autov7-notification,
+.admin-notification {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    min-width: 320px;
+    max-width: 400px;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+    padding: 16px;
+    z-index: 10000;
+    animation: slideInRight 0.3s ease;
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+}
+
+@keyframes slideInRight {
+    from {
+        transform: translateX(400px);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+.autov7-notification.fade-out,
+.admin-notification.fade-out {
+    animation: slideOutRight 0.3s ease forwards;
+}
+
+@keyframes slideOutRight {
+    from {
+        transform: translateX(0);
+        opacity: 1;
+    }
+    to {
+        transform: translateX(400px);
+        opacity: 0;
+    }
+}
+
+/* Ícones de Notificação */
+.notification-icon {
+    font-size: 24px;
+    flex-shrink: 0;
+}
+
+/* Conteúdo da Notificação */
+.notification-content {
+    flex: 1;
+}
+
+.notification-content strong {
+    display: block;
+    font-size: 14px;
+    font-weight: 700;
+    margin-bottom: 4px;
+    color: #2d3748;
+}
+
+.notification-content p {
+    margin: 0;
+    font-size: 13px;
+    color: #4a5568;
+    line-height: 1.4;
+}
+
+/* Botão de Fechar */
+.notification-close {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    background: transparent;
+    border: none;
+    font-size: 20px;
+    color: #a0aec0;
+    cursor: pointer;
+    transition: color 0.2s;
+    padding: 0;
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.notification-close:hover {
+    color: #2d3748;
+}
+
+/* Tipos de Notificação */
+.notification-info {
+    border-left: 4px solid #4299e1;
+}
+
+.notification-success {
+    border-left: 4px solid #48bb78;
+}
+
+.notification-warning {
+    border-left: 4px solid #ed8936;
+}
+
+.notification-error {
+    border-left: 4px solid #f56565;
+}
+
+/* Container de Notificações Admin */
+.admin-notifications-container {
+    position: fixed;
+    top: 80px;
+    right: 20px;
+    z-index: 10000;
+    pointer-events: none;
+}
+
+.admin-notifications-container .admin-notification {
+    position: relative;
+    top: auto;
+    right: auto;
+    margin-bottom: 12px;
+    pointer-events: all;
+}
+
+/* Destaque de Novo Agendamento */
+.new-appointment-highlight {
+    animation: highlightRow 3s ease;
+}
+
+@keyframes highlightRow {
+    0% {
+        background-color: #fff3cd;
+    }
+    100% {
+        background-color: transparent;
+    }
+}
+
+/* Agendamento Cancelado */
+.cancelled-appointment {
+    opacity: 0.6;
+    text-decoration: line-through;
+}
+
+/* Contador Atualizado */
+.count-updated {
+    animation: countPulse 0.5s ease;
+}
+
+@keyframes countPulse {
+    0%, 100% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.2);
+        color: #4299e1;
+    }
+}
+
+/* Estatística Atualizada */
+.stat-updated {
+    animation: statGlow 0.5s ease;
+}
+
+@keyframes statGlow {
+    0%, 100% {
+        transform: scale(1);
+        box-shadow: none;
+    }
+    50% {
+        transform: scale(1.05);
+        box-shadow: 0 0 20px rgba(66, 153, 225, 0.5);
+    }
+}
+
+/* Status Badges */
+.status-badge {
+    padding: 4px 12px;
+    border-radius: 12px;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    display: inline-block;
+}
+
+.status-badge.status-pending {
+    background: #fef3c7;
+    color: #92400e;
+}
+
+.status-badge.status-confirmed {
+    background: #d1fae5;
+    color: #065f46;
+}
+
+.status-badge.status-in_progress {
+    background: #dbeafe;
+    color: #1e40af;
+}
+
+.status-badge.status-completed {
+    background: #d1fae5;
+    color: #065f46;
+}
+
+.status-badge.status-cancelled {
+    background: #fee2e2;
+    color: #991b1b;
+}
+
+/* Badge de Notificação */
+.notification-badge {
+    position: absolute;
+    top: -8px;
+    right: -8px;
+    background: #ef4444;
+    color: white;
+    border-radius: 50%;
+    width: 20px;
+    height: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    font-weight: 700;
+    animation: badgePop 0.3s ease;
+}
+
+@keyframes badgePop {
+    0% {
+        transform: scale(0);
+    }
+    50% {
+        transform: scale(1.2);
+    }
+    100% {
+        transform: scale(1);
+    }
+}
+
+/* Responsivo */
+@media (max-width: 768px) {
+    .autov7-notification,
+    .admin-notification {
+        min-width: 280px;
+        max-width: calc(100vw - 40px);
+    }
+    
+    .connection-status,
+    .admin-connection-status {
+        bottom: 10px;
+        right: 10px;
+        font-size: 10px;
+        padding: 6px 12px;
+    }
+    
+    .admin-notifications-container {
+        right: 10px;
+        left: 10px;
+    }
+}
+
+/* Dark Mode Support */
+@media (prefers-color-scheme: dark) {
+    .autov7-notification,
+    .admin-notification {
+        background: #1a202c;
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+    }
+    
+    .notification-content strong {
+        color: #e2e8f0;
+    }
+    
+    .notification-content p {
+        color: #cbd5e0;
+    }
+    
+    .notification-close {
+        color: #718096;
+    }
+    
+    .notification-close:hover {
+        color: #e2e8f0;
+    }
+}
+
+/* Animação de Loading */
+.ws-loading {
+    display: inline-block;
+    width: 16px;
+    height: 16px;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-top-color: white;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+/* Toast Notifications Override (se usar toastr) */
+.toast-info {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.toast-success {
+    background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);
+}
+
+.toast-warning {
+    background: linear-gradient(135deg, #ed8936 0%, #dd6b20 100%);
+}
+
+.toast-error {
+    background: linear-gradient(135deg, #f56565 0%, #e53e3e 100%);
+}

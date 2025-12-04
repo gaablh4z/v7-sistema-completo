@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}AutoV7 - Sistema de Gestão{% endblock %}</title>
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="/static/css/bootstrap-integration.css">
+    <style>
+        /* Background gradiente Dark Theme */
+        .bg-hero {
+            background: linear-gradient(135deg, #1e293b 0%, #0f172a 50%, #020617 100%);
+            min-height: 100vh;
+        }
+        
+        /* Liquid Glass Effects - Otimizado para Header e Sidebar */
+        .liquid-glass {
+            backdrop-filter: blur(15px) saturate(180%);
+            background: rgba(255, 255, 255, 0.18);
+            border: 1px solid rgba(255, 255, 255, 0.25);
+            box-shadow: 
+                inset 0 1px 0 rgba(255, 255, 255, 0.3),
+                inset 0 -1px 0 rgba(255, 255, 255, 0.15),
+                0 8px 32px rgba(0, 0, 0, 0.3),
+                0 0 0 1px rgba(255, 255, 255, 0.1);
+            position: relative;
+        }
+        
+        .liquid-glass::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.5), transparent);
+        }
+        
+        /* Liquid Glass para Cards */
+        .liquid-glass-card {
+            backdrop-filter: blur(12px) saturate(150%);
+            background: rgba(255, 255, 255, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            box-shadow: 
+                inset 0 2px 0 rgba(255, 255, 255, 0.25),
+                inset 0 -1px 0 rgba(255, 255, 255, 0.1),
+                0 4px 16px rgba(0, 0, 0, 0.25),
+                0 0 0 1px rgba(255, 255, 255, 0.12);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .liquid-glass-card:hover {
+            background: rgba(255, 255, 255, 0.25);
+            border-color: rgba(255, 255, 255, 0.4);
+            box-shadow: 
+                inset 0 2px 0 rgba(255, 255, 255, 0.3),
+                inset 0 -1px 0 rgba(255, 255, 255, 0.15),
+                0 8px 32px rgba(0, 0, 0, 0.35),
+                0 0 0 1px rgba(255, 255, 255, 0.15);
+            transform: translateY(-2px);
+        }
+        
+        /* Text Shadows - Subtle */
+        .text-shadow-subtle {
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+        }
+        
+        /* Seções com fundo escuro padrão */
+        .dark-section {
+            background: rgba(15, 23, 42, 0.95);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .glassmorphism {
+            background: rgba(255, 255, 255, 0.25);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+        }
+        
+        .sidebar-active {
+            background-color: rgb(239 246 255);
+            color: rgb(29 78 216);
+            border-right: 2px solid rgb(29 78 216);
+        }
+        
+        .card-hover {
+            transition: all 0.3s ease;
+        }
+        
+        .card-hover:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        }
+    </style>
+    
+    {% block extra_head %}{% endblock %}
+</head>
+<body class="{% block body_class %}bg-gray-50{% endblock %}">
+    {% block header %}
+    <!-- Header -->
+    <header class="bg-white shadow-lg border-b border-gray-200">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center py-4">
+                <!-- Logo -->
+                <div class="flex items-center space-x-3">
+                    <div class="w-10 h-10 bg-gradient-to-br from-blue-600 to-blue-800 rounded-lg flex items-center justify-center">
+                        <i data-lucide="car" class="w-6 h-6 text-white"></i>
+                    </div>
+                    <div>
+                        <h1 class="text-xl font-bold text-gray-900">AutoV7</h1>
+                        <p class="text-sm text-gray-600">{% block subtitle %}Sistema de Gestão{% endblock %}</p>
+                    </div>
+                </div>
+                
+                <!-- Navigation -->
+                <nav class="hidden md:flex items-center space-x-6">
+                    {% block nav_links %}
+                    {% if user.is_authenticated %}
+                    <a href="/dashboard/" class="text-gray-600 hover:text-blue-600 transition-colors">
+                        Dashboard
+                    </a>
+                    <a href="/dashboard/booking/" class="text-gray-600 hover:text-blue-600 transition-colors">
+                        Agendamentos
+                    </a>
+                    <a href="/dashboard/vehicles/" class="text-gray-600 hover:text-blue-600 transition-colors">
+                        Veículos
+                    </a>
+                    {% else %}
+                    <a href="/" class="text-gray-600 hover:text-blue-600 transition-colors">
+                        Home
+                    </a>
+                    {% endif %}
+                    {% endblock %}
+                </nav>
+                
+                <!-- User Menu -->
+                <div class="flex items-center space-x-4">
+                    {% if user.is_authenticated %}
+                    <div class="relative group">
+                        <button class="flex items-center space-x-2 p-2 rounded-lg hover:bg-gray-100 transition-colors">
+                            <div class="w-8 h-8 bg-gray-300 rounded-full flex items-center justify-center">
+                                <i data-lucide="user" class="w-4 h-4 text-gray-600"></i>
+                            </div>
+                            <span class="text-sm font-medium text-gray-700">{{ user.get_full_name|default:user.username }}</span>
+                            <i data-lucide="chevron-down" class="w-4 h-4 text-gray-500"></i>
+                        </button>
+                        
+                        <!-- Dropdown -->
+                        <div class="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all">
+                            <div class="py-2">
+                                <a href="/dashboard/profile/" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                                    <i data-lucide="settings" class="w-4 h-4 inline mr-2"></i>
+                                    Perfil
+                                </a>
+                                <form method="post" action="/accounts/logout/" class="block">
+                                    {% csrf_token %}
+                                    <button type="submit" class="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                                        <i data-lucide="log-out" class="w-4 h-4 inline mr-2"></i>
+                                        Sair
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                    {% else %}
+                    <a href="/accounts/login/" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors">
+                        Entrar
+                    </a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </header>
+    {% endblock %}
+
+    {% block main %}
+    <!-- Main Content -->
+    <main class="min-h-screen">
+        {% if messages %}
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-4">
+                {% for message in messages %}
+                    <div class="mb-4 p-4 rounded-lg border {% if message.tags == 'error' %}bg-red-50 border-red-200 text-red-800{% elif message.tags == 'success' %}bg-green-50 border-green-200 text-green-800{% elif message.tags == 'warning' %}bg-yellow-50 border-yellow-200 text-yellow-800{% else %}bg-blue-50 border-blue-200 text-blue-800{% endif %}">
+                        <div class="flex items-center">
+                            {% if message.tags == 'error' %}
+                                <i data-lucide="alert-circle" class="w-5 h-5 mr-2"></i>
+                            {% elif message.tags == 'success' %}
+                                <i data-lucide="check-circle" class="w-5 h-5 mr-2"></i>
+                            {% elif message.tags == 'warning' %}
+                                <i data-lucide="alert-triangle" class="w-5 h-5 mr-2"></i>
+                            {% else %}
+                                <i data-lucide="info" class="w-5 h-5 mr-2"></i>
+                            {% endif %}
+                            {{ message }}
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+        
+        {% block content %}{% endblock %}
+    </main>
+    {% endblock %}
+
+    {% block footer %}
+    <!-- Footer -->
+    <footer class="bg-slate-800 border-t border-slate-700 mt-12">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+            <div class="text-center">
+                <div class="text-sm text-gray-300 mb-4">
+                    © 2024 AutoV7 - Sistema de Gestão Automotiva. Todos os direitos reservados.
+                </div>
+                
+                <!-- Instagram Button -->
+                <div class="flex justify-center">
+                    <a href="https://www.instagram.com/v7esteticaautomotivacba/" 
+                       target="_blank" 
+                       rel="noopener noreferrer"
+                       class="inline-flex items-center space-x-2 bg-gradient-to-r from-pink-500 to-purple-600 text-white px-6 py-3 rounded-full hover:from-pink-600 hover:to-purple-700 transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl">
+                        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                            <path fill-rule="evenodd" d="M12.017 0C8.396 0 7.989.016 6.756.072 5.526.128 4.739.325 4.077.62a5.918 5.918 0 0 0-2.135 1.39A5.918 5.918 0 0 0 .551 4.144C.256 4.806.059 5.593.003 6.823-.053 8.056-.069 8.463-.069 12.084c0 3.621.016 4.028.072 5.261.056 1.23.253 2.017.548 2.679.292.86.68 1.58 1.391 2.291a5.918 5.918 0 0 0 2.134 1.391c.662.295 1.449.492 2.679.548 1.233.056 1.64.072 5.261.072 3.621 0 4.028-.016 5.261-.072 1.23-.056 2.017-.253 2.679-.548a5.918 5.918 0 0 0 2.135-1.391 5.918 5.918 0 0 0 1.39-2.291c.295-.662.492-1.449.548-2.679.056-1.233.072-1.64.072-5.261 0-3.621-.016-4.028-.072-5.261-.056-1.23-.253-2.017-.548-2.679a5.918 5.918 0 0 0-1.391-2.135A5.918 5.918 0 0 0 19.933.62C19.271.325 18.484.128 17.254.072 16.021.016 15.614 0 12.017 0Zm0 2.197c3.564 0 3.984.013 5.392.069 1.3.059 2.006.275 2.475.456.622.242 1.067.532 1.533.998.466.466.756.911.998 1.533.181.469.397 1.175.456 2.475.056 1.408.069 1.828.069 5.392 0 3.564-.013 3.984-.069 5.392-.059 1.3-.275 2.006-.456 2.475-.242.622-.532 1.067-.998 1.533-.466.466-.911.756-1.533.998-.469.181-1.175.397-2.475.456-1.408.056-1.828.069-5.392.069-3.564 0-3.984-.013-5.392-.069-1.3-.059-2.006-.275-2.475-.456a4.125 4.125 0 0 1-1.533-.998 4.125 4.125 0 0 1-.998-1.533c-.181-.469-.397-1.175-.456-2.475-.056-1.408-.069-1.828-.069-5.392 0-3.564.013-3.984.069-5.392.059-1.3.275-2.006.456-2.475.242-.622.532-1.067.998-1.533a4.125 4.125 0 0 1 1.533-.998c.469-.181 1.175-.397 2.475-.456 1.408-.056 1.828-.069 5.392-.069Z"/>
+                            <path d="M12.017 5.827A6.257 6.257 0 1 0 18.274 12.084 6.257 6.257 0 0 0 12.017 5.827Zm0 10.327a4.07 4.07 0 1 1 4.07-4.07 4.07 4.07 0 0 1-4.07 4.07ZM19.846 5.604a1.462 1.462 0 1 1-2.924 0 1.462 1.462 0 0 1 2.924 0Z"/>
+                        </svg>
+                        <span class="font-medium">Siga-nos no Instagram</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </footer>
+    {% endblock %}
+
+    <!-- Initialize Lucide Icons -->
+    <script>
+        lucide.createIcons();
+        
+        // Auto-hide messages after 5 seconds
+        setTimeout(() => {
+            const messages = document.querySelectorAll('[class*="bg-red-50"], [class*="bg-green-50"], [class*="bg-yellow-50"], [class*="bg-blue-50"]');
+            messages.forEach(msg => {
+                if (msg.classList.contains('mb-4')) {
+                    msg.style.transition = 'opacity 0.5s ease';
+                    msg.style.opacity = '0';
+                    setTimeout(() => msg.remove(), 500);
+                }
+            });
+        }, 5000);
+    </script>
+    
+    <!-- Bootstrap JavaScript -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
+    
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

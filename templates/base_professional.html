@@ -1,0 +1,698 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="h-full bg-slate-900">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="AutoV7 - Sistema Profissional de Gestão Automotiva">
+    <meta name="robots" content="index, follow">
+    
+    <title>{% block title %}AutoV7 - Sistema Profissional{% endblock %}</title>
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/x-icon" href="/static/favicon.ico">
+    <link rel="apple-touch-icon" sizes="180x180" href="/static/apple-touch-icon.png">
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+    
+    <!-- Styles -->
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+        <link rel="stylesheet" href="{% static 'css/simple-sidebar.css' %}">
+    <link rel="stylesheet" href="/static/css/bootstrap-integration.css">
+    <link rel="stylesheet" href="/static/css/websocket-notifications.css">
+    {% block extra_css %}{% endblock %}
+    
+    <!-- Scripts -->
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="/static/js/notification-system.js"></script>
+</head>
+<body class="h-full">
+    <!-- Loading Overlay -->
+    <div id="loading-overlay" class="fixed inset-0 bg-slate-900 bg-opacity-90 flex items-center justify-center z-50 hidden">
+        <div class="text-center">
+            <div class="loading-spinner mx-auto mb-4"></div>
+            <p class="text-slate-300">Carregando...</p>
+        </div>
+    </div>
+
+    <!-- Notification Container -->
+    <div id="notification-container" class="fixed top-4 right-4 z-50 space-y-2"></div>
+
+    {% if user.is_authenticated and user.funcao == 'admin' %}
+        <!-- Mobile Overlay -->
+        <div id="mobile-overlay" class="fixed inset-0 bg-black bg-opacity-50 z-1050 lg:hidden hidden" onclick="toggleSidebar()"></div>
+        
+        <!-- NOVA SIDEBAR SIMPLES -->
+        <aside class="simple-sidebar" id="sidebar">
+            <!-- Toggle Button -->
+            <button class="sidebar-toggle" onclick="toggleSidebar()" title="Toggle Sidebar">
+                <i data-lucide="menu" class="w-5 h-5"></i>
+            </button>
+            
+            <!-- Logo -->
+            <div class="sidebar-brand">
+                <div class="brand-icon">
+                    <i data-lucide="car" class="w-6 h-6"></i>
+                </div>
+                <span class="brand-text">AutoV7</span>
+            </div>
+            
+            <!-- Navigation -->
+            <nav class="sidebar-nav">
+                <a href="{% url 'admin_dashboard' %}" class="nav-link {% if request.resolver_match.url_name == 'admin_dashboard' %}active{% endif %}" data-tooltip="Dashboard">
+                    <i data-lucide="layout-dashboard" class="nav-icon"></i>
+                    <span class="nav-text">Dashboard</span>
+                </a>
+                
+                <a href="{% url 'requests_management' %}" class="nav-link {% if request.resolver_match.url_name == 'requests_management' %}active{% endif %}" data-tooltip="Agendamentos">
+                    <i data-lucide="calendar" class="nav-icon"></i>
+                    <span class="nav-text">Agendamentos</span>
+                    {% if pending_requests_count > 0 %}
+                    <span class="nav-badge">{{ pending_requests_count }}</span>
+                    {% endif %}
+                </a>
+                
+                <a href="{% url 'customers_management' %}" class="nav-link {% if request.resolver_match.url_name == 'customers_management' %}active{% endif %}" data-tooltip="Clientes">
+                    <i data-lucide="users" class="nav-icon"></i>
+                    <span class="nav-text">Clientes</span>
+                </a>
+                
+                <a href="{% url 'services_management' %}" class="nav-link {% if request.resolver_match.url_name == 'services_management' %}active{% endif %}" data-tooltip="Serviços">
+                    <i data-lucide="settings" class="nav-icon"></i>
+                    <span class="nav-text">Serviços</span>
+                </a>
+                
+                <a href="{% url 'inventory_management' %}" class="nav-link {% if request.resolver_match.url_name == 'inventory_management' %}active{% endif %}" data-tooltip="Estoque">
+                    <i data-lucide="package" class="nav-icon"></i>
+                    <span class="nav-text">Estoque</span>
+                    {% if low_stock_count > 0 %}
+                    <span class="nav-badge">{{ low_stock_count }}</span>
+                    {% endif %}
+                </a>
+                
+                <a href="{% url 'reports_page' %}" class="nav-link {% if request.resolver_match.url_name == 'reports_page' %}active{% endif %}" data-tooltip="Relatórios">
+                    <i data-lucide="bar-chart-3" class="nav-icon"></i>
+                    <span class="nav-text">Relatórios</span>
+                </a>
+                
+                <a href="#" class="nav-link" data-tooltip="Configurações">
+                    <i data-lucide="cog" class="nav-icon"></i>
+                    <span class="nav-text">Configurações</span>
+                </a>
+            </nav>
+            
+            <!-- User Profile -->
+            <div class="sidebar-user">
+                <div class="user-avatar" onclick="toggleUserMenu()">
+                    {{ user.first_name|first|default:"A" }}{{ user.last_name|first|default:"U" }}
+                </div>
+                <div class="user-info">
+                    <span class="user-name">{{ user.first_name }} {{ user.last_name }}</span>
+                    <span class="user-role">Administrador</span>
+                </div>
+                
+                <!-- User Menu -->
+                <div id="user-menu" class="user-menu hidden">
+                    <a href="#" class="user-menu-item">
+                        <i data-lucide="user" class="w-4 h-4"></i>
+                        <span>Perfil</span>
+                    </a>
+                    <a href="{% url 'logout' %}" class="user-menu-item">
+                        <i data-lucide="log-out" class="w-4 h-4"></i>
+                        <span>Sair</span>
+                    </a>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Professional Header -->
+                <header class="main-header">
+                    <div class="header-content">
+                        <div class="flex items-center gap-4">
+                            <!-- Mobile Menu Toggle -->
+                            <button class="lg:hidden p-2 rounded-lg hover:bg-slate-800 transition-colors" onclick="toggleSidebar()">
+                                <i data-lucide="menu" class="w-5 h-5 text-slate-400"></i>
+                            </button>
+                            
+                            <div>
+                                <h1 class="header-title">{% block page_title %}{% block subtitle %}Dashboard{% endblock %}{% endblock %}</h1>
+                                <p class="header-subtitle">{% block page_subtitle %}{% endblock %}</p>
+                            </div>
+                        </div>
+                        
+                        <div class="flex items-center gap-4">
+                            <!-- Search -->
+                            <div class="hidden md:block">
+                                <div class="relative">
+                                    <i data-lucide="search" class="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 w-4 h-4"></i>
+                                    <input type="text" placeholder="Buscar..." 
+                                           class="form-input pl-10 w-64 bg-slate-800 border-slate-600 text-sm">
+                                </div>
+                            </div>
+
+                            <!-- Notifications -->
+                            <button class="relative p-2 text-slate-400 hover:text-slate-200 transition-colors" onclick="notificationSystem?.openNotificationCenter()">
+                                <i data-lucide="bell" class="w-5 h-5"></i>
+                                <span class="notification-badge hidden">0</span>
+                            </button>
+
+                            <!-- User Menu -->
+                            <div class="relative">
+                                <button class="flex items-center gap-2 p-2 rounded-lg hover:bg-slate-800 transition-colors" onclick="toggleUserMenu()">
+                                    <div class="w-8 h-8 rounded-full bg-gradient-to-r from-blue-500 to-blue-600 flex items-center justify-center text-white text-sm font-medium">
+                                        {{ user.first_name|first|default:"A" }}
+                                    </div>
+                                    <i data-lucide="chevron-down" class="w-4 h-4 text-slate-400"></i>
+                                </button>
+                            </div>
+
+                            <!-- Mobile Menu Toggle -->
+                            <button class="md:hidden p-2 text-slate-400 hover:text-slate-200" onclick="toggleSidebar()">
+                                <i data-lucide="menu" class="w-5 h-5"></i>
+                            </button>
+                        </div>
+                    </div>
+                </header>
+
+                <!-- Page Content -->
+                <div class="p-6 max-w-7xl mx-auto">
+                    {% block content %}{% endblock %}
+                </div>
+            </main>
+    {% else %}
+        <!-- Public/Client Layout -->
+        <div class="min-h-screen bg-slate-900">
+            {% block public_content %}{% endblock %}
+        </div>
+    {% endif %}
+
+    <!-- Professional Modals -->
+    <div id="modal-overlay" class="fixed inset-0 bg-black bg-opacity-50 hidden z-40" onclick="closeModals()"></div>
+    
+    <!-- User Dropdown Menu -->
+    <div id="user-menu" class="hidden absolute top-16 right-6 bg-slate-800 rounded-lg shadow-xl border border-slate-700 py-2 min-w-48 z-50">
+        <a href="#" class="block px-4 py-2 text-sm text-slate-300 hover:bg-slate-700">Perfil</a>
+        <a href="#" class="block px-4 py-2 text-sm text-slate-300 hover:bg-slate-700">Configurações</a>
+        <div class="border-t border-slate-700 my-1"></div>
+        <a href="{% url 'logout' %}" class="block px-4 py-2 text-sm text-red-400 hover:bg-slate-700">Sair</a>
+    </div>
+
+    <!-- Demo Notification Buttons (Remove in production) -->
+    <div class="fixed bottom-4 left-4 space-y-2 z-40">
+        <button onclick="notificationSystem?.success('Agendamento confirmado com sucesso!')" 
+                class="block px-3 py-2 bg-green-600 text-white text-xs rounded-lg hover:bg-green-700">
+            Demo Success
+        </button>
+        <button onclick="notificationSystem?.error('Erro ao processar solicitação')" 
+                class="block px-3 py-2 bg-red-600 text-white text-xs rounded-lg hover:bg-red-700">
+            Demo Error
+        </button>
+        <button onclick="notificationSystem?.warning('Estoque baixo detectado')" 
+                class="block px-3 py-2 bg-yellow-600 text-white text-xs rounded-lg hover:bg-yellow-700">
+            Demo Warning
+        </button>
+        <button onclick="notificationSystem?.info('Novo cliente cadastrado', {title: 'Informação', important: true})" 
+                class="block px-3 py-2 bg-blue-600 text-white text-xs rounded-lg hover:bg-blue-700">
+            Demo Info
+        </button>
+    </div>
+
+    <!-- CSRF Token -->
+    <meta name="csrf-token" content="{{ csrf_token }}">
+
+    <!-- NOVO JAVASCRIPT SIMPLES -->
+    <script>
+        // Sistema da Nova Sidebar Simples
+        class SimpleSidebar {
+            constructor() {
+                this.sidebar = document.getElementById('sidebar');
+                this.init();
+            }
+
+            init() {
+                this.initLucideIcons();
+                this.setupEventListeners();
+                this.loadSavedState();
+            }
+
+            initLucideIcons() {
+                if (typeof lucide !== 'undefined') {
+                    lucide.createIcons();
+                }
+            }
+
+            setupEventListeners() {
+                // Toggle principal da sidebar
+                window.toggleSidebar = () => {
+                    // Mobile: Show/hide sidebar
+                    if (window.innerWidth <= 1024) {
+                        const overlay = document.getElementById('mobile-overlay');
+                        this.sidebar.classList.toggle('open');
+                        overlay.classList.toggle('hidden');
+                    } else {
+                        // Desktop: Collapse/expand sidebar
+                        this.sidebar.classList.toggle('collapsed');
+                        this.saveState();
+                    }
+                };
+
+                // User menu toggle
+                window.toggleUserMenu = () => {
+                    const userMenu = document.getElementById('user-menu');
+                    userMenu.classList.toggle('hidden');
+                };
+
+                // Close user menu when clicking outside
+                document.addEventListener('click', (e) => {
+                    const userMenu = document.getElementById('user-menu');
+                    const userAvatar = this.sidebar.querySelector('.user-avatar');
+                    if (!userAvatar.contains(e.target) && !userMenu.contains(e.target)) {
+                        userMenu.classList.add('hidden');
+                    }
+                });
+
+                // Handle window resize
+                window.addEventListener('resize', () => {
+                    if (window.innerWidth > 1024) {
+                        // Desktop: ensure sidebar is not in mobile state
+                        this.sidebar.classList.remove('open');
+                        document.getElementById('mobile-overlay').classList.add('hidden');
+                    }
+                });
+            }
+
+            loadSavedState() {
+                const isCollapsed = localStorage.getItem('sidebarCollapsed') === 'true';
+                if (isCollapsed && window.innerWidth > 1024) {
+                    this.sidebar.classList.add('collapsed');
+                }
+            }
+
+            saveState() {
+                const isCollapsed = this.sidebar.classList.contains('collapsed');
+                localStorage.setItem('sidebarCollapsed', isCollapsed);
+            }
+        }
+
+        // Inicializar quando o DOM estiver pronto
+        document.addEventListener('DOMContentLoaded', () => {
+            new SimpleSidebar();
+            
+            // Inicializar sistema de notificações se disponível
+            if (typeof NotificationSystem !== 'undefined') {
+                window.notificationSystem = new NotificationSystem();
+            }
+        });
+
+        // Global functions for compatibility
+        window.showNotification = function(message, type = 'info') {
+            console.log(`${type.toUpperCase()}: ${message}`);
+        };
+            constructor() {
+                this.init();
+            }
+
+            init() {
+                this.initLucideIcons();
+                this.initEventListeners();
+                this.initTooltips();
+            }
+
+            initLucideIcons() {
+                if (typeof lucide !== 'undefined') {
+                    lucide.createIcons();
+                }
+            }
+
+            initEventListeners() {
+                // Mobile sidebar toggle
+                window.toggleSidebar = () => {
+                    const sidebar = document.getElementById('sidebar');
+                    const overlay = document.getElementById('mobile-overlay');
+                    sidebar.classList.toggle('open');
+                    overlay.classList.toggle('hidden');
+                };
+
+                // Desktop sidebar collapse
+                window.toggleSidebarCollapse = () => {
+                    // Verificar se estamos em desktop
+                    if (window.innerWidth < 1025) {
+                        console.log('❌ Collapse não funciona em mobile/tablet');
+                        return;
+                    }
+                    
+                    console.log('🔄 Toggle sidebar collapse chamado (DESKTOP)');
+                    const sidebar = document.getElementById('sidebar');
+                    const mainContent = document.querySelector('.main-content');
+                    const toggleBtn = document.querySelector('.sidebar-toggle-btn i');
+                    
+                    if (!sidebar) {
+                        console.error('❌ Sidebar não encontrada!');
+                        return;
+                    }
+                    
+                    if (!mainContent) {
+                        console.error('❌ Main content não encontrado!');
+                        return;
+                    }
+                    
+                    // Toggle classe collapsed
+                    sidebar.classList.toggle('collapsed');
+                    const isCollapsed = sidebar.classList.contains('collapsed');
+                    
+                    console.log(`📊 Sidebar ${isCollapsed ? 'colapsada' : 'expandida'}`);
+                    
+                    // Force CSS width with !important via style
+                    if (isCollapsed) {
+                        // FORCE 70px - NO EXPANSION ALLOWED
+                        sidebar.style.width = '70px';
+                        sidebar.style.minWidth = '70px';
+                        sidebar.style.maxWidth = '70px';
+                        sidebar.style.transition = 'none';
+                        sidebar.style.transform = 'none';
+                        
+                        // Also set a custom attribute to identify collapsed state
+                        sidebar.setAttribute('data-collapsed', 'true');
+                        
+                        mainContent.style.marginLeft = '70px';
+                        if (toggleBtn) toggleBtn.setAttribute('data-lucide', 'panel-left-open');
+                        localStorage.setItem('sidebarCollapsed', 'true');
+                        console.log('✅ Sidebar FORÇADA para 70px - EXPANSÃO BLOQUEADA');
+                        
+                        // Force hide all text elements
+                        const navItems = sidebar.querySelectorAll('.nav-item');
+                        navItems.forEach(item => {
+                            const spans = item.querySelectorAll('span');
+                            spans.forEach(span => {
+                                span.style.display = 'none';
+                                span.style.opacity = '0';
+                            });
+                        });
+                        console.log('🔤 Textos forçadamente ocultados');
+                        console.log('🏷️ Tooltips animados ativados - hover nos ícones!');
+                        
+                    } else {
+                        // EXPANSION - Remove collapsed restrictions
+                        sidebar.style.width = '280px';
+                        sidebar.style.minWidth = '280px';
+                        sidebar.style.maxWidth = '280px';
+                        sidebar.style.transition = '';
+                        sidebar.style.transform = '';
+                        
+                        // Remove collapsed attribute
+                        sidebar.removeAttribute('data-collapsed');
+                        
+                        mainContent.style.marginLeft = '280px';
+                        if (toggleBtn) toggleBtn.setAttribute('data-lucide', 'panel-left-close');
+                        localStorage.setItem('sidebarCollapsed', 'false');
+                        console.log('✅ Sidebar expandida para 280px com style inline');
+                        
+                        // Restore text elements
+                        const navItems = sidebar.querySelectorAll('.nav-item');
+                        navItems.forEach(item => {
+                            const spans = item.querySelectorAll('span');
+                            spans.forEach(span => {
+                                span.style.display = '';
+                                span.style.opacity = '';
+                            });
+                        });
+                        console.log('🔤 Textos restaurados - Tooltips animados desativados');
+                    }
+                    
+                    // Recriar ícones do Lucide
+                    if (typeof lucide !== 'undefined') {
+                        lucide.createIcons();
+                    }
+                };
+
+                // Restore sidebar state
+                const sidebarCollapsed = localStorage.getItem('sidebarCollapsed');
+                console.log('🔄 Restaurando estado da sidebar:', sidebarCollapsed);
+                console.log('📏 Largura da tela:', window.innerWidth);
+                
+                if (sidebarCollapsed === 'true' && window.innerWidth >= 1025) {
+                    const sidebar = document.getElementById('sidebar');
+                    const mainContent = document.querySelector('.main-content');
+                    const toggleBtn = document.querySelector('.sidebar-toggle-btn i');
+                    
+                    if (sidebar && mainContent) {
+                        sidebar.classList.add('collapsed');
+                        // Force inline styles for desktop
+                        sidebar.style.width = '70px';
+                        sidebar.style.minWidth = '70px';
+                        sidebar.style.maxWidth = '70px';
+                        mainContent.style.marginLeft = '70px';
+                        if (toggleBtn) toggleBtn.setAttribute('data-lucide', 'panel-left-open');
+                        console.log('✅ Estado restaurado: sidebar colapsada (70px) com styles inline');
+                        
+                        // Force hide texts on restore
+                        setTimeout(() => {
+                            const navItems = sidebar.querySelectorAll('.nav-item');
+                            navItems.forEach(item => {
+                                const spans = item.querySelectorAll('span');
+                                spans.forEach(span => span.style.display = 'none');
+                            });
+                            console.log('🔤 Textos ocultados na restauração');
+                        }, 50);
+                        
+                        // Recriar ícones após mudança
+                        setTimeout(() => {
+                            if (typeof lucide !== 'undefined') {
+                                lucide.createIcons();
+                            }
+                        }, 100);
+                    }
+                } else if (window.innerWidth >= 1025) {
+                    const sidebar = document.getElementById('sidebar');
+                    const mainContent = document.querySelector('.main-content');
+                    if (sidebar && mainContent) {
+                        sidebar.style.width = '280px';
+                        sidebar.style.minWidth = '280px';
+                        sidebar.style.maxWidth = '280px';
+                        mainContent.style.marginLeft = '280px';
+                        console.log('📌 Sidebar em estado normal (280px) com styles inline');
+                    }
+                } else {
+                    console.log('📱 Modo mobile/tablet - collapse desabilitado');
+                }
+
+                // User menu toggle
+                window.toggleUserMenu = () => {
+                    const menu = document.getElementById('user-menu');
+                    menu.classList.toggle('hidden');
+                };
+
+                // Close modals when clicking outside
+                window.closeModals = () => {
+                    document.getElementById('user-menu').classList.add('hidden');
+                };
+
+                // Click outside to close dropdowns
+                document.addEventListener('click', (e) => {
+                    if (!e.target.closest('#user-menu') && !e.target.closest('button[onclick="toggleUserMenu()"]')) {
+                        document.getElementById('user-menu').classList.add('hidden');
+                    }
+                });
+                
+                // Handle window resize - reset sidebar behavior
+                window.addEventListener('resize', () => {
+                    const sidebar = document.getElementById('sidebar');
+                    const mainContent = document.querySelector('.main-content');
+                    
+                    if (window.innerWidth < 1025) {
+                        // Mobile/tablet mode - reset to mobile behavior
+                        if (sidebar && mainContent) {
+                            sidebar.classList.remove('collapsed');
+                            sidebar.style.width = '';
+                            sidebar.style.minWidth = '';
+                            sidebar.style.maxWidth = '';
+                            mainContent.style.marginLeft = '';
+                            console.log('📱 Mudou para mobile - resetando sidebar');
+                        }
+                    } else {
+                        // Desktop mode - apply saved state
+                        const sidebarCollapsed = localStorage.getItem('sidebarCollapsed');
+                        if (sidebarCollapsed === 'true' && sidebar && mainContent) {
+                            sidebar.classList.add('collapsed');
+                            sidebar.style.width = '70px';
+                            sidebar.style.minWidth = '70px';
+                            sidebar.style.maxWidth = '70px';
+                            mainContent.style.marginLeft = '70px';
+                            console.log('🖥️ Mudou para desktop - aplicando estado colapsado');
+                        } else if (sidebar && mainContent) {
+                            sidebar.classList.remove('collapsed');
+                            sidebar.style.width = '280px';
+                            sidebar.style.minWidth = '280px';
+                            sidebar.style.maxWidth = '280px';
+                            mainContent.style.marginLeft = '280px';
+                            console.log('🖥️ Mudou para desktop - estado normal');
+                        }
+                    }
+                });
+            }
+
+            initTooltips() {
+                // Initialize tooltips for elements with title attribute
+                document.querySelectorAll('[title]').forEach(element => {
+                    element.addEventListener('mouseenter', this.showTooltip);
+                    element.addEventListener('mouseleave', this.hideTooltip);
+                });
+            }
+
+            showTooltip(e) {
+                // Tooltip implementation
+            }
+
+            hideTooltip(e) {
+                // Tooltip hide implementation
+            }
+
+            // Notification system
+            static showNotification(message, type = 'info', duration = 5000) {
+                const container = document.getElementById('notification-container');
+                const notification = document.createElement('div');
+                
+                const typeClasses = {
+                    success: 'bg-green-600 border-green-500',
+                    error: 'bg-red-600 border-red-500',
+                    warning: 'bg-yellow-600 border-yellow-500',
+                    info: 'bg-blue-600 border-blue-500'
+                };
+
+                notification.className = `${typeClasses[type]} border-l-4 p-4 rounded-r-lg shadow-lg text-white max-w-sm transform transition-all duration-300 translate-x-full`;
+                notification.innerHTML = `
+                    <div class="flex items-center justify-between">
+                        <p class="text-sm font-medium">${message}</p>
+                        <button onclick="this.parentElement.parentElement.remove()" class="ml-4 text-white hover:text-gray-200">
+                            <i data-lucide="x" class="w-4 h-4"></i>
+                        </button>
+                    </div>
+                `;
+
+                container.appendChild(notification);
+                lucide.createIcons();
+
+                // Animate in
+                setTimeout(() => {
+                    notification.classList.remove('translate-x-full');
+                }, 100);
+
+                // Auto remove
+                setTimeout(() => {
+                    notification.classList.add('translate-x-full');
+                    setTimeout(() => notification.remove(), 300);
+                }, duration);
+            }
+
+            // Loading overlay
+            static showLoading() {
+                document.getElementById('loading-overlay').classList.remove('hidden');
+            }
+
+            static hideLoading() {
+                document.getElementById('loading-overlay').classList.add('hidden');
+            }
+        }
+
+        // Initialize theme
+        document.addEventListener('DOMContentLoaded', () => {
+            new ProfessionalTheme();
+            
+            // GUARDIAN: Monitor sidebar width changes
+            const sidebar = document.getElementById('sidebar');
+            if (sidebar) {
+                // MutationObserver to watch for style changes
+                const observer = new MutationObserver((mutations) => {
+                    mutations.forEach((mutation) => {
+                        if (mutation.type === 'attributes' && mutation.attributeName === 'style') {
+                            const isCollapsed = sidebar.classList.contains('collapsed');
+                            if (isCollapsed) {
+                                const currentWidth = getComputedStyle(sidebar).width;
+                                if (currentWidth !== '70px') {
+                                    console.warn('⚠️ GUARDIAN: Sidebar tentou expandir! Forçando 70px...');
+                                    sidebar.style.width = '70px';
+                                    sidebar.style.minWidth = '70px';
+                                    sidebar.style.maxWidth = '70px';
+                                }
+                            }
+                        }
+                    });
+                });
+                
+                observer.observe(sidebar, { 
+                    attributes: true, 
+                    attributeFilter: ['style', 'class'] 
+                });
+                
+                console.log('👁️ GUARDIAN: Monitoramento de largura da sidebar ativado');
+            }
+            
+            // Debug: Verificar se elementos existem
+            setTimeout(() => {
+                const sidebar = document.getElementById('sidebar');
+                const mainContent = document.querySelector('.main-content');
+                const toggleBtn = document.querySelector('.sidebar-toggle-btn');
+                
+                console.log('🔍 Debug elementos:');
+                console.log('- Sidebar:', sidebar ? '✅ Encontrada' : '❌ Não encontrada');
+                console.log('- Main Content:', mainContent ? '✅ Encontrado' : '❌ Não encontrado');
+                console.log('- Toggle Button:', toggleBtn ? '✅ Encontrado' : '❌ Não encontrado');
+                
+                if (toggleBtn) {
+                    console.log('🎯 Botão está visível:', !toggleBtn.classList.contains('hidden'));
+                    // Adicionar event listener extra para debug
+                    toggleBtn.addEventListener('click', () => {
+                        console.log('🖱️ Botão clicado diretamente!');
+                    });
+                }
+            }, 500);
+        });
+
+        // Global notification function
+        window.showNotification = ProfessionalTheme.showNotification;
+        window.showLoading = ProfessionalTheme.showLoading;
+        window.hideLoading = ProfessionalTheme.hideLoading;
+    </script>
+
+    <!-- WebSocket Admin -->
+    <script src="/static/js/websocket-admin.js"></script>
+    <script>
+        // Status de conexão WebSocket para Admin
+        document.addEventListener('DOMContentLoaded', () => {
+            // Adicionar indicador de conexão
+            const statusIndicator = document.createElement('div');
+            statusIndicator.className = 'admin-connection-status';
+            statusIndicator.textContent = 'Conectando...';
+            document.body.appendChild(statusIndicator);
+        });
+
+        // Event listeners para eventos admin
+        window.addEventListener('admin:new_appointment', (event) => {
+            console.log('Novo agendamento recebido:', event.detail);
+            // Som e notificação já são tratados pelo websocket-admin.js
+        });
+
+        window.addEventListener('admin:appointment_cancelled', (event) => {
+            console.log('Agendamento cancelado:', event.detail);
+        });
+
+        window.addEventListener('admin:stats_update', (event) => {
+            console.log('Estatísticas atualizadas:', event.detail);
+        });
+    </script>
+
+    <!-- Bootstrap JavaScript -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
+
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

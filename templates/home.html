@@ -1,0 +1,800 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Estética Automotiva V7 - Excelência em Detalhamento Automotivo</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+    
+    <style>
+        .bg-hero {
+            background: linear-gradient(135deg, #1f2937 0%, #111827 50%, #030712 100%);
+            min-height: 100vh;
+            position: relative;
+        }
+        
+        /* Liquid Glass Effects - Otimizado para Header e Cards */
+        .liquid-glass {
+            backdrop-filter: blur(15px) saturate(180%);
+            background: rgba(255, 255, 255, 0.18);
+            border: 1px solid rgba(255, 255, 255, 0.25);
+            box-shadow: 
+                inset 0 1px 0 rgba(255, 255, 255, 0.3),
+                inset 0 -1px 0 rgba(255, 255, 255, 0.15),
+                0 8px 32px rgba(0, 0, 0, 0.3),
+                0 0 0 1px rgba(255, 255, 255, 0.1);
+            position: relative;
+        }
+        
+        .liquid-glass::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.5), transparent);
+        }
+        
+        .liquid-glass-card {
+            backdrop-filter: blur(12px) saturate(150%);
+            background: rgba(30, 41, 59, 0.8) !important;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            box-shadow: 
+                inset 0 2px 0 rgba(255, 255, 255, 0.25),
+                inset 0 -1px 0 rgba(255, 255, 255, 0.1),
+                0 4px 16px rgba(0, 0, 0, 0.25),
+                0 0 0 1px rgba(255, 255, 255, 0.12);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .liquid-glass-card:hover {
+            background: rgba(30, 41, 59, 0.9) !important;
+            border-color: rgba(255, 255, 255, 0.4);
+            box-shadow: 
+                inset 0 2px 0 rgba(255, 255, 255, 0.3),
+                inset 0 -1px 0 rgba(255, 255, 255, 0.15),
+                0 8px 32px rgba(0, 0, 0, 0.35),
+                0 0 0 1px rgba(255, 255, 255, 0.15);
+            transform: translateY(-2px);
+        }
+        
+        /* Seções com fundo escuro padrão - sem glass para performance */
+        .dark-section {
+            background: rgba(15, 23, 42, 0.95);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        /* Text Shadows - Subtle */
+        .text-shadow-subtle {
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+        }
+        
+        /* Mobile Menu */
+        .mobile-menu {
+            backdrop-filter: blur(20px);
+            background: rgba(15, 23, 42, 0.95);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        /* Hamburger Animation */
+        .hamburger {
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .hamburger.active .line1 {
+            transform: rotate(-45deg) translate(-5px, 6px);
+        }
+        
+        .hamburger.active .line2 {
+            opacity: 0;
+        }
+        
+        .hamburger.active .line3 {
+            transform: rotate(45deg) translate(-5px, -6px);
+        }
+        
+        .hamburger-line {
+            width: 25px;
+            height: 3px;
+            background: white;
+            margin: 3px 0;
+            transition: 0.3s;
+            border-radius: 2px;
+        }
+        
+        /* Hide mobile menu by default */
+        .mobile-menu-hidden {
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(-10px);
+        }
+        
+        .mobile-menu-visible {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+        
+        /* WhatsApp Floating Button */
+        .whatsapp-float {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            z-index: 1000;
+            background: #25D366;
+            color: white;
+            border-radius: 50%;
+            width: 60px;
+            height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 16px rgba(37, 211, 102, 0.4);
+            transition: all 0.3s ease;
+            animation: pulse 2s infinite;
+        }
+        
+        .whatsapp-float:hover {
+            background: #1DB954;
+            transform: scale(1.1);
+            box-shadow: 0 6px 20px rgba(37, 211, 102, 0.6);
+        }
+        
+        @keyframes pulse {
+            0% { box-shadow: 0 4px 16px rgba(37, 211, 102, 0.4); }
+            50% { box-shadow: 0 4px 20px rgba(37, 211, 102, 0.8); }
+            100% { box-shadow: 0 4px 16px rgba(37, 211, 102, 0.4); }
+        }
+        
+        /* Menu Mobile Melhorado */
+        .mobile-menu-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(15, 23, 42, 0.98);
+            z-index: 999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        /* CTAs otimizados para mobile */
+        @media (max-width: 768px) {
+            .hero-cta {
+                font-size: 1.1rem;
+                padding: 1rem 2rem;
+                font-weight: 700;
+            }
+            
+            .whatsapp-float {
+                bottom: 20px;
+                right: 20px;
+                width: 55px;
+                height: 55px;
+            }
+        }
+
+        /* Hero Background - Alta qualidade e largura completa */
+        .hero-background-img {
+            image-rendering: -webkit-optimize-contrast;
+            image-rendering: crisp-edges;
+            image-rendering: high-quality;
+            max-width: none;
+            transform: scale(1.01); /* Pequeno ajuste para cobrir bordas */
+        }
+
+
+    </style>
+</head>
+<body class="bg-hero min-h-screen">
+    <!-- Header -->
+    <header class="liquid-glass shadow-lg sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center py-4">
+                <!-- Logo -->
+                <div class="flex items-center space-x-3">
+                    <div class="w-14 h-14 bg-transparent border border-white/20 rounded-xl flex items-center justify-center shadow-lg">
+                        <i data-lucide="car-front" class="w-8 h-8 text-white"></i>
+                    </div>
+                    <div>
+                    <h1 class="text-2xl font-bold text-white text-shadow-subtle">Estética Automotiva V7</h1>
+                    <p class="text-sm text-gray-100">Excelência em Detalhamento Automotivo</p>
+                    </div>
+                </div>
+                
+                <!-- Desktop Navigation -->
+                <nav class="hidden md:flex items-center space-x-8">
+                    <a href="/sobre/" class="text-white hover:text-blue-200 transition-colors font-medium">Sobre</a>
+                    <a href="#servicos" class="text-white hover:text-blue-200 transition-colors font-medium">Serviços</a>
+                    <a href="#contato" class="text-white hover:text-blue-200 transition-colors font-medium">Contato</a>
+                </nav>
+                
+                <!-- Mobile Hamburger Menu -->
+                <div class="md:hidden">
+                    <button class="hamburger p-2" onclick="toggleMobileMenu()" aria-label="Menu">
+                        <div class="hamburger-line line1"></div>
+                        <div class="hamburger-line line2"></div>
+                        <div class="hamburger-line line3"></div>
+                    </button>
+                </div>
+                
+                <!-- Login/Register Area - Desktop Only -->
+                <div class="hidden md:flex items-center space-x-3">
+                    {% if user.is_authenticated %}
+                        <span class="text-gray-200 hidden lg:inline">Bem-vindo, {{ user.first_name|default:user.username }}!</span>
+                        <a href="/dashboard/" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors shadow-md">
+                            <i data-lucide="layout-dashboard" class="w-4 h-4 inline mr-1"></i>
+                            <span class="hidden sm:inline">Dashboard</span>
+                        </a>
+                        <form method="post" action="/accounts/logout/" class="inline">
+                            {% csrf_token %}
+                            <button type="submit" class="bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700 transition-colors shadow-md">
+                                <i data-lucide="log-out" class="w-4 h-4 inline mr-1"></i>
+                                <span class="hidden sm:inline">Sair</span>
+                            </button>
+                        </form>
+                    {% else %}
+                        <a href="/accounts/login/" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors shadow-md">
+                            <i data-lucide="log-in" class="w-4 h-4 inline mr-1"></i>
+                            <span>Entrar</span>
+                        </a>
+                        <a href="/accounts/register/" class="bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700 transition-colors shadow-md">
+                            <i data-lucide="user-plus" class="w-4 h-4 inline mr-1"></i>
+                            <span>Cadastrar</span>
+                        </a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Mobile Menu Overlay -->
+    <div id="mobileMenu" class="mobile-menu-overlay mobile-menu-hidden md:hidden transition-all duration-300">
+        <div class="w-full max-w-sm mx-auto px-6">
+            <nav class="flex flex-col space-y-6 text-center">
+                <!-- Menu Items -->
+                <a href="/sobre/" class="text-white text-xl font-medium py-3 px-6 rounded-lg hover:bg-white/20 transition-colors" onclick="toggleMobileMenu()">Sobre</a>
+                <a href="#servicos" class="text-white text-xl font-medium py-3 px-6 rounded-lg hover:bg-white/20 transition-colors" onclick="toggleMobileMenu()">Serviços</a>
+                <a href="#contato" class="text-white text-xl font-medium py-3 px-6 rounded-lg hover:bg-white/20 transition-colors" onclick="toggleMobileMenu()">Contato</a>
+                
+                <!-- Separator -->
+                <div class="border-t border-white/30 pt-6">
+                    {% if user.is_authenticated %}
+                        <a href="/dashboard/" class="block bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors text-lg font-semibold mb-4">
+                            <i data-lucide="layout-dashboard" class="w-5 h-5 inline mr-2"></i>
+                            Dashboard
+                        </a>
+                        <form method="post" action="/accounts/logout/" class="inline w-full">
+                            {% csrf_token %}
+                            <button type="submit" class="w-full bg-gray-600 text-white px-6 py-3 rounded-lg hover:bg-gray-700 transition-colors text-lg font-semibold">
+                                <i data-lucide="log-out" class="w-5 h-5 inline mr-2"></i>
+                                Sair
+                            </button>
+                        </form>
+                    {% else %}
+                        <a href="/accounts/login/" class="block bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors text-lg font-semibold mb-4">
+                            <i data-lucide="log-in" class="w-5 h-5 inline mr-2"></i>
+                            Entrar
+                        </a>
+                        <a href="/accounts/register/" class="block bg-gray-600 text-white px-6 py-3 rounded-lg hover:bg-gray-700 transition-colors text-lg font-semibold">
+                            <i data-lucide="user-plus" class="w-5 h-5 inline mr-2"></i>
+                            Cadastrar
+                        </a>
+                    {% endif %}
+                </div>
+                
+                <!-- WhatsApp Button -->
+                <div class="pt-4">
+                    <a href="https://wa.me/5565999994266" class="block bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700 transition-colors text-lg font-semibold">
+                        <i data-lucide="message-circle" class="w-5 h-5 inline mr-2"></i>
+                        WhatsApp
+                    </a>
+                </div>
+            </nav>
+        </div>
+    </div>
+
+    <!-- Hero Section -->
+    <section class="relative overflow-hidden" style="margin-top: -100px; padding-top: 100px; min-height: 120vh;">
+        <!-- Hero Background Image -->
+        {% if hero_background and hero_background.imagem_fundo %}
+        <div class="absolute inset-0 z-0" style="top: -100px;">
+            <img src="{{ hero_background.imagem_fundo.url }}" 
+                 alt="{{ hero_background.texto_alternativo }}"
+                 class="w-full object-cover object-center hero-background-img"
+                 data-opacity="{{ hero_background.transparencia|default:0.3 }}"
+                 data-blur="{{ hero_background.efeito_blur|yesno:'true,false' }}"
+                 style="height: calc(120vh + 100px);">
+        </div>
+        {% endif %}
+        
+        <!-- Hero Content -->
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10" style="padding-top: 8rem; padding-bottom: 4rem;">
+            <div class="text-center">
+                <h2 class="text-4xl lg:text-5xl font-bold text-white mb-6 text-shadow">
+                    Estética Automotiva
+                    <span class="text-blue-400">V7</span>
+                </h2>
+                <p class="text-xl text-gray-200 mb-10 max-w-3xl mx-auto text-shadow">
+                    Serviços especializados de detalhamento automotivo para quem busca excelência no cuidado com seu veículo.
+                </p>
+                
+                <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                    {% if not user.is_authenticated %}
+                        <a href="/accounts/login/" class="hero-cta bg-blue-600 text-white px-8 py-4 rounded-lg text-lg font-bold hover:bg-blue-700 transition-all transform hover:scale-105 shadow-lg hover:shadow-xl">
+                            <i data-lucide="calendar-check" class="w-5 h-5 inline mr-2"></i>
+                            Agendar Serviço
+                        </a>
+                        <a href="/accounts/register/" class="hero-cta bg-gray-700 text-white px-8 py-4 rounded-lg text-lg font-bold hover:bg-blue-800 transition-all transform hover:scale-105 shadow-lg hover:shadow-xl">
+                            <i data-lucide="user-plus" class="w-5 h-5 inline mr-2"></i>
+                            Cadastrar-se
+                        </a>
+                    {% else %}
+                        <a href="/dashboard/" class="hero-cta bg-blue-600 text-white px-8 py-4 rounded-lg text-lg font-bold hover:bg-blue-700 transition-all transform hover:scale-105 shadow-lg hover:shadow-xl">
+                            <i data-lucide="calendar-plus" class="w-5 h-5 inline mr-2"></i>
+                            Agendar Serviço
+                        </a>
+                        <a href="/dashboard/vehicles/" class="hero-cta bg-blue-700 text-white px-8 py-4 rounded-lg text-lg font-bold hover:bg-blue-800 transition-all transform hover:scale-105 shadow-lg hover:shadow-xl">
+                            <i data-lucide="car" class="w-5 h-5 inline mr-2"></i>
+                            Meus Veículos
+                        </a>
+                    {% endif %}
+                </div>
+                
+                <!-- Imagem Hero -->
+                <div class="mt-10">
+                    {% if hero_image and hero_image.image %}
+                        <img src="{{ hero_image.image.url }}" 
+                             alt="{{ hero_image.alt_text }}" 
+                             class="w-full h-64 sm:h-80 md:h-96 object-cover rounded-xl shadow-xl">
+                    {% else %}
+                        <img src="{% static 'images/hero/hero-main.jpg' %}" 
+                             alt="Estética Automotiva V7 - Serviços Premium de Detalhamento" 
+                             class="w-full h-64 sm:h-80 md:h-96 object-cover rounded-xl shadow-xl"
+                             onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iODAwIiBoZWlnaHQ9IjYwMCIgdmlld0JveD0iMCAwIDgwMCA2MDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSI4MDAiIGhlaWdodD0iNjAwIiBmaWxsPSIjMUUyOTNCIi8+CjxwYXRoIGQ9Ik00MDAgMjUwSDE2MFYzNTBINDAwVjI1MFoiIGZpbGw9IiMzQjgyRjYiLz4KPHA+CjxjaXJjbGUgY3g9IjIwMCIgY3k9IjMwMCIgcj0iMjAiIGZpbGw9IiMzQjgyRjYiLz4KPHA+CjxjaXJjbGUgY3g9IjM2MCIgY3k9IjMwMCIgcj0iMjAiIGZpbGw9IiMzQjgyRjYiLz4KPHA+Cjx0ZXh0IHg9IjQwMCIgeT0iMzIwIiBmaWxsPSIjRkZGRkZGIiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iMjQiIHRleHQtYW5jaG9yPSJtaWRkbGUiPkVzdMOpdGljYSBBdXRvbW90aXZhIFY3PC90ZXh0Pgo8dGV4dCB4PSI0MDAiIHk9IjM1MCIgZmlsbD0iI0ZGRkZGRiIgZm9udC1mYW1pbHk9IkFyaWFsIiBmb250LXNpemU9IjE2IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj5BZGljaW9uZSBzdWEgaW1hZ2VtIGVtIHN0YXRpYy9pbWFnZXMvaGVyby9oZXJvLW1haW4uanBnPC90ZXh0Pgo8L3N2Zz4=';">
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section id="servicos" class="py-16 dark-section">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-12">
+                <h3 class="text-3xl font-bold text-white mb-4 text-shadow">Nossos Serviços</h3>
+                <p class="text-lg text-gray-200 text-shadow">Serviços de alta qualidade para seu veículo</p>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <!-- Lavagem Detalhada - Sempre visível -->
+                <div class="liquid-glass-card rounded-xl p-8 text-center relative">
+                    <div class="absolute -top-3 left-1/2 transform -translate-x-1/2 bg-gray-600 text-white px-4 py-1 rounded-full text-xs font-bold shadow-lg">
+                        MAIS POPULAR
+                    </div>
+                    <div class="w-16 h-16 bg-gradient-to-br from-gray-600 to-gray-800 rounded-lg flex items-center justify-center mx-auto mb-4 shadow-lg">
+                        <i data-lucide="droplets" class="w-8 h-8 text-white"></i>
+                    </div>
+                    <h4 class="text-xl font-semibold text-white mb-3">Lavagem Detalhada</h4>
+                    <p class="text-gray-100">
+                        Limpeza completa interna e externa com produtos premium para um resultado impecável.
+                    </p>
+                    <div class="mt-4">
+                        <span class="inline-block bg-gray-500/20 text-gray-200 text-xs px-3 py-1 rounded-full font-medium border border-gray-400/30">A partir de R$ 120</span>
+                    </div>
+                </div>
+
+                {% for service_icon in service_icons %}
+                <div class="liquid-glass-card rounded-xl p-8 text-center relative">
+                    {% if service_icon.badge != 'none' %}
+                    <div class="absolute -top-3 left-1/2 transform -translate-x-1/2 
+                        {% if service_icon.badge == 'popular' %}bg-gray-600 text-white
+                        {% elif service_icon.badge == 'premium' %}bg-amber-600 text-white
+                        {% elif service_icon.badge == 'new' %}bg-gray-700 text-white
+                        {% elif service_icon.badge == 'promocao' %}bg-gray-800 text-white{% endif %}
+                        px-4 py-1 rounded-full text-xs font-bold shadow-lg">
+                        {% if service_icon.badge == 'popular' %}MAIS POPULAR
+                        {% elif service_icon.badge == 'premium' %}PREMIUM
+                        {% elif service_icon.badge == 'new' %}NOVO
+                        {% elif service_icon.badge == 'promocao' %}PROMOÇÃO{% endif %}
+                    </div>
+                    {% endif %}
+                    <div class="w-16 h-16 bg-gradient-to-br from-gray-600 to-gray-800 rounded-lg flex items-center justify-center mx-auto mb-4 shadow-lg">
+                        {% if service_icon.icone_personalizado %}
+                            <img src="{{ service_icon.icone_personalizado.url }}" alt="{{ service_icon.titulo }}" class="w-8 h-8 object-contain filter brightness-0 invert">
+                        {% else %}
+                            <i data-lucide="{{ service_icon.icone_fallback }}" class="w-8 h-8 text-white"></i>
+                        {% endif %}
+                    </div>
+                    <h4 class="text-xl font-semibold text-white mb-3">{{ service_icon.titulo }}</h4>
+                    <p class="text-gray-100">{{ service_icon.descricao }}</p>
+                    {% if service_icon.preco_apartir %}
+                    <div class="mt-4">
+                        <span class="inline-block bg-gray-500/20 text-gray-200 text-xs px-3 py-1 rounded-full font-medium border border-gray-400/30">A partir de R$ {{ service_icon.preco_apartir }}</span>
+                    </div>
+                    {% endif %}
+                </div>
+                {% empty %}
+                <!-- Fallback para quando não há ícones personalizados -->
+                
+                <!-- Polimento Profissional -->
+                <div class="liquid-glass-card rounded-xl p-8 text-center">
+                    <div class="w-16 h-16 bg-gradient-to-br from-gray-700 to-gray-900 rounded-lg flex items-center justify-center mx-auto mb-4 shadow-lg">
+                        <i data-lucide="sparkles" class="w-8 h-8 text-white"></i>
+                    </div>
+                    <h4 class="text-xl font-semibold text-white mb-3">Polimento Profissional</h4>
+                    <p class="text-gray-100">
+                        Remoção de riscos, oxidação e manchas da pintura devolvendo o brilho original do veículo.
+                    </p>
+                    <div class="mt-4">
+                        <span class="inline-block bg-gray-500/20 text-gray-200 text-xs px-3 py-1 rounded-full font-medium border border-gray-400/30">A partir de R$ 350</span>
+                    </div>
+                </div>
+                
+                <!-- Proteção de Pintura -->
+                <div class="liquid-glass-card rounded-xl p-8 text-center relative">
+                    <div class="absolute -top-3 left-1/2 transform -translate-x-1/2 bg-amber-600 text-white px-4 py-1 rounded-full text-xs font-bold shadow-lg">
+                        PREMIUM
+                    </div>
+                    <div class="w-16 h-16 bg-gradient-to-br from-gray-800 to-black rounded-lg flex items-center justify-center mx-auto mb-4 shadow-lg">
+                        <i data-lucide="shield" class="w-8 h-8 text-white"></i>
+                    </div>
+                    <h4 class="text-xl font-semibold text-white mb-3">Proteção Cerâmica</h4>
+                    <p class="text-gray-100">
+                        Aplicação de revestimento cerâmico que protege a pintura por até 5 anos com brilho intenso.
+                    </p>
+                    <div class="mt-4">
+                        <span class="inline-block bg-gray-500/20 text-gray-200 text-xs px-3 py-1 rounded-full font-medium border border-gray-400/30">A partir de R$ 1.200</span>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+
+            
+            <!-- CTA para agendamento após serviços -->
+            <div class="text-center mt-10">
+                <a href="/accounts/login/" class="bg-gray-700 text-white px-8 py-3 rounded-lg text-lg font-semibold hover:bg-gray-800 transition-all transform hover:scale-105 shadow-lg hover:shadow-xl inline-flex items-center">
+                    <i data-lucide="calendar-plus" class="w-5 h-5 mr-2"></i>
+                    Agendar Agora
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Depoimentos e Avaliações -->
+    <section class="py-16 dark-section">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-12">
+                <h3 class="text-3xl font-bold text-white mb-4 text-shadow">O Que Nossos Clientes Dizem</h3>
+                <p class="text-lg text-gray-200 text-shadow">Excelência comprovada pelos nossos clientes</p>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <!-- Depoimento 1 -->
+                <div class="liquid-glass-card p-6 rounded-xl">
+                    <div class="flex items-center mb-4">
+                        <div class="flex text-amber-400">
+                            <i data-lucide="star" class="w-5 h-5 fill-current"></i>
+                            <i data-lucide="star" class="w-5 h-5 fill-current"></i>
+                            <i data-lucide="star" class="w-5 h-5 fill-current"></i>
+                            <i data-lucide="star" class="w-5 h-5 fill-current"></i>
+                            <i data-lucide="star" class="w-5 h-5 fill-current"></i>
+                        </div>
+                        <span class="ml-2 text-gray-200">5.0</span>
+                    </div>
+                    <p class="text-gray-200 italic mb-4">"Serviço impecável! Meu carro ficou como novo após o polimento e a proteção cerâmica. Valeu cada centavo investido e o atendimento foi excepcional."</p>
+                    <div class="flex items-center">
+                        <div class="w-10 h-10 bg-blue-500/30 rounded-full flex items-center justify-center text-blue-200 font-bold border border-blue-400/40">RL</div>
+                        <div class="ml-3">
+                            <p class="font-medium text-white">Ricardo Lima</p>
+                            <p class="text-sm text-gray-300">Cliente desde 2023</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Depoimento 2 -->
+                <div class="liquid-glass-card p-6 rounded-xl">
+                    <div class="flex items-center mb-4">
+                        <div class="flex text-amber-400">
+                            <i data-lucide="star" class="w-5 h-5 fill-current"></i>
+                            <i data-lucide="star" class="w-5 h-5 fill-current"></i>
+                            <i data-lucide="star" class="w-5 h-5 fill-current"></i>
+                            <i data-lucide="star" class="w-5 h-5 fill-current"></i>
+                            <i data-lucide="star" class="w-5 h-5 fill-current"></i>
+                        </div>
+                        <span class="ml-2 text-gray-200">5.0</span>
+                    </div>
+                    <p class="text-gray-200 italic mb-4">"Fiquei impressionada com a higienização interna. Removeram manchas que achei que seriam impossíveis de tirar. O carro ficou com cheiro de novo e muito mais bonito!"</p>
+                    <div class="flex items-center">
+                        <div class="w-10 h-10 bg-pink-500/30 rounded-full flex items-center justify-center text-pink-200 font-bold border border-pink-400/40">MS</div>
+                        <div class="ml-3">
+                            <p class="font-medium text-white">Marina Santos</p>
+                            <p class="text-sm text-gray-300">Cliente desde 2024</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Depoimento 3 -->
+                <div class="liquid-glass-card p-6 rounded-xl">
+                    <div class="flex items-center mb-4">
+                        <div class="flex text-amber-400">
+                            <i data-lucide="star" class="w-5 h-5 fill-current"></i>
+                            <i data-lucide="star" class="w-5 h-5 fill-current"></i>
+                            <i data-lucide="star" class="w-5 h-5 fill-current"></i>
+                            <i data-lucide="star" class="w-5 h-5 fill-current"></i>
+                            <i data-lucide="star-half" class="w-5 h-5 fill-current"></i>
+                        </div>
+                        <span class="ml-2 text-gray-200">4.5</span>
+                    </div>
+                    <p class="text-gray-200 italic mb-4">"A revitalização dos faróis foi surpreendente. Ficaram como novos e a visibilidade melhorou muito. Profissionais atenciosos e que realmente entendem do assunto."</p>
+                    <div class="flex items-center">
+                        <div class="w-10 h-10 bg-green-500/30 rounded-full flex items-center justify-center text-green-200 font-bold border border-green-400/40">CB</div>
+                        <div class="ml-3">
+                            <p class="font-medium text-white">Carlos Braga</p>
+                            <p class="text-sm text-gray-300">Cliente desde 2022</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+                
+
+            </div>
+        </div>
+    </section>
+
+    <!-- Galeria de Serviços Dinâmica -->
+    {% if service_images %}
+    <section class="py-16 bg-gradient-to-br from-gray-50 to-gray-100">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-12">
+                <h3 class="text-3xl font-bold text-gray-900 mb-4">Nossos Serviços em Ação</h3>
+                <p class="text-lg text-gray-600">Veja como transformamos seu veículo com nossos serviços especializados</p>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                {% for service_image in service_images %}
+                    {% if service_image.image %}
+                    <div class="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow duration-300">
+                        <div class="aspect-w-16 aspect-h-12">
+                            <img src="{{ service_image.image.url }}" 
+                                 alt="{{ service_image.alt_text }}" 
+                                 class="w-full h-48 object-cover">
+                        </div>
+                        <div class="p-6">
+                            <h4 class="text-xl font-semibold text-gray-900 mb-2">{{ service_image.title }}</h4>
+                            <span class="inline-block bg-blue-100 text-blue-800 text-sm px-3 py-1 rounded-full mb-3">
+                                {{ service_image.get_service_type_display }}
+                            </span>
+                            {% if service_image.description %}
+                            <p class="text-gray-600 text-sm">{{ service_image.description|truncatechars:120 }}</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% endif %}
+                {% endfor %}
+            </div>
+        </div>
+    </section>
+    {% endif %}
+
+    <!-- Contato -->
+    <section id="contato" class="py-16 dark-section">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-12">
+                <h3 class="text-3xl font-bold text-white mb-4 text-shadow">Entre em Contato</h3>
+                <p class="text-lg text-gray-200 text-shadow">Estamos à disposição para atender você</p>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <div class="liquid-glass-card p-6 rounded-xl text-center">
+                    <div class="w-16 h-16 bg-gradient-to-br from-blue-500 to-blue-700 rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg">
+                        <i data-lucide="map-pin" class="w-8 h-8 text-white"></i>
+                    </div>
+                    <h4 class="text-xl font-semibold text-white mb-2">Localização</h4>
+                    <p class="text-gray-200">
+                        Av. Oito de Abril, 156<br>
+                        Jardim Cuiaba - Cuiabá/MT<br>
+                        CEP: 78043-228
+                    </p>
+                </div>
+                
+                <div class="liquid-glass-card p-6 rounded-xl text-center">
+                    <div class="w-16 h-16 bg-gradient-to-br from-blue-500 to-blue-700 rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg">
+                        <i data-lucide="phone" class="w-8 h-8 text-white"></i>
+                    </div>
+                    <h4 class="text-xl font-semibold text-white mb-2">Telefones</h4>
+                    <p class="text-gray-200">
+                        (65) 99999-4266<br>
+                        <span class="text-sm text-gray-300">Segunda a Sexta das 8h às 17:30h</span><br>
+                        <span class="text-sm text-gray-300">Sábado das 8h às 13h</span>
+                    </p>
+                </div>
+                                
+                <div class="liquid-glass-card p-6 rounded-xl text-center">
+                    <div class="w-16 h-16 bg-gradient-to-br from-blue-500 to-blue-700 rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg">
+                        <i data-lucide="message-circle" class="w-8 h-8 text-white"></i>
+                    </div>
+                    <h4 class="text-xl font-semibold text-white mb-2">WhatsApp</h4>
+                    <p class="text-white">
+                        <a href="https://wa.me/5565999994266" class="hover:text-blue-200 transition-colors font-medium">
+                            (65) 99999-4266
+                        </a><br>
+                        <span class="text-sm text-gray-100">Atendimento via WhatsApp</span>
+                    </p>    
+                </div>
+            </div>
+            
+            <div class="mt-12 text-center">
+                <a href="/accounts/login/" class="bg-blue-600 text-white px-8 py-4 rounded-lg text-lg font-semibold hover:bg-blue-700 transition-colors inline-flex items-center">
+                    <i data-lucide="calendar" class="w-5 h-5 mr-2"></i>
+                    Agende Seu Serviço
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-slate-800 text-white py-12">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+                <!-- Logo e Informações -->
+                <div class="md:col-span-1">
+                    <div class="flex items-center space-x-3 mb-4">
+                        <div class="w-12 h-12 bg-gradient-to-br from-blue-600 to-blue-800 rounded-xl flex items-center justify-center">
+                            <i data-lucide="car-front" class="w-7 h-7 text-white"></i>
+                        </div>
+                        <div>
+                            <h5 class="text-xl font-bold">Estética V7</h5>
+                            <p class="text-sm text-gray-400">Excelência em Detalhamento Automotivo</p>
+                        </div>
+                    </div>
+                    <p class="text-gray-400 mt-4">
+                        Excelência em serviços de estética automotiva premium para veículos de todas as categorias.
+                    </p>
+                </div>
+                
+                <!-- Links Rápidos -->
+                <div class="md:col-span-1">
+                    <h5 class="text-lg font-semibold mb-4">Links Rápidos</h5>
+                    <ul class="space-y-2">
+                        <li><a href="/sobre/" class="text-gray-400 hover:text-white transition-colors">Sobre Nós</a></li>
+                        <li><a href="#servicos" class="text-gray-400 hover:text-white transition-colors">Serviços</a></li>
+                        <li><a href="#contato" class="text-gray-400 hover:text-white transition-colors">Contato</a></li>
+                        <li><a href="/accounts/login/" class="text-gray-400 hover:text-white transition-colors">Área do Cliente</a></li>
+                    </ul>
+                </div>
+                
+                <!-- Horário de Funcionamento -->
+                <div class="md:col-span-1">
+                    <h5 class="text-lg font-semibold mb-4">Horários</h5>
+                    <ul class="space-y-2 text-gray-400">
+                        <li class="flex justify-between">
+                            <span>Segunda - Sexta:</span>
+                            <span>8h às 18h</span>
+                        </li>
+                        <li class="flex justify-between">
+                            <span>Sábados:</span>
+                            <span>8h às 14h</span>
+                        </li>
+                        <li class="flex justify-between">
+                            <span>Domingos:</span>
+                            <span>Fechado</span>
+                        </li>
+                    </ul>
+                </div>
+                
+                <!-- Redes Sociais -->
+                <div class="md:col-span-1">
+                    <h5 class="text-lg font-semibold mb-4">Redes Sociais</h5>
+                    <div class="flex space-x-4">
+                        <a href="https://wa.me/5565999994266" class="w-10 h-10 bg-green-600 rounded-full flex items-center justify-center hover:bg-green-500 transition-colors" title="WhatsApp">
+                            <i data-lucide="message-circle" class="w-5 h-5 text-white"></i>
+                        </a>
+                        <a href="https://www.instagram.com/v7esteticaautomotivacba/" 
+                           target="_blank" 
+                           rel="noopener noreferrer"
+                           class="w-10 h-10 bg-gradient-to-r from-pink-500 to-purple-600 rounded-full flex items-center justify-center hover:from-pink-600 hover:to-purple-700 transition-all duration-300 transform hover:scale-110" 
+                           title="Instagram">
+                            <svg class="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                                <path fill-rule="evenodd" d="M12.017 0C8.396 0 7.989.016 6.756.072 5.526.128 4.739.325 4.077.62a5.918 5.918 0 0 0-2.135 1.39A5.918 5.918 0 0 0 .551 4.144C.256 4.806.059 5.593.003 6.823-.053 8.056-.069 8.463-.069 12.084c0 3.621.016 4.028.072 5.261.056 1.23.253 2.017.548 2.679.292.86.68 1.58 1.391 2.291a5.918 5.918 0 0 0 2.134 1.391c.662.295 1.449.492 2.679.548 1.233.056 1.64.072 5.261.072 3.621 0 4.028-.016 5.261-.072 1.23-.056 2.017-.253 2.679-.548a5.918 5.918 0 0 0 2.135-1.391 5.918 5.918 0 0 0 1.39-2.291c.295-.662.492-1.449.548-2.679.056-1.233.072-1.64.072-5.261 0-3.621-.016-4.028-.072-5.261-.056-1.23-.253-2.017-.548-2.679a5.918 5.918 0 0 0-1.391-2.135A5.918 5.918 0 0 0 19.933.62C19.271.325 18.484.128 17.254.072 16.021.016 15.614 0 12.017 0Zm0 2.197c3.564 0 3.984.013 5.392.069 1.3.059 2.006.275 2.475.456.622.242 1.067.532 1.533.998.466.466.756.911.998 1.533.181.469.397 1.175.456 2.475.056 1.408.069 1.828.069 5.392 0 3.564-.013 3.984-.069 5.392-.059 1.3-.275 2.006-.456 2.475-.242.622-.532 1.067-.998 1.533-.466.466-.911.756-1.533.998-.469.181-1.175.397-2.475.456-1.408.056-1.828.069-5.392.069-3.564 0-3.984-.013-5.392-.069-1.3-.059-2.006-.275-2.475-.456a4.125 4.125 0 0 1-1.533-.998 4.125 4.125 0 0 1-.998-1.533c-.181-.469-.397-1.175-.456-2.475-.056-1.408-.069-1.828-.069-5.392 0-3.564.013-3.984.069-5.392.059-1.3.275-2.006.456-2.475.242-.622.532-1.067.998-1.533a4.125 4.125 0 0 1 1.533-.998c.469-.181 1.175-.397 2.475-.456 1.408-.056 1.828-.069 5.392-.069Z"/>
+                                <path d="M12.017 5.827A6.257 6.257 0 1 0 18.274 12.084 6.257 6.257 0 0 0 12.017 5.827Zm0 10.327a4.07 4.07 0 1 1 4.07-4.07 4.07 4.07 0 0 1-4.07 4.07ZM19.846 5.604a1.462 1.462 0 1 1-2.924 0 1.462 1.462 0 0 1 2.924 0Z"/>
+                            </svg>
+                        </a>
+                    </div>
+                    <p class="text-gray-400 mt-4">
+                        Siga-nos nas redes sociais!
+                    </p>
+                </div>
+            </div>
+            
+            <div class="border-t border-slate-700 mt-8 pt-8 text-center">
+                <p class="text-gray-400">
+                    &copy; 2025 Estética Automotiva V7 - Todos os direitos reservados
+                </p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- WhatsApp Floating Button -->
+    <a href="https://wa.me/5565999994266?text=Olá! Gostaria de agendar um serviço de estética automotiva." 
+       class="whatsapp-float" 
+       target="_blank" 
+       rel="noopener noreferrer"
+       title="Falar no WhatsApp">
+        <i data-lucide="message-circle" class="w-7 h-7"></i>
+    </a>
+
+    <!-- Initialize Lucide Icons -->
+    <script>
+        lucide.createIcons();
+        
+        // Mobile Menu Toggle
+        function toggleMobileMenu() {
+            const mobileMenu = document.getElementById('mobileMenu');
+            const hamburger = document.querySelector('.hamburger');
+            const body = document.body;
+            
+            if (mobileMenu.classList.contains('mobile-menu-hidden')) {
+                mobileMenu.classList.remove('mobile-menu-hidden');
+                mobileMenu.classList.add('mobile-menu-visible');
+                hamburger.classList.add('active');
+                body.style.overflow = 'hidden'; // Prevenir scroll
+            } else {
+                mobileMenu.classList.remove('mobile-menu-visible');
+                mobileMenu.classList.add('mobile-menu-hidden');
+                hamburger.classList.remove('active');
+                body.style.overflow = 'auto'; // Restaurar scroll
+            }
+        }
+        
+        // Close mobile menu when clicking outside
+        document.addEventListener('click', function(event) {
+            const mobileMenu = document.getElementById('mobileMenu');
+            const hamburger = document.querySelector('.hamburger');
+            const header = document.querySelector('header');
+            
+            if (!header.contains(event.target) && !mobileMenu.contains(event.target)) {
+                mobileMenu.classList.remove('mobile-menu-visible');
+                mobileMenu.classList.add('mobile-menu-hidden');
+                hamburger.classList.remove('active');
+            }
+        });
+        
+        // Aplicar estilos do hero background
+        const heroImg = document.querySelector('.hero-background-img');
+        if (heroImg) {
+            const opacity = heroImg.dataset.opacity || 0.3;
+            const blur = heroImg.dataset.blur === 'true';
+            
+            heroImg.style.opacity = opacity;
+            if (blur) {
+                heroImg.style.filter = 'blur(2px)';
+            }
+        }
+        
+        // Smooth scrolling for anchor links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+    </script>
+</body>
+</html>

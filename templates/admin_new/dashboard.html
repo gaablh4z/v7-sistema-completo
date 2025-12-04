@@ -1,0 +1,249 @@
+{% extends 'admin_new/base.html' %}
+
+{% block page_subtitle %}Visão geral do sistema e principais métricas{% endblock %}
+
+{% block content %}
+<div x-data="dashboard()" x-init="loadStats()">
+    <!-- Cards de Estatísticas -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        <!-- Total de Clientes -->
+        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-sm font-medium text-gray-600 dark:text-gray-400">Total de Clientes</p>
+                    <p class="text-3xl font-bold text-gray-900 dark:text-white" x-text="stats.total_clientes || '0'"></p>
+                    <p class="text-xs text-green-600 dark:text-green-400 mt-1">
+                        <i data-lucide="trending-up" class="w-3 h-3 inline mr-1"></i>
+                        +12% este mês
+                    </p>
+                </div>
+                <div class="bg-blue-100 dark:bg-blue-900/50 p-3 rounded-full">
+                    <i data-lucide="users" class="w-8 h-8 text-blue-600 dark:text-blue-400"></i>
+                </div>
+            </div>
+        </div>
+
+        <!-- Total de Agendamentos -->
+        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-sm font-medium text-gray-600 dark:text-gray-400">Total de Agendamentos</p>
+                    <p class="text-3xl font-bold text-gray-900 dark:text-white" x-text="stats.total_agendamentos || '0'"></p>
+                    <p class="text-xs text-green-600 dark:text-green-400 mt-1">
+                        <i data-lucide="trending-up" class="w-3 h-3 inline mr-1"></i>
+                        +8% este mês
+                    </p>
+                </div>
+                <div class="bg-green-100 dark:bg-green-900/50 p-3 rounded-full">
+                    <i data-lucide="calendar" class="w-8 h-8 text-green-600 dark:text-green-400"></i>
+                </div>
+            </div>
+        </div>
+
+        <!-- Agendamentos Hoje -->
+        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-sm font-medium text-gray-600 dark:text-gray-400">Agendamentos Hoje</p>
+                    <p class="text-3xl font-bold text-gray-900 dark:text-white" x-text="stats.agendamentos_hoje || '0'"></p>
+                    <p class="text-xs text-blue-600 dark:text-blue-400 mt-1">
+                        <i data-lucide="clock" class="w-3 h-3 inline mr-1"></i>
+                        Próximo às 14:00
+                    </p>
+                </div>
+                <div class="bg-purple-100 dark:bg-purple-900/50 p-3 rounded-full">
+                    <i data-lucide="clock" class="w-8 h-8 text-purple-600 dark:text-purple-400"></i>
+                </div>
+            </div>
+        </div>
+
+        <!-- Agendamentos Pendentes -->
+        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-sm font-medium text-gray-600 dark:text-gray-400">Agendamentos Pendentes</p>
+                    <p class="text-3xl font-bold text-gray-900 dark:text-white" x-text="stats.agendamentos_pendentes || '0'"></p>
+                    <p class="text-xs text-orange-600 dark:text-orange-400 mt-1">
+                        <i data-lucide="alert-circle" class="w-3 h-3 inline mr-1"></i>
+                        Requer atenção
+                    </p>
+                </div>
+                <div class="bg-orange-100 dark:bg-orange-900/50 p-3 rounded-full">
+                    <i data-lucide="alert-circle" class="w-8 h-8 text-orange-600 dark:text-orange-400"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Conteúdo Principal -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+        <!-- Agendamentos Recentes -->
+        <div class="lg:col-span-2 bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700">
+            <div class="p-6 border-b border-gray-200 dark:border-gray-700">
+                <div class="flex items-center justify-between">
+                    <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Agendamentos Recentes</h3>
+                    <a href="{% url 'admin_new:agendamentos' %}" class="text-sm text-admin-primary hover:underline">Ver todos</a>
+                </div>
+            </div>
+            <div class="p-6">
+                <div class="space-y-4" x-show="agendamentos.length > 0">
+                    <template x-for="agendamento in agendamentos" :key="agendamento.id">
+                        <div class="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
+                            <div class="flex items-center space-x-4">
+                                <div class="bg-blue-100 dark:bg-blue-900/50 p-2 rounded-full">
+                                    <i data-lucide="user" class="w-4 h-4 text-blue-600 dark:text-blue-400"></i>
+                                </div>
+                                <div>
+                                    <p class="font-medium text-gray-900 dark:text-white" x-text="agendamento.cliente"></p>
+                                    <p class="text-sm text-gray-600 dark:text-gray-400" x-text="agendamento.veiculo"></p>
+                                </div>
+                            </div>
+                            <div class="text-right">
+                                <p class="text-sm font-medium text-gray-900 dark:text-white" x-text="agendamento.data"></p>
+                                <p class="text-xs text-gray-600 dark:text-gray-400" x-text="agendamento.horario"></p>
+                            </div>
+                            <div>
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium"
+                                      :class="{
+                                          'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/50 dark:text-yellow-400': agendamento.status === 'pending',
+                                          'bg-blue-100 text-blue-800 dark:bg-blue-900/50 dark:text-blue-400': agendamento.status === 'confirmed',
+                                          'bg-green-100 text-green-800 dark:bg-green-900/50 dark:text-green-400': agendamento.status === 'completed',
+                                          'bg-red-100 text-red-800 dark:bg-red-900/50 dark:text-red-400': agendamento.status === 'cancelled'
+                                      }"
+                                      x-text="getStatusText(agendamento.status)">
+                                </span>
+                            </div>
+                        </div>
+                    </template>
+                </div>
+                <div x-show="agendamentos.length === 0" class="text-center py-8">
+                    <i data-lucide="calendar-x" class="w-12 h-12 text-gray-400 mx-auto mb-4"></i>
+                    <p class="text-gray-600 dark:text-gray-400">Nenhum agendamento encontrado</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Ações Rápidas -->
+        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700">
+            <div class="p-6 border-b border-gray-200 dark:border-gray-700">
+                <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Ações Rápidas</h3>
+            </div>
+            <div class="p-6 space-y-4">
+                <a href="{% url 'admin_new:criar_cliente' %}" class="flex items-center space-x-3 p-3 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
+                    <div class="bg-blue-100 dark:bg-blue-900/50 p-2 rounded-lg">
+                        <i data-lucide="user-plus" class="w-5 h-5 text-blue-600 dark:text-blue-400"></i>
+                    </div>
+                    <div>
+                        <p class="font-medium text-gray-900 dark:text-white">Novo Cliente</p>
+                        <p class="text-sm text-gray-600 dark:text-gray-400">Cadastrar cliente</p>
+                    </div>
+                </a>
+
+                <a href="{% url 'admin_new:criar_servico' %}" class="flex items-center space-x-3 p-3 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
+                    <div class="bg-green-100 dark:bg-green-900/50 p-2 rounded-lg">
+                        <i data-lucide="wrench" class="w-5 h-5 text-green-600 dark:text-green-400"></i>
+                    </div>
+                    <div>
+                        <p class="font-medium text-gray-900 dark:text-white">Novo Serviço</p>
+                        <p class="text-sm text-gray-600 dark:text-gray-400">Cadastrar serviço</p>
+                    </div>
+                </a>
+
+                <a href="{% url 'admin_new:agendamentos' %}" class="flex items-center space-x-3 p-3 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
+                    <div class="bg-purple-100 dark:bg-purple-900/50 p-2 rounded-lg">
+                        <i data-lucide="calendar" class="w-5 h-5 text-purple-600 dark:text-purple-400"></i>
+                    </div>
+                    <div>
+                        <p class="font-medium text-gray-900 dark:text-white">Ver Agendamentos</p>
+                        <p class="text-sm text-gray-600 dark:text-gray-400">Gerenciar agenda</p>
+                    </div>
+                </a>
+
+                <a href="{% url 'admin_new:relatorios' %}" class="flex items-center space-x-3 p-3 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
+                    <div class="bg-orange-100 dark:bg-orange-900/50 p-2 rounded-lg">
+                        <i data-lucide="bar-chart-3" class="w-5 h-5 text-orange-600 dark:text-orange-400"></i>
+                    </div>
+                    <div>
+                        <p class="font-medium text-gray-900 dark:text-white">Relatórios</p>
+                        <p class="text-sm text-gray-600 dark:text-gray-400">Ver relatórios</p>
+                    </div>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Status do Sistema -->
+    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700">
+        <div class="p-6 border-b border-gray-200 dark:border-gray-700">
+            <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Status do Sistema</h3>
+        </div>
+        <div class="p-6">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div class="text-center">
+                    <div class="bg-green-100 dark:bg-green-900/50 p-3 rounded-full w-12 h-12 mx-auto mb-2">
+                        <i data-lucide="check-circle" class="w-6 h-6 text-green-600 dark:text-green-400"></i>
+                    </div>
+                    <p class="font-medium text-gray-900 dark:text-white">Sistema Online</p>
+                    <p class="text-sm text-gray-600 dark:text-gray-400">Funcionando normalmente</p>
+                </div>
+                
+                <div class="text-center">
+                    <div class="bg-blue-100 dark:bg-blue-900/50 p-3 rounded-full w-12 h-12 mx-auto mb-2">
+                        <i data-lucide="database" class="w-6 h-6 text-blue-600 dark:text-blue-400"></i>
+                    </div>
+                    <p class="font-medium text-gray-900 dark:text-white">Banco de Dados</p>
+                    <p class="text-sm text-gray-600 dark:text-gray-400">Conectado</p>
+                </div>
+                
+                <div class="text-center">
+                    <div class="bg-purple-100 dark:bg-purple-900/50 p-3 rounded-full w-12 h-12 mx-auto mb-2">
+                        <i data-lucide="wifi" class="w-6 h-6 text-purple-600 dark:text-purple-400"></i>
+                    </div>
+                    <p class="font-medium text-gray-900 dark:text-white">API</p>
+                    <p class="text-sm text-gray-600 dark:text-gray-400">Respondendo</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function dashboard() {
+    return {
+        stats: {},
+        agendamentos: [],
+        
+        async loadStats() {
+            try {
+                const response = await fetch('{% url "admin_new:dashboard_stats" %}');
+                const data = await response.json();
+                this.stats = data;
+            } catch (error) {
+                console.error('Erro ao carregar estatísticas:', error);
+            }
+            
+            try {
+                const response = await fetch('{% url "admin_new:agendamentos_api" %}');
+                const data = await response.json();
+                this.agendamentos = data.agendamentos || [];
+            } catch (error) {
+                console.error('Erro ao carregar agendamentos:', error);
+            }
+        },
+        
+        getStatusText(status) {
+            const statusMap = {
+                'pending': 'Pendente',
+                'confirmed': 'Confirmado',
+                'in_progress': 'Em Andamento',
+                'completed': 'Concluído',
+                'cancelled': 'Cancelado'
+            };
+            return statusMap[status] || status;
+        }
+    }
+}
+</script>
+{% endblock %}

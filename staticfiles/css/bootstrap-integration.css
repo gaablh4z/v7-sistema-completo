@@ -1,0 +1,371 @@
+/* Bootstrap + AutoV7 Dark Theme Integration */
+
+/* Override Bootstrap variables for dark theme */
+:root {
+    /* Dark theme colors for Bootstrap components */
+    --bs-primary: #3b82f6;
+    --bs-secondary: #6b7280;
+    --bs-success: #10b981;
+    --bs-info: #06b6d4;
+    --bs-warning: #f59e0b;
+    --bs-danger: #ef4444;
+    --bs-light: #f8fafc;
+    --bs-dark: #0f172a;
+    
+    /* Custom dark colors */
+    --bs-body-bg: #0f172a;
+    --bs-body-color: #f8fafc;
+    --bs-border-color: #374151;
+    
+    /* Component colors */
+    --bs-card-bg: rgba(30, 41, 59, 0.8);
+    --bs-nav-link-color: #cbd5e1;
+    --bs-nav-link-hover-color: #f8fafc;
+}
+
+/* Global dark theme overrides */
+body {
+    background-color: var(--bs-body-bg) !important;
+    color: var(--bs-body-color) !important;
+}
+
+/* Bootstrap Cards - Dark Theme */
+.card {
+    background-color: var(--bs-card-bg) !important;
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(148, 163, 184, 0.1) !important;
+    color: var(--bs-body-color) !important;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+}
+
+.card-header {
+    background-color: rgba(51, 65, 85, 0.6) !important;
+    border-bottom: 1px solid rgba(148, 163, 184, 0.1) !important;
+    color: var(--bs-body-color) !important;
+}
+
+.card-footer {
+    background-color: rgba(51, 65, 85, 0.6) !important;
+    border-top: 1px solid rgba(148, 163, 184, 0.1) !important;
+}
+
+/* Bootstrap Buttons - Dark Theme */
+.btn-primary {
+    background-color: var(--bs-primary) !important;
+    border-color: var(--bs-primary) !important;
+    color: white !important;
+}
+
+.btn-primary:hover {
+    background-color: #2563eb !important;
+    border-color: #2563eb !important;
+}
+
+.btn-secondary {
+    background-color: #475569 !important;
+    border-color: #475569 !important;
+    color: white !important;
+}
+
+.btn-secondary:hover {
+    background-color: #334155 !important;
+    border-color: #334155 !important;
+}
+
+.btn-success {
+    background-color: var(--bs-success) !important;
+    border-color: var(--bs-success) !important;
+}
+
+.btn-info {
+    background-color: var(--bs-info) !important;
+    border-color: var(--bs-info) !important;
+}
+
+.btn-warning {
+    background-color: var(--bs-warning) !important;
+    border-color: var(--bs-warning) !important;
+    color: white !important;
+}
+
+.btn-danger {
+    background-color: var(--bs-danger) !important;
+    border-color: var(--bs-danger) !important;
+}
+
+/* Bootstrap Form Controls - Dark Theme */
+.form-control {
+    background-color: rgba(30, 41, 59, 0.8) !important;
+    border-color: rgba(148, 163, 184, 0.3) !important;
+    color: var(--bs-body-color) !important;
+}
+
+.form-control:focus {
+    background-color: rgba(30, 41, 59, 0.9) !important;
+    border-color: var(--bs-primary) !important;
+    box-shadow: 0 0 0 0.2rem rgba(59, 130, 246, 0.25) !important;
+    color: var(--bs-body-color) !important;
+}
+
+.form-select {
+    background-color: rgba(30, 41, 59, 0.8) !important;
+    border-color: rgba(148, 163, 184, 0.3) !important;
+    color: var(--bs-body-color) !important;
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23cbd5e1' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='m1 6 7 7 7-7'/%3e%3c/svg%3e") !important;
+}
+
+.form-check-input {
+    background-color: rgba(30, 41, 59, 0.8) !important;
+    border-color: rgba(148, 163, 184, 0.3) !important;
+}
+
+.form-check-input:checked {
+    background-color: var(--bs-primary) !important;
+    border-color: var(--bs-primary) !important;
+}
+
+/* Bootstrap Navigation - Dark Theme */
+.navbar {
+    background-color: rgba(30, 41, 59, 0.95) !important;
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid rgba(148, 163, 184, 0.1);
+}
+
+.navbar-brand {
+    color: var(--bs-body-color) !important;
+}
+
+.navbar-nav .nav-link {
+    color: var(--bs-nav-link-color) !important;
+}
+
+.navbar-nav .nav-link:hover {
+    color: var(--bs-nav-link-hover-color) !important;
+}
+
+.navbar-nav .nav-link.active {
+    color: var(--bs-primary) !important;
+}
+
+/* Bootstrap Tables - Dark Theme */
+.table {
+    color: var(--bs-body-color) !important;
+}
+
+.table-dark {
+    --bs-table-bg: rgba(30, 41, 59, 0.8);
+    --bs-table-striped-bg: rgba(51, 65, 85, 0.5);
+    --bs-table-hover-bg: rgba(71, 85, 105, 0.5);
+}
+
+.table > :not(caption) > * > * {
+    border-bottom-color: rgba(148, 163, 184, 0.2) !important;
+}
+
+/* Bootstrap Modals - Dark Theme */
+.modal-content {
+    background-color: rgba(30, 41, 59, 0.95) !important;
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(148, 163, 184, 0.1) !important;
+    color: var(--bs-body-color) !important;
+}
+
+.modal-header {
+    border-bottom: 1px solid rgba(148, 163, 184, 0.1) !important;
+}
+
+.modal-footer {
+    border-top: 1px solid rgba(148, 163, 184, 0.1) !important;
+}
+
+.btn-close {
+    filter: invert(1) grayscale(100%) brightness(200%);
+}
+
+/* Bootstrap Dropdowns - Dark Theme */
+.dropdown-menu {
+    background-color: rgba(30, 41, 59, 0.95) !important;
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(148, 163, 184, 0.1) !important;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+}
+
+.dropdown-item {
+    color: var(--bs-nav-link-color) !important;
+}
+
+.dropdown-item:hover {
+    background-color: rgba(59, 130, 246, 0.1) !important;
+    color: var(--bs-body-color) !important;
+}
+
+/* Bootstrap Alerts - Dark Theme */
+.alert-primary {
+    background-color: rgba(59, 130, 246, 0.1) !important;
+    border-color: rgba(59, 130, 246, 0.3) !important;
+    color: #93c5fd !important;
+}
+
+.alert-success {
+    background-color: rgba(16, 185, 129, 0.1) !important;
+    border-color: rgba(16, 185, 129, 0.3) !important;
+    color: #6ee7b7 !important;
+}
+
+.alert-warning {
+    background-color: rgba(245, 158, 11, 0.1) !important;
+    border-color: rgba(245, 158, 11, 0.3) !important;
+    color: #fbbf24 !important;
+}
+
+.alert-danger {
+    background-color: rgba(239, 68, 68, 0.1) !important;
+    border-color: rgba(239, 68, 68, 0.3) !important;
+    color: #fca5a5 !important;
+}
+
+.alert-info {
+    background-color: rgba(6, 182, 212, 0.1) !important;
+    border-color: rgba(6, 182, 212, 0.3) !important;
+    color: #67e8f9 !important;
+}
+
+/* Bootstrap Badges - Dark Theme */
+.badge.bg-primary {
+    background-color: var(--bs-primary) !important;
+}
+
+.badge.bg-secondary {
+    background-color: #6b7280 !important;
+}
+
+.badge.bg-success {
+    background-color: var(--bs-success) !important;
+}
+
+.badge.bg-warning {
+    background-color: var(--bs-warning) !important;
+}
+
+.badge.bg-danger {
+    background-color: var(--bs-danger) !important;
+}
+
+/* Bootstrap Pagination - Dark Theme */
+.pagination .page-link {
+    background-color: rgba(30, 41, 59, 0.8) !important;
+    border-color: rgba(148, 163, 184, 0.3) !important;
+    color: var(--bs-nav-link-color) !important;
+}
+
+.pagination .page-link:hover {
+    background-color: rgba(59, 130, 246, 0.1) !important;
+    border-color: var(--bs-primary) !important;
+    color: var(--bs-body-color) !important;
+}
+
+.pagination .page-item.active .page-link {
+    background-color: var(--bs-primary) !important;
+    border-color: var(--bs-primary) !important;
+}
+
+/* Bootstrap Progress - Dark Theme */
+.progress {
+    background-color: rgba(71, 85, 105, 0.5) !important;
+}
+
+/* Bootstrap List Group - Dark Theme */
+.list-group-item {
+    background-color: rgba(30, 41, 59, 0.8) !important;
+    border-color: rgba(148, 163, 184, 0.2) !important;
+    color: var(--bs-body-color) !important;
+}
+
+.list-group-item:hover {
+    background-color: rgba(59, 130, 246, 0.05) !important;
+}
+
+/* Bootstrap Accordion - Dark Theme */
+.accordion-item {
+    background-color: rgba(30, 41, 59, 0.8) !important;
+    border-color: rgba(148, 163, 184, 0.2) !important;
+}
+
+.accordion-button {
+    background-color: rgba(51, 65, 85, 0.6) !important;
+    color: var(--bs-body-color) !important;
+    border: none !important;
+}
+
+.accordion-button:not(.collapsed) {
+    background-color: rgba(59, 130, 246, 0.1) !important;
+    color: var(--bs-body-color) !important;
+}
+
+.accordion-button:focus {
+    box-shadow: 0 0 0 0.2rem rgba(59, 130, 246, 0.25) !important;
+}
+
+.accordion-body {
+    background-color: rgba(30, 41, 59, 0.8) !important;
+    color: var(--bs-body-color) !important;
+}
+
+/* Scrollbar customization for Bootstrap components */
+.modal-body::-webkit-scrollbar,
+.dropdown-menu::-webkit-scrollbar,
+.accordion-body::-webkit-scrollbar {
+    width: 8px;
+}
+
+.modal-body::-webkit-scrollbar-track,
+.dropdown-menu::-webkit-scrollbar-track,
+.accordion-body::-webkit-scrollbar-track {
+    background: rgba(30, 41, 59, 0.5);
+}
+
+.modal-body::-webkit-scrollbar-thumb,
+.dropdown-menu::-webkit-scrollbar-thumb,
+.accordion-body::-webkit-scrollbar-thumb {
+    background: rgba(107, 114, 128, 0.5);
+    border-radius: 4px;
+}
+
+.modal-body::-webkit-scrollbar-thumb:hover,
+.dropdown-menu::-webkit-scrollbar-thumb:hover,
+.accordion-body::-webkit-scrollbar-thumb:hover {
+    background: var(--bs-primary);
+}
+
+/* Bootstrap Utilities - Dark Theme Adjustments */
+.text-muted {
+    color: #9ca3af !important;
+}
+
+.bg-light {
+    background-color: rgba(51, 65, 85, 0.5) !important;
+}
+
+.bg-white {
+    background-color: rgba(30, 41, 59, 0.8) !important;
+}
+
+.border {
+    border-color: rgba(148, 163, 184, 0.2) !important;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .modal-dialog {
+        margin: 0.5rem;
+    }
+    
+    .card {
+        margin-bottom: 1rem;
+    }
+    
+    .btn {
+        font-size: 0.875rem;
+        padding: 0.5rem 1rem;
+    }
+}

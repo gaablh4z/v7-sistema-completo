@@ -1,0 +1,177 @@
+{% extends 'dashboard/layout.html' %}
+
+{% block title %}Dashboard - AutoV7{% endblock %}
+
+{% block dashboard_content %}
+<div class="min-h-screen bg-gray-50">
+    <!-- Header do Dashboard -->
+    <div class="bg-white shadow-sm border-b">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center py-4">
+                <div>
+                    <h1 class="text-2xl font-bold text-gray-900">Bem-vindo de volta!</h1>
+                    <p class="text-gray-600">Aqui está um resumo da sua conta</p>
+                </div>
+                <div class="flex items-center space-x-3">
+                    <span class="text-sm text-gray-600">{{ user.first_name }} {{ user.last_name }}</span>
+                    {% if user.profile_picture %}
+                        <img src="{{ user.profile_picture.url }}" alt="Profile" class="w-10 h-10 rounded-full">
+                    {% else %}
+                        <div class="w-10 h-10 bg-blue-500 rounded-full flex items-center justify-center">
+                            <span class="text-white font-semibold">{{ user.first_name|first }}{{ user.last_name|first }}</span>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <!-- Card do Clima -->
+        <div class="mb-8">
+            <div class="bg-gradient-to-r from-blue-500 to-blue-600 rounded-lg p-6 text-white">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h3 class="text-xl font-semibold">Clima Hoje</h3>
+                        <p class="text-blue-100 text-lg">{{ weather_data.condition }} • {{ weather_data.temperature }}</p>
+                        <p class="text-blue-100 mt-2">{{ weather_data.description }}</p>
+                    </div>
+                    <div class="text-6xl">
+                        <i data-lucide="sun" class="w-16 h-16"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Estatísticas -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+            <!-- Serviços Realizados -->
+            <div class="bg-white rounded-lg shadow p-6">
+                <div class="flex items-center">
+                    <div class="p-3 bg-blue-100 rounded-lg">
+                        <i data-lucide="car" class="w-6 h-6 text-blue-600"></i>
+                    </div>
+                    <div class="ml-4">
+                        <p class="text-sm text-gray-600">Serviços Realizados</p>
+                        <p class="text-2xl font-bold text-gray-900">{{ total_services }}</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Pontos de Fidelidade -->
+            <div class="bg-white rounded-lg shadow p-6">
+                <div class="flex items-center">
+                    <div class="p-3 bg-green-100 rounded-lg">
+                        <i data-lucide="gift" class="w-6 h-6 text-green-600"></i>
+                    </div>
+                    <div class="ml-4">
+                        <p class="text-sm text-gray-600">Pontos de Fidelidade</p>
+                        <p class="text-2xl font-bold text-gray-900">{{ loyalty_points }}</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Avaliação Média -->
+            <div class="bg-white rounded-lg shadow p-6">
+                <div class="flex items-center">
+                    <div class="p-3 bg-yellow-100 rounded-lg">
+                        <i data-lucide="star" class="w-6 h-6 text-yellow-600"></i>
+                    </div>
+                    <div class="ml-4">
+                        <p class="text-sm text-gray-600">Avaliação Média</p>
+                        <p class="text-2xl font-bold text-gray-900">{{ average_rating }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Próximo Agendamento -->
+        {% if upcoming_appointments %}
+        <div class="bg-white rounded-lg shadow mb-8">
+            <div class="px-6 py-4 border-b border-gray-200">
+                <h3 class="text-lg font-semibold text-gray-900 flex items-center">
+                    <i data-lucide="calendar" class="w-5 h-5 mr-2"></i>
+                    Próximo Agendamento
+                </h3>
+            </div>
+            <div class="p-6">
+                {% for appointment in upcoming_appointments|slice:":1" %}
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h4 class="font-semibold text-gray-900">{{ appointment.servico.nome }}</h4>
+                        <p class="text-gray-600">{{ appointment.data_agendamento|date:"d/m/Y" }} às {{ appointment.horario_agendamento }}</p>
+                    </div>
+                    <div class="flex space-x-2">
+                        <span class="px-3 py-1 bg-green-100 text-green-800 rounded-full text-sm font-medium">
+                            Confirmado
+                        </span>
+                        <button class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+                            Reagendar
+                        </button>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Serviços Recentes -->
+        <div class="bg-white rounded-lg shadow">
+            <div class="px-6 py-4 border-b border-gray-200">
+                <h3 class="text-lg font-semibold text-gray-900">Serviços Recentes</h3>
+                <p class="text-gray-600">Seus últimos serviços realizados</p>
+            </div>
+            <div class="p-6">
+                {% if completed_appointments > 0 %}
+                <div class="space-y-4">
+                    <div class="flex items-center justify-between py-3 border-b border-gray-100">
+                        <div class="flex items-center">
+                            <i data-lucide="car" class="w-5 h-5 text-blue-600 mr-3"></i>
+                            <div>
+                                <p class="font-medium text-gray-900">Lavagem Completa</p>
+                                <p class="text-sm text-gray-600">Toyota Corolla - ABC-1234</p>
+                            </div>
+                        </div>
+                        <div class="text-right">
+                            <p class="font-semibold text-gray-900">R$ 85,00</p>
+                            <div class="flex items-center">
+                                <div class="flex text-yellow-400">
+                                    <i data-lucide="star" class="w-4 h-4 fill-current"></i>
+                                    <i data-lucide="star" class="w-4 h-4 fill-current"></i>
+                                    <i data-lucide="star" class="w-4 h-4 fill-current"></i>
+                                    <i data-lucide="star" class="w-4 h-4 fill-current"></i>
+                                    <i data-lucide="star" class="w-4 h-4 fill-current"></i>
+                                </div>
+                                <span class="ml-1 text-sm text-gray-600">Avaliado</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% else %}
+                <div class="text-center py-8">
+                    <i data-lucide="calendar-x" class="w-12 h-12 text-gray-400 mx-auto mb-3"></i>
+                    <p class="text-gray-600">Nenhum serviço realizado ainda</p>
+                    <a href="/dashboard/booking/" class="mt-4 inline-block px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+                        Agendar Primeiro Serviço
+                    </a>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Ativar o Windows -->
+<div class="fixed bottom-4 right-4 bg-white rounded-lg shadow-lg p-4 max-w-sm">
+    <h4 class="font-semibold text-gray-900 mb-2">Ativar o Windows</h4>
+    <p class="text-sm text-gray-600 mb-3">Acesse Configurações para ativar o Windows.</p>
+    <button class="text-blue-600 hover:text-blue-800 text-sm font-medium">
+        Configurações
+    </button>
+</div>
+
+<script>
+// Inicializar ícones Lucide
+lucide.createIcons();
+</script>
+{% endblock %}

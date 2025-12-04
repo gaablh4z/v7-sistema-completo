@@ -1,0 +1,773 @@
+{% extends 'admin_new/base.html' %}
+{% load static %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/admin-agendamentos.css' %}">
+<style>
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+            transform: scale(0.95) translateY(-10px);
+        }
+        to {
+            opacity: 1;
+            transform: scale(1) translateY(0);
+        }
+    }
+    
+    @keyframes fadeOut {
+        from {
+            opacity: 1;
+            transform: scale(1) translateY(0);
+        }
+        to {
+            opacity: 0;
+            transform: scale(0.95) translateY(-10px);
+        }
+    }
+    
+    .animate-fadeIn {
+        animation: fadeIn 0.3s ease-out forwards;
+    }
+    
+    .animate-fadeOut {
+        animation: fadeOut 0.3s ease-in forwards;
+    }
+    
+    /* Backdrop blur para o modal do WhatsApp */
+    #whatsappModal {
+        backdrop-filter: blur(4px);
+        transition: backdrop-filter 0.3s ease;
+    }
+</style>
+{% endblock %}
+
+{% block page_subtitle %}Gerencie todos os agendamentos do sistema{% endblock %}
+
+{% block page_actions %}
+<div class="flex items-center space-x-3">
+    <select class="form-select w-auto" onchange="filterByStatus(this.value)">
+        <option value="">Todos os status</option>
+        <option value="pending" {% if status_filter == 'pending' %}selected{% endif %}>⏳ Pendente</option>
+        <option value="confirmed" {% if status_filter == 'confirmed' %}selected{% endif %}>✅ Confirmado</option>
+        <option value="in_progress" {% if status_filter == 'in_progress' %}selected{% endif %}>🔧 Em Andamento</option>
+        <option value="completed" {% if status_filter == 'completed' %}selected{% endif %}>✔️ Concluído</option>
+        <option value="cancelled" {% if status_filter == 'cancelled' %}selected{% endif %}>❌ Cancelado</option>
+    </select>
+    <button onclick="toggleBulkActions()" class="btn-secondary">
+        <i data-lucide="check-square" class="w-5 h-5 mr-2"></i>
+        Ações em Lote
+    </button>
+    <button onclick="exportAgendamentos()" class="btn-secondary">
+        <i data-lucide="download" class="w-5 h-5 mr-2"></i>
+        Exportar
+    </button>
+    <button class="btn-primary" onclick="showNovoAgendamentoModal()">
+        <i data-lucide="calendar-plus" class="w-5 h-5 mr-2"></i>
+        Novo Agendamento
+    </button>
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700">
+    <!-- Filtros e Busca -->
+    <div class="p-6 border-b border-gray-200 dark:border-gray-700">
+        <div class="flex flex-col md:flex-row md:items-center md:justify-between space-y-4 md:space-y-0 md:space-x-4">
+            <div class="flex-1 max-w-md">
+                <form method="GET" class="relative">
+                    <input type="text" name="search" value="{{ search_query }}" 
+                           placeholder="Buscar por cliente, serviço ou veículo..."
+                           class="w-full px-4 py-2 pl-10 pr-4 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-admin-primary focus:border-transparent">
+                    <i data-lucide="search" class="absolute left-3 top-2.5 w-4 h-4 text-gray-400"></i>
+                    {% if status_filter %}<input type="hidden" name="status" value="{{ status_filter }}">{% endif %}
+                    <button type="submit" class="sr-only">Buscar</button>
+                </form>
+            </div>
+            
+            <div class="flex items-center space-x-4">
+                <div class="flex items-center space-x-2">
+                    <div class="h-3 w-3 rounded-full bg-green-500 animate-pulse" title="WebSocket conectado"></div>
+                    <span class="text-sm text-gray-600 dark:text-gray-400 admin-connection-status">
+                        Tempo Real Ativo
+                    </span>
+                </div>
+                <span class="text-sm text-gray-600 dark:text-gray-400">
+                    <span class="font-semibold" id="total-count">{{ total_agendamentos }}</span> agendamento{{ total_agendamentos|pluralize }}
+                </span>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Ações em Lote (Hidden por padrão) -->
+    <div id="bulk-actions-bar" class="hidden p-4 bg-blue-50 dark:bg-blue-900/20 border-b border-blue-200 dark:border-blue-800">
+        <div class="flex items-center justify-between">
+            <div class="flex items-center space-x-4">
+                <span class="text-sm font-medium text-blue-900 dark:text-blue-300">
+                    <span id="selected-count">0</span> selecionado(s)
+                </span>
+                <button onclick="selectAll()" class="text-sm text-blue-600 dark:text-blue-400 hover:underline">
+                    Selecionar todos
+                </button>
+                <button onclick="deselectAll()" class="text-sm text-blue-600 dark:text-blue-400 hover:underline">
+                    Limpar seleção
+                </button>
+            </div>
+            <div class="flex items-center space-x-2">
+                <button onclick="bulkConfirm()" class="btn-success btn-sm">
+                    <i data-lucide="check" class="w-4 h-4 mr-1"></i>
+                    Confirmar
+                </button>
+                <button onclick="bulkCancel()" class="btn-danger btn-sm">
+                    <i data-lucide="x" class="w-4 h-4 mr-1"></i>
+                    Cancelar
+                </button>
+                <button onclick="toggleBulkActions()" class="btn-secondary btn-sm">
+                    Fechar
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Lista de Agendamentos -->
+    <div class="appointments-responsive overflow-x-auto">
+        <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700" id="agendamentos-table">
+            <thead class="bg-gray-50 dark:bg-gray-700">
+                <tr>
+                    <th scope="col" class="px-6 py-3 text-left">
+                        <input type="checkbox" id="select-all" class="rounded border-gray-300 hidden" onchange="handleSelectAll(this)">
+                    </th>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                        Cliente
+                    </th>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                        Serviço
+                    </th>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                        Veículo
+                    </th>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider cursor-pointer hover:text-admin-primary" onclick="sortByDate()">
+                        Data e Hora <i data-lucide="arrow-up-down" class="w-3 h-3 inline ml-1"></i>
+                    </th>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                        Valor
+                    </th>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                        Status
+                    </th>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                        Ações
+                    </th>
+                </tr>
+            </thead>
+            <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700" id="admin-appointments-list">
+                {% for agendamento in agendamentos %}
+                <tr class="hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors" data-appointment-id="{{ agendamento.pk }}" data-status="{{ agendamento.situacao }}">
+                    <td class="px-6 py-4 whitespace-nowrap" data-label="Selecionar">
+                        <input type="checkbox" class="appointment-checkbox rounded border-gray-300 hidden" value="{{ agendamento.pk }}" onchange="updateSelectedCount()">
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap" data-label="Cliente">
+                        <div class="flex items-center">
+                            <div class="flex-shrink-0 h-10 w-10">
+                                {% if agendamento.usuario.foto_perfil %}
+                                    <img class="h-10 w-10 rounded-full object-cover" src="{{ agendamento.usuario.foto_perfil.url }}" alt="{{ agendamento.usuario.full_name }}">
+                                {% else %}
+                                    <div class="h-10 w-10 rounded-full bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center">
+                                        <span class="text-white font-semibold text-sm">{{ agendamento.usuario.first_name|first }}{{ agendamento.usuario.last_name|first }}</span>
+                                    </div>
+                                {% endif %}
+                            </div>
+                            <div class="ml-4">
+                                <div class="text-sm font-medium text-gray-900 dark:text-white">
+                                    {{ agendamento.usuario.full_name }}
+                                </div>
+                                <div class="text-sm text-gray-500 dark:text-gray-400">
+                                    {{ agendamento.usuario.email }}
+                                </div>
+                            </div>
+                        </div>
+                    </td>
+                    <td class="px-6 py-4" data-label="Serviço">
+                        <div class="text-sm text-gray-900 dark:text-white">
+                            {% if agendamento.appointment_services.all %}
+                                {% for appointment_service in agendamento.appointment_services.all %}
+                                    <div class="flex items-center mb-1">
+                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900/50 dark:text-blue-300">
+                                            {{ appointment_service.servico.nome }}
+                                        </span>
+                                        {% if appointment_service.concluido %}
+                                            <i data-lucide="check" class="w-3 h-3 ml-1 text-green-600"></i>
+                                        {% endif %}
+                                    </div>
+                                {% endfor %}
+                            {% else %}
+                                <span class="text-gray-500 dark:text-gray-400 italic text-xs">Serviço não especificado</span>
+                            {% endif %}
+                        </div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap" data-label="Veículo">
+                        <div class="text-sm text-gray-900 dark:text-white">{{ agendamento.veiculo.marca }} {{ agendamento.veiculo.modelo }}</div>
+                        <div class="text-sm text-gray-500 dark:text-gray-400">🚗 {{ agendamento.veiculo.placa }}</div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap" data-label="Data e Hora">
+                        <div class="text-sm text-gray-900 dark:text-white font-medium">📅 {{ agendamento.data_agendamento|date:"d/m/Y" }}</div>
+                        <div class="text-sm text-gray-500 dark:text-gray-400">🕐 {{ agendamento.horario_agendamento|time:"H:i" }}</div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm font-semibold text-green-600 dark:text-green-400" data-label="Valor">
+                        R$ {{ agendamento.preco_total|floatformat:2 }}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap" data-label="Status">
+                        {% if agendamento.situacao == 'pending' %}
+                            <span class="status-badge status-pending">
+                                <i data-lucide="clock" class="w-3 h-3 mr-1"></i>
+                                Pendente
+                            </span>
+                        {% elif agendamento.situacao == 'confirmed' %}
+                            <span class="status-badge status-confirmed">
+                                <i data-lucide="check-circle" class="w-3 h-3 mr-1"></i>
+                                Confirmado
+                            </span>
+                        {% elif agendamento.situacao == 'in_progress' %}
+                            <span class="status-badge bg-blue-100 text-blue-800 dark:bg-blue-900/50 dark:text-blue-400">
+                                <i data-lucide="play-circle" class="w-3 h-3 mr-1"></i>
+                                Em Andamento
+                            </span>
+                        {% elif agendamento.situacao == 'completed' %}
+                            <span class="status-badge status-completed">
+                                <i data-lucide="check-circle-2" class="w-3 h-3 mr-1"></i>
+                                Concluído
+                            </span>
+                        {% elif agendamento.situacao == 'cancelled' %}
+                            <span class="status-badge status-cancelled">
+                                <i data-lucide="x-circle" class="w-3 h-3 mr-1"></i>
+                                Cancelado
+                            </span>
+                        {% endif %}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium" data-label="Ações">
+                        <div class="flex items-center space-x-2">
+                            <button onclick="changeStatus({{ agendamento.pk }}, '{{ agendamento.situacao }}')" 
+                                   class="text-admin-primary hover:text-admin-secondary p-2 rounded-lg hover:bg-blue-50 dark:hover:bg-blue-900/30 transition-all" 
+                                   title="Alterar Status">
+                                <i data-lucide="edit-3" class="w-4 h-4"></i>
+                            </button>
+                            <button onclick="viewDetails({{ agendamento.pk }})" class="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-all" title="Ver detalhes">
+                                <i data-lucide="eye" class="w-4 h-4"></i>
+                            </button>
+                            {% if agendamento.situacao != 'cancelled' and agendamento.situacao != 'completed' %}
+                            <button onclick="cancelAppointment({{ agendamento.pk }})" class="text-red-500 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300 p-2 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/30 transition-all" title="Cancelar">
+                                <i data-lucide="x" class="w-4 h-4"></i>
+                            </button>
+                            {% endif %}
+                        </div>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="6" class="px-6 py-12 text-center">
+                        <div class="flex flex-col items-center justify-center">
+                            <i data-lucide="calendar" class="w-12 h-12 text-gray-400 mb-4"></i>
+                            <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-2">Nenhum agendamento encontrado</h3>
+                            <p class="text-gray-500 dark:text-gray-400">
+                                {% if search_query %}
+                                    Não encontramos agendamentos com o termo "{{ search_query }}".
+                                {% else %}
+                                    Não há agendamentos cadastrados no sistema.
+                                {% endif %}
+                            </p>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Paginação (similar ao clientes.html) -->
+    {% if agendamentos.has_other_pages %}
+    <div class="bg-white dark:bg-gray-800 px-4 py-3 border-t border-gray-200 dark:border-gray-700 sm:px-6">
+        <!-- Paginação similar ao template de clientes -->
+    </div>
+    {% endif %}
+</div>
+
+<!-- Modal para alterar status -->
+<div id="statusModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden z-50" onclick="closeModal()">
+    <div class="flex items-center justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+        <div class="inline-block align-bottom bg-white dark:bg-gray-800 rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full" onclick="event.stopPropagation()">
+            <div class="bg-white dark:bg-gray-800 px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+                <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-4">Alterar Status do Agendamento</h3>
+                <div class="space-y-4">
+                    <div>
+                        <label class="form-label">Novo Status</label>
+                        <select id="newStatus" class="form-select">
+                            <option value="pending">Pendente</option>
+                            <option value="confirmed">Confirmado</option>
+                            <option value="in_progress">Em Andamento</option>
+                            <option value="completed">Concluído</option>
+                            <option value="cancelled">Cancelado</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="bg-gray-50 dark:bg-gray-700 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
+                <button onclick="updateStatus()" class="btn-primary sm:ml-3 sm:w-auto">
+                    Atualizar Status
+                </button>
+                <button onclick="closeModal()" class="btn-secondary mt-3 sm:mt-0 sm:w-auto">
+                    Cancelar
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal do WhatsApp -->
+<div id="whatsappModal" class="fixed inset-0 bg-gray-900 bg-opacity-75 hidden z-50 backdrop-blur-sm" onclick="closeWhatsAppModal()">
+    <div class="flex items-center justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+        <div class="inline-block align-bottom bg-gradient-to-br from-green-50 to-white dark:from-gray-800 dark:to-gray-900 rounded-2xl text-left overflow-hidden shadow-2xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full border-2 border-green-500" onclick="event.stopPropagation()">
+            <!-- Header com ícone do WhatsApp -->
+            <div id="whatsappModalHeader" class="bg-gradient-to-r from-green-500 to-green-600 px-6 pt-6 pb-4">
+                <div class="flex items-center justify-center mb-3">
+                    <div class="w-16 h-16 bg-white rounded-full flex items-center justify-center shadow-lg">
+                        <svg class="w-10 h-10 text-green-500" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
+                        </svg>
+                    </div>
+                </div>
+                <h3 id="whatsappModalTitle" class="text-2xl font-bold text-white text-center mb-1">Serviço Concluído!</h3>
+                <p id="whatsappModalSubtitle" class="text-green-100 text-center text-sm">Notificar cliente via WhatsApp</p>
+            </div>
+            
+            <!-- Body -->
+            <div class="px-6 py-6">
+                <div class="bg-white dark:bg-gray-800 rounded-lg p-4 mb-4 border border-gray-200 dark:border-gray-700">
+                    <div class="flex items-start space-x-3">
+                        <div class="flex-shrink-0">
+                            <div id="whatsappStatusIcon" class="w-10 h-10 bg-green-100 dark:bg-green-900 rounded-full flex items-center justify-center">
+                                <i data-lucide="check-circle" class="w-5 h-5 text-green-600 dark:text-green-400"></i>
+                            </div>
+                        </div>
+                        <div class="flex-1">
+                            <p id="whatsappStatusText" class="text-sm font-medium text-gray-900 dark:text-white mb-1">Status atualizado com sucesso!</p>
+                            <p id="whatsappStatusDescription" class="text-xs text-gray-600 dark:text-gray-400">O agendamento foi marcado como concluído no sistema.</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="bg-gray-50 dark:bg-gray-900 rounded-lg p-4 mb-4">
+                    <p class="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 flex items-center">
+                        <i data-lucide="message-circle" class="w-4 h-4 mr-2"></i>
+                        Mensagem que será enviada:
+                    </p>
+                    <div class="bg-white dark:bg-gray-800 rounded-lg p-3 border-l-4 border-green-500 shadow-sm">
+                        <p class="text-xs text-gray-600 dark:text-gray-400 whitespace-pre-line" id="whatsappPreviewText"></p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Footer com botões -->
+            <div class="bg-gray-50 dark:bg-gray-800 px-6 py-4 flex flex-col sm:flex-row-reverse gap-3">
+                <button onclick="abrirWhatsApp()" class="flex-1 sm:flex-none inline-flex items-center justify-center px-6 py-3 border border-transparent text-base font-medium rounded-lg text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-all shadow-lg hover:shadow-xl transform hover:scale-105">
+                    <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
+                    </svg>
+                    Abrir WhatsApp
+                </button>
+                <button onclick="closeWhatsAppModal()" class="flex-1 sm:flex-none inline-flex items-center justify-center px-6 py-3 border border-gray-300 dark:border-gray-600 text-base font-medium rounded-lg text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 transition-all">
+                    Agora Não
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+let currentAppointmentId = null;
+let bulkActionsEnabled = false;
+
+// ============ WebSocket Integration ============
+// Escutar eventos do WebSocket
+document.addEventListener('admin:new_appointment', function(e) {
+    console.log('Novo agendamento recebido via WebSocket:', e.detail);
+    // Atualizar contador
+    const totalCount = document.getElementById('total-count');
+    if (totalCount) {
+        totalCount.textContent = parseInt(totalCount.textContent) + 1;
+    }
+});
+
+document.addEventListener('admin:appointment_cancelled', function(e) {
+    console.log('Agendamento cancelado via WebSocket:', e.detail);
+    const appointmentId = e.detail.appointment_id;
+    const row = document.querySelector(`tr[data-appointment-id="${appointmentId}"]`);
+    if (row) {
+        // Animar saída
+        row.classList.add('bg-red-50', 'dark:bg-red-900/20');
+        setTimeout(() => {
+            row.remove();
+        }, 1000);
+    }
+});
+
+// ============ Filtros e Busca ============
+function filterByStatus(status) {
+    const url = new URL(window.location);
+    if (status) {
+        url.searchParams.set('status', status);
+    } else {
+        url.searchParams.delete('status');
+    }
+    window.location.href = url.toString();
+}
+
+let sortAscending = true;
+function sortByDate() {
+    const tbody = document.getElementById('admin-appointments-list');
+    const rows = Array.from(tbody.querySelectorAll('tr'));
+    
+    rows.sort((a, b) => {
+        const dateA = a.querySelector('td:nth-child(5)').textContent.trim();
+        const dateB = b.querySelector('td:nth-child(5)').textContent.trim();
+        return sortAscending ? dateA.localeCompare(dateB) : dateB.localeCompare(dateA);
+    });
+    
+    sortAscending = !sortAscending;
+    rows.forEach(row => tbody.appendChild(row));
+}
+
+// ============ Ações em Lote ============
+function toggleBulkActions() {
+    bulkActionsEnabled = !bulkActionsEnabled;
+    const bulkBar = document.getElementById('bulk-actions-bar');
+    const selectAllCheckbox = document.getElementById('select-all');
+    const checkboxes = document.querySelectorAll('.appointment-checkbox');
+    
+    if (bulkActionsEnabled) {
+        bulkBar.classList.remove('hidden');
+        selectAllCheckbox.classList.remove('hidden');
+        checkboxes.forEach(cb => cb.classList.remove('hidden'));
+    } else {
+        bulkBar.classList.add('hidden');
+        selectAllCheckbox.classList.add('hidden');
+        checkboxes.forEach(cb => {
+            cb.classList.add('hidden');
+            cb.checked = false;
+        });
+        updateSelectedCount();
+    }
+}
+
+function handleSelectAll(checkbox) {
+    const checkboxes = document.querySelectorAll('.appointment-checkbox');
+    checkboxes.forEach(cb => cb.checked = checkbox.checked);
+    updateSelectedCount();
+}
+
+function selectAll() {
+    document.getElementById('select-all').checked = true;
+    handleSelectAll(document.getElementById('select-all'));
+}
+
+function deselectAll() {
+    document.getElementById('select-all').checked = false;
+    handleSelectAll(document.getElementById('select-all'));
+}
+
+function updateSelectedCount() {
+    const checked = document.querySelectorAll('.appointment-checkbox:checked').length;
+    document.getElementById('selected-count').textContent = checked;
+}
+
+function getSelectedIds() {
+    return Array.from(document.querySelectorAll('.appointment-checkbox:checked'))
+        .map(cb => cb.value);
+}
+
+async function bulkConfirm() {
+    const ids = getSelectedIds();
+    if (ids.length === 0) {
+        alert('Selecione ao menos um agendamento');
+        return;
+    }
+    
+    if (!confirm(`Confirmar ${ids.length} agendamento(s)?`)) return;
+    
+    for (const id of ids) {
+        await updateStatusById(id, 'confirmed');
+    }
+    location.reload();
+}
+
+async function bulkCancel() {
+    const ids = getSelectedIds();
+    if (ids.length === 0) {
+        alert('Selecione ao menos um agendamento');
+        return;
+    }
+    
+    if (!confirm(`Cancelar ${ids.length} agendamento(s)?`)) return;
+    
+    for (const id of ids) {
+        await updateStatusById(id, 'cancelled');
+    }
+    location.reload();
+}
+
+// ============ Modais e Ações ============
+function changeStatus(appointmentId, currentStatus) {
+    currentAppointmentId = appointmentId;
+    document.getElementById('newStatus').value = currentStatus;
+    document.getElementById('statusModal').classList.remove('hidden');
+}
+
+function closeModal() {
+    document.getElementById('statusModal').classList.add('hidden');
+    currentAppointmentId = null;
+}
+
+async function updateStatus() {
+    if (!currentAppointmentId) return;
+    
+    const newStatus = document.getElementById('newStatus').value;
+    const result = await updateStatusById(currentAppointmentId, newStatus);
+    
+    // Fechar o modal de status
+    closeModal();
+    
+    // Se teve sucesso mas não vai mostrar WhatsApp, recarregar
+    if (result && !whatsappUrl) {
+        location.reload();
+    }
+}
+
+let whatsappUrl = null;
+let whatsappData = null;
+
+async function updateStatusById(appointmentId, status) {
+    console.log(`[WhatsApp Debug] Atualizando status do agendamento #${appointmentId} para: ${status}`);
+    
+    try {
+        const response = await fetch(`/admin-panel/agendamentos/${appointmentId}/status/`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': getCookie('csrftoken')
+            },
+            body: JSON.stringify({ status: status })
+        });
+        
+        const data = await response.json();
+        console.log('[WhatsApp Debug] Resposta da API:', data);
+        
+        if (!data.success) {
+            console.error('[WhatsApp Debug] Erro na resposta:', data.message);
+            alert('❌ Erro ao atualizar status: ' + data.message);
+            return false;
+        }
+        
+        console.log('[WhatsApp Debug] Status atualizado com sucesso!');
+        
+        // Se o cliente não tem telefone
+        if (data.cliente_sem_telefone) {
+            console.warn('[WhatsApp Debug] Cliente sem telefone cadastrado');
+            alert('⚠️ Status atualizado com sucesso!\n\n' +
+                  'Atenção: Este cliente não possui telefone cadastrado.\n' +
+                  'Não será possível enviar notificação via WhatsApp.');
+            return true;
+        }
+        
+        // Se o status foi alterado para "completed" ou "cancelled" e há URL do WhatsApp
+        if (data.show_whatsapp_prompt && data.whatsapp_url) {
+            console.log('[WhatsApp Debug] Modal do WhatsApp será exibido');
+            console.log('[WhatsApp Debug] Novo status:', data.new_status);
+            console.log('[WhatsApp Debug] URL:', data.whatsapp_url.substring(0, 80) + '...');
+            
+            whatsappUrl = data.whatsapp_url;
+            whatsappData = data;
+            
+            // Aguardar um pouco antes de mostrar o modal do WhatsApp
+            // para dar tempo do modal de status fechar
+            console.log('[WhatsApp Debug] Aguardando 500ms para exibir modal...');
+            setTimeout(() => {
+                console.log('[WhatsApp Debug] Exibindo modal do WhatsApp');
+                
+                // Extrair mensagem da URL para preview
+                const urlParams = new URLSearchParams(data.whatsapp_url.split('?')[1]);
+                const mensagem = decodeURIComponent(urlParams.get('text') || '');
+                console.log('[WhatsApp Debug] Mensagem extraída:', mensagem.substring(0, 50) + '...');
+                
+                // Atualizar preview no modal
+                document.getElementById('whatsappPreviewText').textContent = mensagem;
+                
+                // Atualizar título e cor do modal baseado no status
+                const modalTitle = document.getElementById('whatsappModalTitle');
+                const modalSubtitle = document.getElementById('whatsappModalSubtitle');
+                const modalHeader = document.getElementById('whatsappModalHeader');
+                const statusIcon = document.getElementById('whatsappStatusIcon');
+                const statusText = document.getElementById('whatsappStatusText');
+                const statusDescription = document.getElementById('whatsappStatusDescription');
+                
+                if (data.new_status === 'cancelled') {
+                    // Atualizar para cancelamento
+                    if (modalTitle) modalTitle.textContent = 'Agendamento Cancelado';
+                    if (modalSubtitle) modalSubtitle.textContent = 'Notificar cliente sobre o cancelamento';
+                    
+                    if (modalHeader) {
+                        modalHeader.classList.remove('from-green-500', 'to-green-600');
+                        modalHeader.classList.add('from-orange-500', 'to-orange-600');
+                    }
+                    
+                    if (statusIcon) {
+                        statusIcon.classList.remove('bg-green-100', 'dark:bg-green-900');
+                        statusIcon.classList.add('bg-orange-100', 'dark:bg-orange-900');
+                        statusIcon.innerHTML = '<i data-lucide="alert-circle" class="w-5 h-5 text-orange-600 dark:text-orange-400"></i>';
+                    }
+                    
+                    if (statusText) statusText.textContent = 'Agendamento cancelado com sucesso!';
+                    if (statusDescription) statusDescription.textContent = 'O cliente será notificado sobre o cancelamento.';
+                } else {
+                    // Atualizar para concluído
+                    if (modalTitle) modalTitle.textContent = 'Serviço Concluído!';
+                    if (modalSubtitle) modalSubtitle.textContent = 'Notificar cliente via WhatsApp';
+                    
+                    if (modalHeader) {
+                        modalHeader.classList.remove('from-orange-500', 'to-orange-600');
+                        modalHeader.classList.add('from-green-500', 'to-green-600');
+                    }
+                    
+                    if (statusIcon) {
+                        statusIcon.classList.remove('bg-orange-100', 'dark:bg-orange-900');
+                        statusIcon.classList.add('bg-green-100', 'dark:bg-green-900');
+                        statusIcon.innerHTML = '<i data-lucide="check-circle" class="w-5 h-5 text-green-600 dark:text-green-400"></i>';
+                    }
+                    
+                    if (statusText) statusText.textContent = 'Status atualizado com sucesso!';
+                    if (statusDescription) statusDescription.textContent = 'O agendamento foi marcado como concluído no sistema.';
+                }
+                
+                // Mostrar modal do WhatsApp com animação
+                const whatsappModal = document.getElementById('whatsappModal');
+                whatsappModal.classList.remove('hidden');
+                console.log('[WhatsApp Debug] Modal exibido!');
+                
+                // Adicionar animação de fade-in
+                setTimeout(() => {
+                    const modalContent = whatsappModal.querySelector('div > div');
+                    if (modalContent) {
+                        modalContent.classList.add('animate-fadeIn');
+                    }
+                }, 10);
+                
+                // Recarregar ícones do Lucide
+                if (typeof lucide !== 'undefined') {
+                    lucide.createIcons();
+                }
+            }, 500); // Delay de 500ms para suavizar a transição
+        } else {
+            console.log('[WhatsApp Debug] Modal do WhatsApp não será exibido');
+            console.log('[WhatsApp Debug] show_whatsapp_prompt:', data.show_whatsapp_prompt);
+            console.log('[WhatsApp Debug] whatsapp_url:', data.whatsapp_url ? 'presente' : 'ausente');
+        }
+        
+        return data.success;
+    } catch (error) {
+        console.error('[WhatsApp Debug] Erro na requisição:', error);
+        alert('❌ Erro ao atualizar status. Tente novamente.');
+        return false;
+    }
+}
+
+function abrirWhatsApp() {
+    if (whatsappUrl) {
+        // Abrir WhatsApp em nova aba
+        window.open(whatsappUrl, '_blank');
+        
+        // Fechar modal com animação
+        const whatsappModal = document.getElementById('whatsappModal');
+        whatsappModal.querySelector('div > div').classList.add('animate-fadeOut');
+        
+        // Aguardar animação antes de fechar
+        setTimeout(() => {
+            whatsappModal.classList.add('hidden');
+            whatsappUrl = null;
+            whatsappData = null;
+            
+            // Recarregar a página após 500ms
+            setTimeout(() => location.reload(), 500);
+        }, 300);
+    }
+}
+
+function closeWhatsAppModal() {
+    const whatsappModal = document.getElementById('whatsappModal');
+    
+    // Adicionar animação de saída
+    whatsappModal.querySelector('div > div').classList.add('animate-fadeOut');
+    
+    // Aguardar animação antes de fechar
+    setTimeout(() => {
+        whatsappModal.classList.add('hidden');
+        whatsappUrl = null;
+        whatsappData = null;
+        
+        // Recarregar a página
+        location.reload();
+    }, 300);
+}
+
+async function cancelAppointment(appointmentId) {
+    if (!confirm('Deseja realmente cancelar este agendamento?')) return;
+    
+    await updateStatusById(appointmentId, 'cancelled');
+    
+    // Animar remoção
+    const row = document.querySelector(`tr[data-appointment-id="${appointmentId}"]`);
+    if (row) {
+        row.classList.add('opacity-50', 'transition-opacity');
+        setTimeout(() => location.reload(), 500);
+    }
+}
+
+function viewDetails(appointmentId) {
+    // Implementar modal de detalhes
+    alert('Detalhes do agendamento #' + appointmentId);
+}
+
+function showNovoAgendamentoModal() {
+    alert('Funcionalidade de novo agendamento em desenvolvimento');
+}
+
+function exportAgendamentos() {
+    const url = new URL(window.location);
+    url.searchParams.set('export', 'csv');
+    window.location.href = url.toString();
+}
+
+// ============ Utilidades ============
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+
+// ============ Inicialização ============
+document.addEventListener('DOMContentLoaded', function() {
+    // Recarregar ícones do Lucide
+    if (typeof lucide !== 'undefined') {
+        lucide.createIcons();
+    }
+});
+</script>
+{% endblock %}
