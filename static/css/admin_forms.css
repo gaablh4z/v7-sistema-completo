@@ -1,0 +1,270 @@
+/* Estilos de Formulário - Força aplicação dos estilos corretos */
+
+/* Inputs de texto, email, password, tel, number, date */
+input[type="text"],
+input[type="email"], 
+input[type="password"],
+input[type="tel"],
+input[type="number"],
+input[type="date"],
+input[type="time"],
+input[type="url"],
+input[type="search"] {
+    background-color: white !important;
+    color: #111827 !important;
+    border: 1px solid #d1d5db !important;
+    border-radius: 0.5rem !important;
+    padding: 0.625rem 1rem !important;
+    width: 100% !important;
+    transition: all 0.2s !important;
+}
+
+input[type="text"]:hover,
+input[type="email"]:hover, 
+input[type="password"]:hover,
+input[type="tel"]:hover,
+input[type="number"]:hover,
+input[type="date"]:hover,
+input[type="time"]:hover,
+input[type="url"]:hover,
+input[type="search"]:hover {
+    border-color: #9ca3af !important;
+}
+
+input[type="text"]:focus,
+input[type="email"]:focus, 
+input[type="password"]:focus,
+input[type="tel"]:focus,
+input[type="number"]:focus,
+input[type="date"]:focus,
+input[type="time"]:focus,
+input[type="url"]:focus,
+input[type="search"]:focus {
+    outline: none !important;
+    border-color: #3b82f6 !important;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1) !important;
+}
+
+/* Dark Mode - Inputs */
+.dark input[type="text"],
+.dark input[type="email"], 
+.dark input[type="password"],
+.dark input[type="tel"],
+.dark input[type="number"],
+.dark input[type="date"],
+.dark input[type="time"],
+.dark input[type="url"],
+.dark input[type="search"] {
+    background-color: #1f2937 !important;
+    color: #f9fafb !important;
+    border-color: #4b5563 !important;
+}
+
+.dark input[type="text"]:hover,
+.dark input[type="email"]:hover, 
+.dark input[type="password"]:hover,
+.dark input[type="tel"]:hover,
+.dark input[type="number"]:hover,
+.dark input[type="date"]:hover,
+.dark input[type="time"]:hover,
+.dark input[type="url"]:hover,
+.dark input[type="search"]:hover {
+    border-color: #6b7280 !important;
+}
+
+.dark input[type="text"]:focus,
+.dark input[type="email"]:focus, 
+.dark input[type="password"]:focus,
+.dark input[type="tel"]:focus,
+.dark input[type="number"]:focus,
+.dark input[type="date"]:focus,
+.dark input[type="time"]:focus,
+.dark input[type="url"]:focus,
+.dark input[type="search"]:focus {
+    border-color: #60a5fa !important;
+    box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.1) !important;
+}
+
+/* Textarea */
+textarea {
+    background-color: white !important;
+    color: #111827 !important;
+    border: 1px solid #d1d5db !important;
+    border-radius: 0.5rem !important;
+    padding: 0.625rem 1rem !important;
+    width: 100% !important;
+    min-height: 100px !important;
+    transition: all 0.2s !important;
+}
+
+textarea:hover {
+    border-color: #9ca3af !important;
+}
+
+textarea:focus {
+    outline: none !important;
+    border-color: #3b82f6 !important;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1) !important;
+}
+
+.dark textarea {
+    background-color: #1f2937 !important;
+    color: #f9fafb !important;
+    border-color: #4b5563 !important;
+}
+
+.dark textarea:hover {
+    border-color: #6b7280 !important;
+}
+
+.dark textarea:focus {
+    border-color: #60a5fa !important;
+    box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.1) !important;
+}
+
+/* Select */
+select {
+    background-color: white !important;
+    color: #111827 !important;
+    border: 1px solid #d1d5db !important;
+    border-radius: 0.5rem !important;
+    padding: 0.625rem 1rem !important;
+    width: 100% !important;
+    cursor: pointer !important;
+    transition: all 0.2s !important;
+}
+
+select:hover {
+    border-color: #9ca3af !important;
+}
+
+select:focus {
+    outline: none !important;
+    border-color: #3b82f6 !important;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1) !important;
+}
+
+.dark select {
+    background-color: #1f2937 !important;
+    color: #f9fafb !important;
+    border-color: #4b5563 !important;
+}
+
+.dark select option {
+    background-color: #1f2937 !important;
+    color: #f9fafb !important;
+}
+
+.dark select:hover {
+    border-color: #6b7280 !important;
+}
+
+.dark select:focus {
+    border-color: #60a5fa !important;
+    box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.1) !important;
+}
+
+/* Input File */
+input[type="file"] {
+    background-color: white !important;
+    color: #111827 !important;
+    border: 1px solid #d1d5db !important;
+    border-radius: 0.5rem !important;
+    padding: 0.5rem !important;
+    width: 100% !important;
+    cursor: pointer !important;
+}
+
+.dark input[type="file"] {
+    background-color: #1f2937 !important;
+    color: #f9fafb !important;
+    border-color: #4b5563 !important;
+}
+
+input[type="file"]::file-selector-button {
+    background-color: #eff6ff !important;
+    color: #1e40af !important;
+    border: none !important;
+    padding: 0.5rem 1rem !important;
+    border-radius: 0.5rem !important;
+    margin-right: 1rem !important;
+    font-weight: 600 !important;
+    cursor: pointer !important;
+    transition: all 0.2s !important;
+}
+
+input[type="file"]::file-selector-button:hover {
+    background-color: #dbeafe !important;
+}
+
+.dark input[type="file"]::file-selector-button {
+    background-color: #374151 !important;
+    color: #60a5fa !important;
+}
+
+.dark input[type="file"]::file-selector-button:hover {
+    background-color: #4b5563 !important;
+}
+
+/* Checkbox e Radio */
+input[type="checkbox"],
+input[type="radio"] {
+    width: 1rem !important;
+    height: 1rem !important;
+    cursor: pointer !important;
+    border: 1px solid #d1d5db !important;
+    transition: all 0.2s !important;
+}
+
+input[type="checkbox"]:checked,
+input[type="radio"]:checked {
+    background-color: #3b82f6 !important;
+    border-color: #3b82f6 !important;
+}
+
+.dark input[type="checkbox"],
+.dark input[type="radio"] {
+    background-color: #374151 !important;
+    border-color: #4b5563 !important;
+}
+
+.dark input[type="checkbox"]:checked,
+.dark input[type="radio"]:checked {
+    background-color: #60a5fa !important;
+    border-color: #60a5fa !important;
+}
+
+/* Placeholder */
+input::placeholder,
+textarea::placeholder {
+    color: #9ca3af !important;
+}
+
+.dark input::placeholder,
+.dark textarea::placeholder {
+    color: #6b7280 !important;
+}
+
+/* Date Picker Icon */
+input[type="date"]::-webkit-calendar-picker-indicator {
+    cursor: pointer !important;
+}
+
+.dark input[type="date"]::-webkit-calendar-picker-indicator {
+    filter: invert(1) !important;
+}
+
+/* Disabled State */
+input:disabled,
+textarea:disabled,
+select:disabled {
+    opacity: 0.6 !important;
+    cursor: not-allowed !important;
+    background-color: #f3f4f6 !important;
+}
+
+.dark input:disabled,
+.dark textarea:disabled,
+.dark select:disabled {
+    background-color: #1f2937 !important;
+}

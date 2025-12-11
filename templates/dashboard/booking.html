@@ -1,0 +1,1246 @@
+{% extends 'dashboard/layout.html' %}
+{% load l10n %}
+
+{% block title %}Agendar Serviço - AutoV7{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="/static/css/booking-modern.css">
+<style>
+.booking-page {
+    padding: 2.5rem;
+    min-height: 100vh;
+    background: radial-gradient(circle at 20% 20%, rgba(96, 165, 250, 0.25), transparent 55%),
+        radial-gradient(circle at 80% 0%, rgba(99, 102, 241, 0.2), transparent 50%),
+        #020617;
+}
+
+    inset: 0;
+    background: radial-gradient(circle at top right, rgba(59, 130, 246, 0.25), transparent 45%);
+    pointer-events: none;
+}
+
+.booking-hero__content {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 1.25rem;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    box-shadow: 0 20px 45px rgba(59, 130, 246, 0.35);
+}
+
+.booking-hero__icon i {
+    width: 28px;
+    height: 28px;
+}
+
+.booking-hero__badge {
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    font-size: 0.7rem;
+    color: #cbd5f5;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.35rem 0.9rem;
+    border-radius: 999px;
+    border: 1px solid rgba(148, 163, 184, 0.35);
+    background: rgba(15, 23, 42, 0.85);
+}
+
+.booking-hero__badge i {
+    width: 14px;
+    height: 14px;
+}
+
+.booking-hero__content h1 {
+    color: white;
+    font-size: 2.65rem;
+    margin: 0 0 0.25rem;
+}
+
+.booking-hero__content p {
+    color: rgba(226, 232, 240, 0.85);
+    margin: 0;
+    line-height: 1.6;
+}
+
+.booking-hero__pills {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    margin-top: 1.5rem;
+}
+
+.booking-hero__pills span {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    padding: 0.45rem 0.9rem;
+    border-radius: 999px;
+    border: 1px solid rgba(148, 163, 184, 0.3);
+    color: rgba(226, 232, 240, 0.9);
+    font-size: 0.85rem;
+    background: rgba(15, 23, 42, 0.6);
+}
+
+.booking-hero__stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 1rem;
+    
+    .booking-progress {
+        flex-direction: column;
+        padding: 1.25rem;
+    }
+    
+    .booking-progress__item {
+        width: 100%;
+    }
+    
+    .step-line {
+        display: none;
+    }
+    margin-top: 1.5rem;
+}
+
+.booking-hero__stats span {
+    flex-direction: column;
+    gap: 0.75rem;
+    flex: 0 0 220px;
+}
+
+.booking-hero__primary,
+.booking-hero__ghost {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    border-radius: 18px;
+    padding: 0.85rem 1.25rem;
+    font-weight: 600;
+    cursor: pointer;
+    border: 1px solid rgba(148, 163, 184, 0.25);
+    color: rgba(226, 232, 240, 0.85);
+    background: rgba(15, 23, 42, 0.6);
+    transition: all 0.2s ease;
+    text-decoration: none;
+}
+
+.booking-hero__primary {
+    border: none;
+    background: linear-gradient(135deg, #3b82f6, #2563eb);
+    color: white;
+    box-shadow: 0 25px 45px rgba(59, 130, 246, 0.35);
+}
+
+.booking-hero__primary:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 30px 50px rgba(59, 130, 246, 0.45);
+}
+
+.booking-hero__ghost:hover {
+    border-color: rgba(99, 102, 241, 0.4);
+    color: white;
+}
+
+.booking-flow {
+    background: transparent;
+}
+
+.booking-info-card {
+    max-width: 1160px;
+    margin: 0 auto 2rem;
+    padding: 1.75rem 2rem;
+    border-radius: 28px;
+    border: 1px solid rgba(148, 163, 184, 0.35);
+    background: rgba(15, 23, 42, 0.85);
+    box-shadow: 0 25px 60px rgba(2, 6, 23, 0.5);
+    backdrop-filter: blur(18px);
+    display: flex;
+    flex-wrap: wrap;
+    gap: 2rem;
+    align-items: center;
+}
+
+.booking-info-card__text {
+    flex: 1 1 360px;
+}
+
+.booking-info-card__label {
+    text-transform: uppercase;
+    font-size: 0.75rem;
+    letter-spacing: 0.08em;
+    color: rgba(226, 232, 240, 0.65);
+    margin-bottom: 0.35rem;
+}
+
+.booking-info-card__text h3 {
+    margin: 0;
+    color: white;
+    font-size: 1.65rem;
+}
+
+.booking-info-card__text p {
+    color: rgba(226, 232, 240, 0.7);
+    margin: 0.35rem 0 0;
+}
+
+.booking-info-card__stats {
+    flex: 1 1 320px;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 1rem;
+}
+
+.booking-info-card__item {
+    padding: 1rem 1.25rem;
+    border-radius: 18px;
+    border: 1px solid rgba(148, 163, 184, 0.3);
+    background: rgba(15, 23, 42, 0.65);
+}
+
+.booking-info-card__item span {
+    display: block;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: rgba(226, 232, 240, 0.6);
+}
+
+.booking-info-card__item strong {
+    display: block;
+    margin-top: 0.35rem;
+    font-size: 1.5rem;
+    color: white;
+}
+
+.booking-flow .glass-card {
+    margin-top: 2rem;
+}
+
+:root {
+    --primary-slate: #1e293b;
+    --secondary-slate: #334155;
+    --accent-slate: #475569;
+    --glass-bg: rgba(255, 255, 255, 0.05);
+    --glass-border: rgba(255, 255, 255, 0.1);
+    --booking-hero-border: rgba(148, 163, 184, 0.25);
+    --booking-hero-bg: rgba(13, 19, 33, 0.92);
+}
+
+.booking-container {
+    max-width: 1100px;
+    margin: 0 auto 3rem;
+}
+
+.booking-flow .booking-progress {
+    margin-bottom: 1.5rem;
+}
+
+.glass-card {
+    background: var(--glass-bg);
+    backdrop-filter: blur(20px);
+    border: 1px solid var(--glass-border);
+    border-radius: 1rem;
+    padding: 2rem;
+    box-shadow: 0 25px 50px rgba(0, 0, 0, 0.2);
+}
+
+.step-card {
+    background: var(--glass-bg);
+    backdrop-filter: blur(15px);
+    border: 1px solid var(--glass-border);
+    border-radius: 0.75rem;
+    transition: all 0.3s ease;
+}
+
+.step-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.15);
+}
+
+.service-option, .vehicle-option, .payment-option {
+    background: var(--glass-bg);
+    border: 2px solid var(--glass-border);
+    border-radius: 0.75rem;
+    padding: 1.5rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.service-option:hover, .vehicle-option:hover, .payment-option:hover {
+    border-color: var(--accent-slate);
+    background: rgba(71, 85, 105, 0.1);
+    transform: scale(1.02);
+}
+
+.service-option.selected, .vehicle-option.selected, .payment-option.selected {
+    border-color: var(--primary-slate);
+    background: rgba(30, 41, 59, 0.15);
+    box-shadow: 0 0 20px rgba(30, 41, 59, 0.3);
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, var(--primary-slate), var(--secondary-slate));
+    border: none;
+    color: white;
+    padding: 0.75rem 2rem;
+    border-radius: 0.75rem;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+.btn-primary:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 20px rgba(30, 41, 59, 0.4);
+}
+
+.btn-primary:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.btn-secondary {
+    background: var(--glass-bg);
+    border: 2px solid var(--glass-border);
+    color: white;
+    padding: 0.75rem 2rem;
+    border-radius: 0.75rem;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+.btn-secondary:hover {
+    border-color: var(--accent-blue);
+    background: rgba(96, 165, 250, 0.1);
+}
+
+.booking-progress {
+    display: flex;
+    align-items: stretch;
+    gap: 1rem;
+    padding: 1.5rem 2rem;
+    border-radius: 24px;
+    border: 1px solid var(--glass-border);
+    background: rgba(15, 23, 42, 0.65);
+    backdrop-filter: blur(16px);
+}
+
+.booking-progress__item {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    flex: 1;
+    min-width: 180px;
+}
+
+.step-dot {
+    width: 3.25rem;
+    height: 3.25rem;
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    color: white;
+    border: 1px solid rgba(148, 163, 184, 0.35);
+    background: rgba(15, 23, 42, 0.6);
+    box-shadow: inset 0 0 0 1px rgba(99, 102, 241, 0.2);
+    transition: all 0.3s ease;
+}
+
+.step-dot.active {
+    border-color: rgba(96, 165, 250, 0.6);
+    background: linear-gradient(135deg, #3b82f6, #2563eb);
+    box-shadow: 0 15px 40px rgba(59, 130, 246, 0.35);
+}
+
+.step-dot.inactive {
+    opacity: 0.6;
+}
+
+.step-copy {
+    flex: 1;
+}
+
+.step-label {
+    color: rgba(226, 232, 240, 0.85);
+    font-size: 0.85rem;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    margin: 0;
+}
+
+.step-desc {
+    margin: 0.15rem 0 0.5rem;
+    color: rgba(148, 163, 184, 0.8);
+    font-size: 0.85rem;
+}
+
+.step-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    padding: 0.2rem 0.9rem;
+    border-radius: 999px;
+    font-size: 0.75rem;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    border: 1px solid rgba(148, 163, 184, 0.3);
+    background: rgba(15, 23, 42, 0.4);
+    color: rgba(226, 232, 240, 0.8);
+    transition: all 0.3s ease;
+}
+
+.step-status.is-current {
+    border-color: rgba(96, 165, 250, 0.6);
+    background: rgba(96, 165, 250, 0.15);
+    color: #bfdbfe;
+}
+
+.step-status.is-complete {
+    border-color: rgba(34, 197, 94, 0.4);
+    background: rgba(34, 197, 94, 0.15);
+    color: #bbf7d0;
+}
+
+.step-line {
+    flex: 0 0 60px;
+    height: 2px;
+    align-self: center;
+    background: rgba(255, 255, 255, 0.2);
+}
+
+.step-line.active {
+    background: var(--primary-blue);
+    box-shadow: 0 0 10px rgba(59, 130, 246, 0.4);
+}
+
+.calendar-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 0.5rem;
+    margin-top: 1rem;
+}
+
+.calendar-day {
+    aspect-ratio: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 0.5rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    color: white;
+}
+
+.calendar-day:hover:not(.disabled) {
+    background: rgba(96, 165, 250, 0.3);
+}
+
+.calendar-day.selected {
+    background: var(--primary-blue);
+    box-shadow: 0 0 15px rgba(59, 130, 246, 0.5);
+}
+
+.calendar-day.disabled {
+    color: rgba(255, 255, 255, 0.3);
+    cursor: not-allowed;
+}
+
+.time-slot {
+    background: var(--glass-bg);
+    border: 2px solid var(--glass-border);
+    color: white;
+    padding: 0.75rem;
+    border-radius: 0.5rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-align: center;
+    font-weight: 500;
+}
+
+.time-slot:hover {
+    border-color: var(--accent-blue);
+    background: rgba(96, 165, 250, 0.1);
+}
+
+.time-slot.selected {
+    background: var(--primary-blue);
+    border-color: var(--primary-blue);
+    box-shadow: 0 0 15px rgba(59, 130, 246, 0.5);
+}
+
+.fade-in {
+    animation: fadeIn 0.5s ease-in-out;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.text-white { color: white; }
+.text-white-80 { color: rgba(255, 255, 255, 0.8); }
+.text-white-60 { color: rgba(255, 255, 255, 0.6); }
+.text-slate-400 { color: #94a3b8; }
+
+.hidden { display: none; }
+.block { display: block; }
+.flex { display: flex; }
+.grid { display: grid; }
+.items-center { align-items: center; }
+.justify-center { justify-content: center; }
+.justify-between { justify-content: space-between; }
+.space-y-4 > * + * { margin-top: 1rem; }
+.space-y-6 > * + * { margin-top: 1.5rem; }
+.mb-4 { margin-bottom: 1rem; }
+.mb-6 { margin-bottom: 1.5rem; }
+.mb-8 { margin-bottom: 2rem; }
+.mt-8 { margin-top: 2rem; }
+.p-4 { padding: 1rem; }
+.p-6 { padding: 1.5rem; }
+.p-8 { padding: 2rem; }
+.w-full { width: 100%; }
+.max-w-4xl { max-width: 56rem; }
+.mx-auto { margin-left: auto; margin-right: auto; }
+.text-center { text-align: center; }
+.text-xl { font-size: 1.25rem; }
+.text-2xl { font-size: 1.5rem; }
+.text-3xl { font-size: 1.875rem; }
+.font-bold { font-weight: 700; }
+.font-semibold { font-weight: 600; }
+.font-medium { font-weight: 500; }
+
+@media (max-width: 768px) {
+    .booking-page {
+        padding: 1.5rem;
+    }
+    
+    .booking-hero {
+        padding: 1.75rem;
+    }
+
+    .booking-hero__actions,
+    .booking-hero__primary,
+    .booking-hero__ghost {
+        width: 100%;
+    }
+
+    .booking-progress {
+        flex-direction: column;
+        padding: 1.25rem;
+    }
+
+    .booking-progress__item {
+        width: 100%;
+    }
+
+    .step-line {
+        display: none;
+    }
+
+    .booking-info-card {
+        padding: 1.25rem;
+    }
+
+    .booking-info-card__stats {
+        width: 100%;
+    }
+    
+    .glass-card {
+        padding: 1rem;
+    }
+    
+    .service-option, .vehicle-option, .payment-option {
+        padding: 1rem;
+    }
+}
+</style>
+{% endblock %}
+
+{% block dashboard_content %}
+{% csrf_token %}
+<div class="booking-page">
+    <section class="booking-hero">
+        <div class="booking-hero__content">
+            <div class="booking-hero__identity">
+                <div class="booking-hero__icon">
+                    <i data-lucide="calendar-clock"></i>
+                </div>
+                <div>
+                    <span class="booking-hero__badge">
+                        <i data-lucide="shield-check"></i>
+                        Sistema ativo
+                    </span>
+                    <h1>Central de Agendamentos</h1>
+                </div>
+            </div>
+            <p>Gerencie e confirme horários com a mesma estética premium do módulo de veículos, agora com feedback visual para cada etapa.</p>
+            <div class="booking-hero__pills">
+                <span><i data-lucide="check-circle"></i>Seguro e confiável</span>
+                <span><i data-lucide="clock-3"></i>Acesso 24/7</span>
+                <span><i data-lucide="headphones"></i>Suporte dedicado</span>
+            </div>
+        </div>
+        <div class="booking-hero__actions">
+            <button type="button" class="booking-hero__primary" onclick="document.getElementById('step-1').scrollIntoView({behavior: 'smooth'})">
+                <i data-lucide="flashlight"></i>
+                <span>Novo agendamento</span>
+            </button>
+            <a href="/dashboard/appointments/" class="booking-hero__ghost">
+                <i data-lucide="history"></i>
+                <span>Agenda existente</span>
+            </a>
+            <button type="button" class="booking-hero__ghost" onclick="document.getElementById('step-4').scrollIntoView({behavior: 'smooth'})">
+                <i data-lucide="sliders"></i>
+                <span>Preferências</span>
+            </button>
+        </div>
+    </section>
+
+    <div class="booking-info-card">
+        <div class="booking-info-card__text">
+            <p class="booking-info-card__label">Fluxo guiado</p>
+            <h3>Resumo do processo</h3>
+            <p>Selecione serviço, veículo, disponibilidade e confirme o pagamento em uma única tela com indicadores sincronizados.</p>
+        </div>
+        <div class="booking-info-card__stats">
+            <div class="booking-info-card__item">
+                <span>Serviços ativos</span>
+                <strong>{{ services|length }}</strong>
+            </div>
+            <div class="booking-info-card__item">
+                <span>Veículos cadastrados</span>
+                <strong>{{ user_vehicles|length }}</strong>
+            </div>
+            <div class="booking-info-card__item">
+                <span>Etapas</span>
+                <strong>4</strong>
+            </div>
+        </div>
+    </div>
+
+    <div class="booking-container">
+        <div class="booking-flow">
+            <div class="booking-progress">
+                <div class="booking-progress__item">
+                    <div class="step-dot active" id="dot-1">1</div>
+                    <div class="step-copy">
+                        <p class="step-label">Serviço</p>
+                        <p class="step-desc">Escolha o que precisa</p>
+                        <span class="step-status is-current" id="status-1" data-default="Selecione um serviço">Selecione um serviço</span>
+                    </div>
+                </div>
+                <div class="step-line" id="line-1"></div>
+                <div class="booking-progress__item">
+                    <div class="step-dot inactive" id="dot-2">2</div>
+                    <div class="step-copy">
+                        <p class="step-label">Veículo</p>
+                        <p class="step-desc">Informe o carro</p>
+                        <span class="step-status" id="status-2" data-default="Aguardando">Aguardando</span>
+                    </div>
+                </div>
+                <div class="step-line" id="line-2"></div>
+                <div class="booking-progress__item">
+                    <div class="step-dot inactive" id="dot-3">3</div>
+                    <div class="step-copy">
+                        <p class="step-label">Data &amp; Hora</p>
+                        <p class="step-desc">Defina disponibilidade</p>
+                        <span class="step-status" id="status-3" data-default="Pendente">Pendente</span>
+                    </div>
+                </div>
+                <div class="step-line" id="line-3"></div>
+                <div class="booking-progress__item">
+                    <div class="step-dot inactive" id="dot-4">4</div>
+                    <div class="step-copy">
+                        <p class="step-label">Confirmação</p>
+                        <p class="step-desc">Revise os detalhes</p>
+                        <span class="step-status" id="status-4" data-default="Resumo vazio">Resumo vazio</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Main Card -->
+            <div class="glass-card">
+            <!-- Step 1: Services -->
+            <div id="step-1" class="fade-in">
+                <h2 class="text-2xl font-semibold text-white mb-6 text-center">Escolha o Serviço</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {% for service in services %}
+                    <div class="service-option" data-service-id="{{ service.id }}" data-service-name="{{ service.nome }}" data-service-price="{{ service.preco }}">
+                        <div class="flex items-center justify-between mb-4">
+                            <div class="flex items-center">
+                                <i data-lucide="wrench" class="w-8 h-8 text-slate-400 mr-3"></i>
+                                <div>
+                                    <h3 class="font-semibold text-white">{{ service.nome }}</h3>
+                                    <p class="text-white-60">{{ service.descricao|default:"Serviço profissional" }}</p>
+                                </div>
+                            </div>
+                            <div class="text-right">
+                                <p class="text-xl font-bold text-slate-400">R$ {{ service.preco }}</p>
+                                <p class="text-white-60">{{ service.tempo_estimado|default:"60" }} min</p>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                <div class="flex justify-center mt-8">
+                    <button id="next-1" class="btn-primary" disabled>
+                        Próximo: Escolher Veículo
+                        <i data-lucide="arrow-right" class="w-4 h-4 ml-2 inline"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Step 2: Vehicles -->
+            <div id="step-2" class="hidden">
+                <h2 class="text-2xl font-semibold text-white mb-6 text-center">Escolha o Veículo</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {% for vehicle in user_vehicles %}
+                    <div class="vehicle-option" data-vehicle-id="{{ vehicle.id }}" data-vehicle-name="{{ vehicle.marca }} {{ vehicle.modelo }}" data-vehicle-plate="{{ vehicle.placa }}">
+                        <div class="flex items-center">
+                            <i data-lucide="car" class="w-8 h-8 text-slate-400 mr-3"></i>
+                            <div>
+                                <h3 class="font-semibold text-white">{{ vehicle.marca }} {{ vehicle.modelo }}</h3>
+                                <p class="text-white-60">{{ vehicle.placa }} • {{ vehicle.ano }} • {{ vehicle.cor|default:"Cor não informada" }}</p>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                <div class="flex justify-between mt-8">
+                    <button id="prev-2" class="btn-secondary">
+                        <i data-lucide="arrow-left" class="w-4 h-4 mr-2 inline"></i>
+                        Voltar
+                    </button>
+                    <button id="next-2" class="btn-primary" disabled>
+                        Próximo: Data e Hora
+                        <i data-lucide="arrow-right" class="w-4 h-4 ml-2 inline"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Step 3: Date & Time -->
+            <div id="step-3" class="hidden">
+                <h2 class="text-2xl font-semibold text-white mb-6 text-center">Escolha Data e Horário</h2>
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    <!-- Calendar -->
+                    <div>
+                        <h3 class="text-xl font-semibold text-white mb-4">Selecione a Data</h3>
+                        <div class="glass-card p-4">
+                            <div class="flex items-center justify-between mb-4">
+                                <button id="prev-month" class="btn-secondary p-2">
+                                    <i data-lucide="chevron-left" class="w-4 h-4"></i>
+                                </button>
+                                <h4 id="current-month" class="font-semibold text-white"></h4>
+                                <button id="next-month" class="btn-secondary p-2">
+                                    <i data-lucide="chevron-right" class="w-4 h-4"></i>
+                                </button>
+                            </div>
+                            <div class="calendar-grid">
+                                <div class="text-center text-white-60 p-2">Dom</div>
+                                <div class="text-center text-white-60 p-2">Seg</div>
+                                <div class="text-center text-white-60 p-2">Ter</div>
+                                <div class="text-center text-white-60 p-2">Qua</div>
+                                <div class="text-center text-white-60 p-2">Qui</div>
+                                <div class="text-center text-white-60 p-2">Sex</div>
+                                <div class="text-center text-white-60 p-2">Sáb</div>
+                            </div>
+                            <div id="calendar-days" class="calendar-grid mt-2"></div>
+                        </div>
+                    </div>
+                    
+                    <!-- Time Slots -->
+                    <div>
+                        <h3 class="text-xl font-semibold text-white mb-4">Horários Disponíveis</h3>
+                        <div id="selected-date-info" class="glass-card p-4 mb-4">
+                            <p class="text-white-80">Selecione uma data primeiro</p>
+                        </div>
+                        <div id="time-slots" class="grid grid-cols-2 gap-3">
+                            <!-- Time slots will be generated here -->
+                        </div>
+                    </div>
+                </div>
+                <div class="flex justify-between mt-8">
+                    <button id="prev-3" class="btn-secondary">
+                        <i data-lucide="arrow-left" class="w-4 h-4 mr-2 inline"></i>
+                        Voltar
+                    </button>
+                    <button id="next-3" class="btn-primary" disabled>
+                        Próximo: Pagamento
+                        <i data-lucide="arrow-right" class="w-4 h-4 ml-2 inline"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Step 4: Payment & Summary -->
+            <div id="step-4" class="hidden">
+                <h2 class="text-2xl font-semibold text-white mb-6 text-center">Pagamento e Confirmação</h2>
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    <!-- Summary -->
+                    <div>
+                        <h3 class="text-xl font-semibold text-white mb-4">Resumo do Agendamento</h3>
+                        <div class="glass-card space-y-4">
+                            <div id="summary-service" class="p-4 bg-white bg-opacity-5 rounded">
+                                <p class="text-white-60">Serviço</p>
+                                <p class="text-white font-semibold">--</p>
+                            </div>
+                            <div id="summary-vehicle" class="p-4 bg-white bg-opacity-5 rounded">
+                                <p class="text-white-60">Veículo</p>
+                                <p class="text-white font-semibold">--</p>
+                            </div>
+                            <div id="summary-datetime" class="p-4 bg-white bg-opacity-5 rounded">
+                                <p class="text-white-60">Data e Horário</p>
+                                <p class="text-white font-semibold">--</p>
+                            </div>
+                            <div class="p-4 bg-slate-700 bg-opacity-20 rounded">
+                                <div class="flex justify-between items-center">
+                                    <p class="text-white font-bold">Total</p>
+                                    <p id="summary-total" class="text-2xl font-bold text-slate-400">R$ 0,00</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Payment Methods -->
+                    <div>
+                        <h3 class="text-xl font-semibold text-white mb-4">Forma de Pagamento</h3>
+                        <div class="space-y-4">
+                            <div class="payment-option" data-payment="cash">
+                                <div class="flex items-center">
+                                    <i data-lucide="banknote" class="w-6 h-6 text-slate-400 mr-3"></i>
+                                    <div>
+                                        <h4 class="font-semibold text-white">Dinheiro</h4>
+                                        <p class="text-white-60">Pagamento no local</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="payment-option" data-payment="card">
+                                <div class="flex items-center">
+                                    <i data-lucide="credit-card" class="w-6 h-6 text-slate-400 mr-3"></i>
+                                    <div>
+                                        <h4 class="font-semibold text-white">Cartão</h4>
+                                        <p class="text-white-60">Débito ou Crédito</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="payment-option" data-payment="pix">
+                                <div class="flex items-center">
+                                    <i data-lucide="qr-code" class="w-6 h-6 text-slate-400 mr-3"></i>
+                                    <div>
+                                        <h4 class="font-semibold text-white">PIX</h4>
+                                        <p class="text-white-60">Transferência instantânea</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="flex justify-between mt-8">
+                    <button id="prev-4" class="btn-secondary">
+                        <i data-lucide="arrow-left" class="w-4 h-4 mr-2 inline"></i>
+                        Voltar
+                    </button>
+                    <button id="submit-booking" class="btn-primary" disabled>
+                        Confirmar Agendamento
+                        <i data-lucide="check" class="w-4 h-4 ml-2 inline"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Initialize Lucide icons
+lucide.createIcons();
+
+// Global state
+const booking = {
+    currentStep: 1,
+    selectedService: null,
+    selectedVehicle: null,
+    selectedDate: null,
+    selectedTime: null,
+    selectedPayment: null
+};
+
+// Calendar state
+let currentCalendarDate = new Date();
+const paymentLabels = {
+    cash: 'Dinheiro',
+    card: 'Cartão',
+    pix: 'PIX'
+};
+const statusBadges = Array.from(document.querySelectorAll('.step-status'));
+statusBadges.forEach(badge => {
+    if (!badge.dataset.default) {
+        badge.dataset.default = badge.textContent.trim();
+    }
+});
+
+function formatCurrencyBRL(value) {
+    return Number(value || 0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+}
+
+function formatDateBadge(date) {
+    if (!date) {
+        return '';
+    }
+    return date.toLocaleDateString('pt-BR', { day: '2-digit', month: 'short' }).replace('.', '');
+}
+
+function refreshStepBadges(activeStep = booking.currentStep) {
+    statusBadges.forEach((badge, index) => {
+        badge.classList.remove('is-current');
+        if (badge.dataset.completed === 'true') {
+            badge.classList.add('is-complete');
+        } else {
+            badge.classList.remove('is-complete');
+        }
+        if (index + 1 === activeStep) {
+            badge.classList.add('is-current');
+        }
+    });
+}
+
+function setStepStatus(step, text, markComplete = null) {
+    const badge = document.getElementById(`status-${step}`);
+    if (!badge) {
+        return;
+    }
+    if (text) {
+        badge.textContent = text;
+    } else if (badge.dataset.default) {
+        badge.textContent = badge.dataset.default;
+    }
+
+    if (markComplete === true) {
+        badge.dataset.completed = 'true';
+        badge.classList.add('is-complete');
+    } else if (markComplete === false) {
+        delete badge.dataset.completed;
+        badge.classList.remove('is-complete');
+    }
+
+    refreshStepBadges();
+}
+
+refreshStepBadges();
+
+// Navigation functions
+function showStep(step) {
+    // Hide all steps
+    for (let i = 1; i <= 4; i++) {
+        document.getElementById(`step-${i}`).classList.add('hidden');
+        document.getElementById(`dot-${i}`).classList.remove('active');
+        document.getElementById(`dot-${i}`).classList.add('inactive');
+        if (i < 4) {
+            document.getElementById(`line-${i}`).classList.remove('active');
+        }
+    }
+    
+    // Show current step
+    document.getElementById(`step-${step}`).classList.remove('hidden');
+    document.getElementById(`step-${step}`).classList.add('fade-in');
+    
+    // Update indicators
+    for (let i = 1; i <= step; i++) {
+        document.getElementById(`dot-${i}`).classList.remove('inactive');
+        document.getElementById(`dot-${i}`).classList.add('active');
+        if (i < step) {
+            document.getElementById(`line-${i}`).classList.add('active');
+        }
+    }
+    
+    booking.currentStep = step;
+    refreshStepBadges(step);
+    
+    // Update summary if on step 4
+    if (step === 4) {
+        updateSummary();
+    }
+}
+
+// Step 1: Services
+document.querySelectorAll('.service-option').forEach(option => {
+    option.addEventListener('click', function() {
+        // Remove previous selection
+        document.querySelectorAll('.service-option').forEach(opt => opt.classList.remove('selected'));
+        
+        // Select current
+        this.classList.add('selected');
+        booking.selectedService = {
+            id: this.dataset.serviceId,
+            name: this.dataset.serviceName,
+            price: parseFloat(this.dataset.servicePrice)
+        };
+        setStepStatus(1, booking.selectedService.name, true);
+        
+        // Enable next button
+        document.getElementById('next-1').disabled = false;
+    });
+});
+
+document.getElementById('next-1').addEventListener('click', () => showStep(2));
+
+// Step 2: Vehicles
+document.querySelectorAll('.vehicle-option').forEach(option => {
+    option.addEventListener('click', function() {
+        // Remove previous selection
+        document.querySelectorAll('.vehicle-option').forEach(opt => opt.classList.remove('selected'));
+        
+        // Select current
+        this.classList.add('selected');
+        booking.selectedVehicle = {
+            id: this.dataset.vehicleId,
+            name: this.dataset.vehicleName,
+            plate: this.dataset.vehiclePlate
+        };
+        setStepStatus(2, `${booking.selectedVehicle.name} • ${booking.selectedVehicle.plate}`, true);
+        
+        // Enable next button
+        document.getElementById('next-2').disabled = false;
+    });
+});
+
+document.getElementById('prev-2').addEventListener('click', () => showStep(1));
+document.getElementById('next-2').addEventListener('click', () => {
+    showStep(3);
+    initCalendar();
+});
+
+// Step 3: Date & Time
+function initCalendar() {
+    updateCalendarDisplay();
+    generateCalendar();
+}
+
+function updateCalendarDisplay() {
+    const months = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho',
+                   'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'];
+    document.getElementById('current-month').textContent = 
+        `${months[currentCalendarDate.getMonth()]} ${currentCalendarDate.getFullYear()}`;
+}
+
+function generateCalendar() {
+    const calendarDays = document.getElementById('calendar-days');
+    calendarDays.innerHTML = '';
+    
+    const year = currentCalendarDate.getFullYear();
+    const month = currentCalendarDate.getMonth();
+    const firstDay = new Date(year, month, 1);
+    const lastDay = new Date(year, month + 1, 0);
+    const today = new Date();
+    
+    // Empty cells for days before first day
+    for (let i = 0; i < firstDay.getDay(); i++) {
+        calendarDays.appendChild(document.createElement('div'));
+    }
+    
+    // Days of the month
+    for (let day = 1; day <= lastDay.getDate(); day++) {
+        const dayElement = document.createElement('div');
+        dayElement.className = 'calendar-day';
+        dayElement.textContent = day;
+        
+        const dayDate = new Date(year, month, day);
+        const isPast = dayDate < today.setHours(0, 0, 0, 0);
+        
+        if (isPast) {
+            dayElement.classList.add('disabled');
+        } else {
+            dayElement.addEventListener('click', (evt) => selectDate(evt, year, month, day));
+        }
+        
+        calendarDays.appendChild(dayElement);
+    }
+}
+
+function selectDate(evt, year, month, day) {
+    // Remove previous selection
+    document.querySelectorAll('.calendar-day').forEach(d => d.classList.remove('selected'));
+    
+    // Select current day
+    const target = evt.currentTarget || evt.target;
+    target.classList.add('selected');
+    
+    const selectedDate = new Date(year, month, day);
+    booking.selectedDate = selectedDate;
+    booking.selectedTime = null;
+    document.getElementById('next-3').disabled = true;
+    setStepStatus(3, `${formatDateBadge(selectedDate)} • escolha o horário`, false);
+    
+    // Update date info
+    document.getElementById('selected-date-info').innerHTML = `
+        <div class="flex items-center">
+            <i data-lucide="calendar" class="w-4 h-4 text-slate-400 mr-2"></i>
+            <span class="text-white">${selectedDate.toLocaleDateString('pt-BR', {
+                weekday: 'long',
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
+            })}</span>
+        </div>
+    `;
+    
+    // Generate time slots
+    generateTimeSlots();
+    
+    lucide.createIcons();
+}
+
+function generateTimeSlots() {
+    const timeSlots = document.getElementById('time-slots');
+    const slots = ['08:00', '09:00', '10:00', '11:00', '14:00', '15:00', '16:00', '17:00'];
+    
+    timeSlots.innerHTML = '';
+    
+    slots.forEach(time => {
+        const slotElement = document.createElement('div');
+        slotElement.className = 'time-slot';
+        slotElement.textContent = time;
+        slotElement.addEventListener('click', () => selectTime(time, slotElement));
+        timeSlots.appendChild(slotElement);
+    });
+}
+
+function selectTime(time, element) {
+    // Remove previous selection
+    document.querySelectorAll('.time-slot').forEach(slot => slot.classList.remove('selected'));
+    
+    // Select current
+    element.classList.add('selected');
+    booking.selectedTime = time;
+    if (booking.selectedDate) {
+        setStepStatus(3, `${formatDateBadge(booking.selectedDate)} • ${time}`, true);
+    }
+    
+    // Enable next button
+    document.getElementById('next-3').disabled = false;
+}
+
+// Calendar navigation
+document.getElementById('prev-month').addEventListener('click', () => {
+    currentCalendarDate.setMonth(currentCalendarDate.getMonth() - 1);
+    updateCalendarDisplay();
+    generateCalendar();
+});
+
+document.getElementById('next-month').addEventListener('click', () => {
+    currentCalendarDate.setMonth(currentCalendarDate.getMonth() + 1);
+    updateCalendarDisplay();
+    generateCalendar();
+});
+
+document.getElementById('prev-3').addEventListener('click', () => showStep(2));
+document.getElementById('next-3').addEventListener('click', () => showStep(4));
+
+// Step 4: Payment
+document.querySelectorAll('.payment-option').forEach(option => {
+    option.addEventListener('click', function() {
+        // Remove previous selection
+        document.querySelectorAll('.payment-option').forEach(opt => opt.classList.remove('selected'));
+        
+        // Select current
+        this.classList.add('selected');
+        booking.selectedPayment = this.dataset.payment;
+        const paymentLabel = paymentLabels[booking.selectedPayment] || booking.selectedPayment;
+        const paymentStatus = booking.selectedService
+            ? `${formatCurrencyBRL(booking.selectedService.price)} • ${paymentLabel}`
+            : paymentLabel;
+        setStepStatus(4, paymentStatus, true);
+        
+        // Enable submit button
+        document.getElementById('submit-booking').disabled = false;
+    });
+});
+
+document.getElementById('prev-4').addEventListener('click', () => showStep(3));
+
+// Update summary
+function updateSummary() {
+    if (booking.selectedService) {
+        document.getElementById('summary-service').innerHTML = `
+            <p class="text-white-60">Serviço</p>
+            <p class="text-white font-semibold">${booking.selectedService.name}</p>
+        `;
+        document.getElementById('summary-total').textContent = formatCurrencyBRL(booking.selectedService.price);
+        setStepStatus(1, booking.selectedService.name, true);
+    }
+    
+    if (booking.selectedVehicle) {
+        document.getElementById('summary-vehicle').innerHTML = `
+            <p class="text-white-60">Veículo</p>
+            <p class="text-white font-semibold">${booking.selectedVehicle.name}</p>
+            <p class="text-white-80">${booking.selectedVehicle.plate}</p>
+        `;
+        setStepStatus(2, `${booking.selectedVehicle.name} • ${booking.selectedVehicle.plate}`, true);
+    }
+    
+    if (booking.selectedDate && booking.selectedTime) {
+        const summaryDate = booking.selectedDate.toLocaleDateString('pt-BR');
+        document.getElementById('summary-datetime').innerHTML = `
+            <p class="text-white-60">Data e Horário</p>
+            <p class="text-white font-semibold">${summaryDate}</p>
+            <p class="text-white-80">${booking.selectedTime}</p>
+        `;
+        setStepStatus(3, `${formatDateBadge(booking.selectedDate)} • ${booking.selectedTime}`, true);
+    }
+
+    if (booking.selectedService) {
+        const paymentLabel = booking.selectedPayment ? (paymentLabels[booking.selectedPayment] || booking.selectedPayment) : 'Escolha pagamento';
+        const totalLabel = booking.selectedPayment
+            ? `${formatCurrencyBRL(booking.selectedService.price)} • ${paymentLabel}`
+            : formatCurrencyBRL(booking.selectedService.price);
+        setStepStatus(4, totalLabel, booking.selectedPayment ? true : false);
+    }
+}
+
+// Submit booking
+document.getElementById('submit-booking').addEventListener('click', function() {
+    this.disabled = true;
+    this.innerHTML = '<i data-lucide="loader" class="w-4 h-4 mr-2 inline animate-spin"></i> Processando...';
+    lucide.createIcons();
+    
+    const bookingData = {
+        service_id: booking.selectedService.id,
+        vehicle_id: booking.selectedVehicle.id,
+        date: booking.selectedDate.toISOString().split('T')[0],
+        time: booking.selectedTime,
+        payment_method: booking.selectedPayment
+    };
+    
+    fetch('/dashboard/booking/', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+        },
+        body: JSON.stringify(bookingData)
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            alert('✅ Agendamento realizado com sucesso!');
+            window.location.href = '/dashboard/appointments/';
+        } else {
+            throw new Error(data.error || 'Erro ao processar agendamento');
+        }
+    })
+    .catch(error => {
+        alert('❌ Erro: ' + error.message);
+        this.disabled = false;
+        this.innerHTML = 'Confirmar Agendamento <i data-lucide="check" class="w-4 h-4 ml-2 inline"></i>';
+        lucide.createIcons();
+    });
+});
+</script>
+{% endblock %}

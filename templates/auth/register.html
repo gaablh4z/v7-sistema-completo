@@ -1,0 +1,190 @@
+﻿<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Criar Conta - AutoV7</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+    
+    <style>
+        body {
+            color-scheme: dark;
+        }
+        .glass-card {
+            background: rgba(15, 23, 42, 0.8);
+            backdrop-filter: blur(16px);
+            border: 1px solid rgba(59, 130, 246, 0.3);
+            box-shadow: 0 25px 50px -12px rgba(59, 130, 246, 0.25);
+        }
+        .form-input {
+            background: rgba(15, 23, 42, 0.8) !important;
+            border: 1px solid rgb(51, 65, 85) !important;
+            color: rgb(248, 250, 252) !important;
+            transition: all 0.3s ease !important;
+        }
+        .form-input:focus {
+            outline: none !important;
+            border-color: rgb(59, 130, 246) !important;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.3) !important;
+        }
+        .form-input::placeholder {
+            color: rgb(148, 163, 184) !important;
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, rgb(59, 130, 246), rgb(29, 78, 216));
+            box-shadow: 0 10px 25px -5px rgba(59, 130, 246, 0.4);
+            transition: all 0.3s ease;
+        }
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 15px 35px -5px rgba(59, 130, 246, 0.5);
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 min-h-screen text-slate-50">
+    <div class="min-h-screen flex items-center justify-center py-8 px-4">
+        <div class="w-full max-w-md">
+            
+            <!-- Header -->
+            <div class="text-center mb-8">
+                <div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-blue-600/20 border border-blue-500/40 shadow-lg shadow-blue-500/30 mb-6">
+                    <i data-lucide="user-plus" class="w-8 h-8 text-blue-400"></i>
+                </div>
+                <h1 class="text-3xl font-bold text-slate-50 mb-2">Criar Nova Conta</h1>
+                <p class="text-slate-400">Junte-se ao AutoV7</p>
+            </div>
+
+            <!-- Form Card -->
+            <div class="glass-card rounded-2xl p-8">
+                
+                <!-- Error Messages -->
+                {% if form.non_field_errors %}
+                    <div class="mb-6 p-4 bg-red-950/50 border border-red-500/50 rounded-lg">
+                        <div class="flex items-center text-red-300">
+                            <i data-lucide="alert-circle" class="w-5 h-5 mr-2"></i>
+                            <ul class="list-disc ml-4">
+                                {% for error in form.non_field_errors %}
+                                    <li>{{ error }}</li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                    </div>
+                {% endif %}
+
+                <form method="post" class="space-y-6">
+                    {% csrf_token %}
+
+                    <!-- Nome -->
+                    <div>
+                        <label for="id_first_name" class="block text-sm font-medium text-slate-300 mb-2">Nome *</label>
+                        {{ form.first_name }}
+                        {% if form.first_name.errors %}
+                            <p class="mt-1 text-sm text-red-400">{{ form.first_name.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+
+                    <!-- Sobrenome -->
+                    <div>
+                        <label for="id_last_name" class="block text-sm font-medium text-slate-300 mb-2">Sobrenome *</label>
+                        {{ form.last_name }}
+                        {% if form.last_name.errors %}
+                            <p class="mt-1 text-sm text-red-400">{{ form.last_name.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+
+                    <!-- Email -->
+                    <div>
+                        <label for="id_email" class="block text-sm font-medium text-slate-300 mb-2">E-mail *</label>
+                        {{ form.email }}
+                        {% if form.email.errors %}
+                            <p class="mt-1 text-sm text-red-400">{{ form.email.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+
+                    <!-- Telefone -->
+                    <div>
+                        <label for="id_telefone" class="block text-sm font-medium text-slate-300 mb-2">Telefone</label>
+                        {{ form.telefone }}
+                        {% if form.telefone.errors %}
+                            <p class="mt-1 text-sm text-red-400">{{ form.telefone.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+
+                    <!-- Senha -->
+                    <div>
+                        <label for="id_password" class="block text-sm font-medium text-slate-300 mb-2">Senha *</label>
+                        {{ form.password }}
+                        {% if form.password.errors %}
+                            <p class="mt-1 text-sm text-red-400">{{ form.password.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+
+                    <!-- Confirmar Senha -->
+                    <div>
+                        <label for="id_password_confirm" class="block text-sm font-medium text-slate-300 mb-2">Confirmar Senha *</label>
+                        {{ form.password_confirm }}
+                        {% if form.password_confirm.errors %}
+                            <p class="mt-1 text-sm text-red-400">{{ form.password_confirm.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+
+                    <!-- Termos -->
+                    <div class="flex items-start">
+                        {{ form.accept_terms }}
+                        <label for="id_accept_terms" class="ml-3 text-sm text-slate-300">
+                            Li e aceito os 
+                            <a href="#" class="text-blue-400 hover:text-blue-300 underline">Termos de Uso</a> *
+                        </label>
+                    </div>
+
+                    <!-- Marketing -->
+                    <div class="flex items-start">
+                        {{ form.aceita_marketing }}
+                        <label for="id_aceita_marketing" class="ml-3 text-sm text-slate-300">
+                            Desejo receber ofertas por e-mail
+                        </label>
+                    </div>
+
+                    <!-- Submit Button -->
+                    <button type="submit" class="btn-primary w-full px-6 py-3 rounded-lg text-white font-semibold">
+                        <i data-lucide="user-check" class="w-5 h-5 inline mr-2"></i>
+                        Criar Conta
+                    </button>
+                </form>
+
+                <!-- Login Link -->
+                <div class="text-center mt-6 pt-6 border-t border-slate-700">
+                    <p class="text-slate-400">
+                        Já tem uma conta? 
+                        <a href="/accounts/login/" class="text-blue-400 hover:text-blue-300 font-medium underline">
+                            Faça login aqui
+                        </a>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Initialize Lucide icons
+        lucide.createIcons();
+
+        // Apply form input styles
+        document.addEventListener('DOMContentLoaded', function() {
+            const inputs = document.querySelectorAll('input, textarea, select');
+            inputs.forEach(input => {
+                if (input.type !== 'checkbox') {
+                    input.classList.add('form-input', 'w-full', 'px-4', 'py-3', 'rounded-lg');
+                } else {
+                    input.classList.add('w-5', 'h-5', 'rounded', 'bg-slate-800', 'border-slate-600', 'text-blue-500');
+                }
+            });
+        });
+    </script>
+</body>
+</html>

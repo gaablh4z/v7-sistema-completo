@@ -1,0 +1,166 @@
+{% extends "admin/change_form.html" %}
+{% load i18n admin_urls static admin_modify %}
+
+{% block field_sets %}
+{% if not original %}
+<!-- Se é um novo usuário, mostra campos simplificados -->
+<div class="employee-form-wrapper">
+    <div class="form-header">
+        <h2>{% if 'funcao=employee' in request.GET.urlencode %}Cadastrar Novo Funcionário{% else %}Adicionar Usuário{% endif %}</h2>
+        <p>Preencha os dados básicos para criar o usuário</p>
+    </div>
+    
+    {% if 'funcao=employee' in request.GET.urlencode %}
+    <div class="quick-form">
+        <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Pré-seleciona 'employee' no campo funcao
+            const funcaoField = document.querySelector('select[name="funcao"]');
+            if (funcaoField) {
+                funcaoField.value = 'employee';
+            }
+            
+            // Marca como staff por padrão para funcionários
+            const staffField = document.querySelector('input[name="is_staff"]');
+            if (staffField) {
+                staffField.checked = true;
+            }
+        });
+        </script>
+    </div>
+    {% endif %}
+</div>
+{% endif %}
+
+{{ block.super }}
+{% endblock %}
+
+{% block admin_change_form_document_ready %}
+{{ block.super }}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Adiciona classes CSS para estilização
+    const form = document.querySelector('form');
+    if (form && window.location.search.includes('funcao=employee')) {
+        form.classList.add('employee-registration-form');
+        
+        // Adiciona ajuda contextual
+        const funcaoField = document.querySelector('select[name="funcao"]').closest('.field-funcao');
+        if (funcaoField && !funcaoField.querySelector('.help-text-custom')) {
+            const helpText = document.createElement('div');
+            helpText.className = 'help-text-custom';
+            helpText.innerHTML = '<strong>Funcionário:</strong> Terá acesso ao painel administrativo e poderá gerenciar agendamentos.';
+            funcaoField.appendChild(helpText);
+        }
+    }
+});
+</script>
+
+<style>
+.employee-form-wrapper {
+    background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+    border: 2px solid #0ea5e9;
+    border-radius: 12px;
+    padding: 2rem;
+    margin-bottom: 2rem;
+}
+
+.form-header h2 {
+    color: #0c4a6e;
+    margin-bottom: 0.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.form-header h2::before {
+    content: "👤";
+    font-size: 1.5rem;
+}
+
+.form-header p {
+    color: #075985;
+    margin-bottom: 0;
+}
+
+.employee-registration-form .form-row {
+    background: white;
+    padding: 1rem;
+    margin-bottom: 1rem;
+    border-radius: 8px;
+    border: 1px solid #e0f2fe;
+}
+
+.employee-registration-form .form-row:hover {
+    border-color: #0ea5e9;
+    box-shadow: 0 2px 8px rgba(14, 165, 233, 0.1);
+}
+
+.help-text-custom {
+    background: #ecfdf5;
+    color: #047857;
+    padding: 0.75rem;
+    border-radius: 6px;
+    margin-top: 0.5rem;
+    border-left: 3px solid #10b981;
+    font-size: 0.875rem;
+}
+
+/* Estilo para campos obrigatórios */
+.employee-registration-form .required label::after {
+    content: " *";
+    color: #dc2626;
+    font-weight: bold;
+}
+
+/* Destaque para o campo função quando é funcionário */
+.employee-registration-form .field-funcao {
+    background: linear-gradient(135deg, #fef3c7, #fde68a);
+    border: 2px solid #f59e0b;
+    border-radius: 8px;
+    padding: 1rem;
+}
+
+.employee-registration-form .field-funcao label {
+    color: #92400e;
+    font-weight: 600;
+}
+
+/* Estilo para botões */
+.employee-registration-form .submit-row {
+    background: linear-gradient(135deg, #f0f9ff, #e0f2fe);
+    padding: 1.5rem;
+    border-radius: 12px;
+    border: 1px solid #0ea5e9;
+    margin-top: 2rem;
+}
+
+.employee-registration-form .submit-row input[type="submit"] {
+    background: linear-gradient(135deg, #0ea5e9, #0284c7);
+    border: none;
+    color: white;
+    padding: 0.75rem 2rem;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.employee-registration-form .submit-row input[type="submit"]:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 16px rgba(14, 165, 233, 0.3);
+}
+</style>
+{% endblock %}
+
+{% block breadcrumbs %}
+{% if 'funcao=employee' in request.GET.urlencode %}
+<div class="breadcrumbs">
+    <a href="{% url 'admin:index' %}">Home</a> &rsaquo;
+    <a href="{% url 'admin:core_user_changelist' %}">Usuários</a> &rsaquo;
+    Cadastrar Funcionário
+</div>
+{% else %}
+{{ block.super }}
+{% endif %}
+{% endblock %}

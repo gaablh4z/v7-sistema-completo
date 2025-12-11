@@ -1,0 +1,736 @@
+{% extends 'base.html' %}
+
+{% block title %}Agendar Serviço - AutoV7{% endblock %}
+
+{% block body_class %}bg-hero{% endblock %}
+
+{% block extra_head %}
+<link rel="stylesheet" href="/static/css/booking-page.css">
+{% endblock %}
+
+{% block content %}
+<!-- Token CSRF para requisições AJAX -->
+{% csrf_token %}
+<div class="min-h-screen bg-hero">
+    <!-- Header com Liquid Glass -->
+    <div class="booking-liquid-glass-header border-b booking-border-white">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center py-6">
+                <div>
+                    <h1 class="text-3xl font-bold booking-text-white">Agendar Serviço</h1>
+                    <p class="booking-text-white-80">Escolha o serviço, veículo, data e forma de pagamento</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <!-- Steps Indicator com Liquid Glass -->
+        <div class="mb-8">
+            <div class="booking-liquid-glass-card rounded-xl p-6">
+                <div class="flex items-center justify-center space-x-8">
+                    <div class="flex items-center">
+                        <div class="w-10 h-10 bg-gradient-to-br from-blue-500 to-blue-700 text-white rounded-full flex items-center justify-center text-sm font-medium shadow-lg">
+                            1
+                        </div>
+                        <span class="ml-3 text-sm font-medium booking-text-white">Serviços</span>
+                    </div>
+                    <div class="flex-1 h-0.5 booking-divider"></div>
+                    <div class="flex items-center">
+                        <div class="w-10 h-10 booking-step-inactive rounded-full flex items-center justify-center text-sm font-medium booking-text-white-60">
+                            2
+                        </div>
+                        <span class="ml-3 text-sm font-medium booking-text-white-60">Veículo</span>
+                    </div>
+                    <div class="flex-1 h-0.5 booking-divider"></div>
+                    <div class="flex items-center">
+                        <div class="w-10 h-10 booking-step-inactive rounded-full flex items-center justify-center text-sm font-medium booking-text-white-60">
+                            3
+                        </div>
+                        <span class="ml-3 text-sm font-medium booking-text-white-60">Data/Hora</span>
+                    </div>
+                    <div class="flex-1 h-0.5 booking-divider"></div>
+                    <div class="flex items-center">
+                        <div class="w-10 h-10 booking-step-inactive rounded-full flex items-center justify-center text-sm font-medium booking-text-white-60">
+                            4
+                        </div>
+                        <span class="ml-3 text-sm font-medium booking-text-white-60">Pagamento</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Conteúdo Principal com Liquid Glass -->
+        <div class="booking-liquid-glass-card rounded-xl booking-shadow-xl">
+            <!-- Step 1: Serviços -->
+            <div id="step1" class="p-8">
+                <h2 class="text-2xl font-semibold booking-text-white mb-8">Selecione os Serviços</h2>
+                
+                <!-- Categoria de Serviços -->
+                <div class="mb-8">
+                    <h3 class="text-xl font-medium booking-text-white-90 mb-6">Higienização</h3>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        <!-- Serviço 1 -->
+                        <div class="booking-service-card rounded-xl p-6 hover:scale-105 transition-all duration-300 cursor-pointer service-card" data-service="1">
+                            <div class="flex justify-between items-start mb-4">
+                                <div class="flex-1">
+                                    <div class="flex items-center mb-3">
+                                        <span class="booking-category-badge text-xs px-3 py-1 rounded-full">Higienização</span>
+                                    </div>
+                                    <h4 class="font-semibold booking-text-white leading-tight">Higienização Interna Completa - Carros 5 lugares - Bancos de Couro</h4>
+                                    <p class="text-sm booking-text-white-80 mt-3">Lavagem de bancos; limpeza do carpete; limpeza minuciosa dos...</p>
+                                </div>
+                            </div>
+                            <div class="flex items-center justify-between pt-4 border-t booking-border-white">
+                                <div class="booking-price text-xl">R$ 500,00</div>
+                                <div class="flex items-center text-sm booking-text-white-70">
+                                    <i data-lucide="clock" class="w-4 h-4 mr-1"></i>
+                                    2160min
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Serviço 2 -->
+                        <div class="booking-service-card rounded-xl p-6 hover:scale-105 transition-all duration-300 cursor-pointer service-card" data-service="2">
+                            <div class="flex justify-between items-start mb-4">
+                                <div class="flex-1">
+                                    <div class="flex items-center mb-3">
+                                        <span class="booking-category-badge text-xs px-3 py-1 rounded-full">Higienização</span>
+                                    </div>
+                                    <h4 class="font-semibold booking-text-white leading-tight">Higienização Interna Completa - Carros 5 lugares - Bancos de Tecido</h4>
+                                    <p class="text-sm booking-text-white-80 mt-3">Lavagem de bancos; limpeza do carpete; limpeza minuciosa dos...</p>
+                                </div>
+                            </div>
+                            <div class="flex items-center justify-between pt-4 border-t booking-border-white">
+                                <div class="booking-price text-xl">R$ 550,00</div>
+                                <div class="flex items-center text-sm booking-text-white-70">
+                                    <i data-lucide="clock" class="w-4 h-4 mr-1"></i>
+                                    2880min
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Serviço 3 -->
+                        <div class="booking-service-card rounded-xl p-6 hover:scale-105 transition-all duration-300 cursor-pointer service-card" data-service="3">
+                            <div class="flex justify-between items-start mb-4">
+                                <div class="flex-1">
+                                    <div class="flex items-center mb-3">
+                                        <span class="booking-category-badge text-xs px-3 py-1 rounded-full">Higienização</span>
+                                    </div>
+                                    <h4 class="font-semibold booking-text-white leading-tight">Higienização Interna Completa - Carros 7 lugares - Bancos de Couro</h4>
+                                    <p class="text-sm booking-text-white-80 mt-3">Lavagem de bancos; limpeza do carpete; limpeza minuciosa dos...</p>
+                                </div>
+                            </div>
+                            <div class="flex items-center justify-between pt-4 border-t booking-border-white">
+                                <div class="booking-price text-xl">R$ 600,00</div>
+                                <div class="flex items-center text-sm booking-text-white-70">
+                                    <i data-lucide="clock" class="w-4 h-4 mr-1"></i>
+                                    2160min
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Serviço 4 -->
+                        <div class="booking-service-card rounded-xl p-6 hover:scale-105 transition-all duration-300 cursor-pointer service-card" data-service="4">
+                            <div class="flex justify-between items-start mb-4">
+                                <div class="flex-1">
+                                    <div class="flex items-center mb-3">
+                                        <span class="booking-category-badge text-xs px-3 py-1 rounded-full">Higienização</span>
+                                    </div>
+                                    <h4 class="font-semibold booking-text-white leading-tight">Higienização Interna Completa - Carros 7 lugares - Bancos de Tecido</h4>
+                                    <p class="text-sm booking-text-white-80 mt-3">Lavagem de bancos; limpeza do carpete; limpeza minuciosa dos...</p>
+                                </div>
+                            </div>
+                            <div class="flex items-center justify-between pt-4 border-t booking-border-white">
+                                <div class="booking-price text-xl">R$ 650,00</div>
+                                <div class="flex items-center text-sm booking-text-white-70">
+                                    <i data-lucide="clock" class="w-4 h-4 mr-1"></i>
+                                    2880min
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Botões de Navegação -->
+                <div class="flex justify-end pt-8 border-t booking-border-white">
+                    <button id="nextStep1" class="px-8 py-3 booking-btn-primary rounded-xl transition-all duration-300 font-medium" disabled>
+                        Próximo: Selecionar Veículo
+                        <i data-lucide="arrow-right" class="w-4 h-4 ml-2 inline"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Step 2: Veículo (Hidden initially) -->
+            <div id="step2" class="p-8 hidden">
+                <h2 class="text-2xl font-semibold booking-text-white mb-8">Selecione o Veículo</h2>
+                
+                <!-- Lista de veículos cadastrados -->
+                <div id="vehiclesList" class="{% if not user_vehicles %}hidden{% endif %}">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                        {% for vehicle in user_vehicles %}
+                        <div class="booking-vehicle-card rounded-xl p-6 hover:scale-105 transition-all duration-300 cursor-pointer vehicle-card" data-vehicle="{{ vehicle.id }}" data-vehicle-name="{{ vehicle.marca }} {{ vehicle.modelo }}" data-vehicle-plate="{{ vehicle.placa }}">
+                            <div class="flex items-center space-x-4">
+                                <div class="w-16 h-16 booking-icon-bg rounded-xl flex items-center justify-center">
+                                    <i data-lucide="car" class="w-8 h-8 text-blue-300"></i>
+                                </div>
+                                <div class="flex-1">
+                                    <h3 class="font-semibold booking-text-white">{{ vehicle.marca }} {{ vehicle.modelo }}</h3>
+                                    <p class="text-white/80">{{ vehicle.ano }} • {{ vehicle.placa }}</p>
+                                    <p class="text-sm booking-text-white-60">{{ vehicle.cor|default:"Cor não informada" }} • {{ vehicle.get_categoria_display }}</p>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    
+                    <div class="text-center pt-4 border-t booking-border-white">
+                        <button onclick="showNewVehicleForm()" class="inline-flex items-center px-6 py-3 booking-btn-secondary rounded-xl transition-all duration-300 font-medium">
+                            <i data-lucide="plus" class="w-4 h-4 mr-2"></i>
+                            Cadastrar Novo Veículo
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Formulário para cadastrar novo veículo -->
+                <div id="newVehicleForm" class="{% if user_vehicles %}hidden{% endif %}">
+                    <div class="booking-liquid-glass-card rounded-xl p-6 mb-6">
+                        <div class="flex items-center justify-between mb-6">
+                            <h3 class="text-lg font-semibold booking-text-white">Cadastrar Novo Veículo</h3>
+                            {% if user_vehicles %}
+                            <button onclick="hideNewVehicleForm()" class="text-white/70 hover:text-white transition-colors">
+                                <i data-lucide="x" class="w-5 h-5"></i>
+                            </button>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="space-y-4">
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-sm font-medium booking-text-white-90 mb-2">Marca *</label>
+                                    <input type="text" id="newVehicleMarca" required class="w-full px-4 py-3 booking-input rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent" placeholder="Ex: Toyota">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium booking-text-white-90 mb-2">Modelo *</label>
+                                    <input type="text" id="newVehicleModelo" required class="w-full px-4 py-3 booking-input rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent" placeholder="Ex: Corolla">
+                                </div>
+                            </div>
+
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                <div>
+                                    <label class="block text-sm font-medium booking-text-white-90 mb-2">Ano *</label>
+                                    <select id="newVehicleAno" required class="w-full px-4 py-3 booking-select rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent">
+                                        <option value="" class="bg-gray-800">Selecione</option>
+                                        <option value="2025" class="bg-gray-800">2025</option>
+                                        <option value="2024" class="bg-gray-800">2024</option>
+                                        <option value="2023" class="bg-gray-800">2023</option>
+                                        <option value="2022" class="bg-gray-800">2022</option>
+                                        <option value="2021" class="bg-gray-800">2021</option>
+                                        <option value="2020" class="bg-gray-800">2020</option>
+                                        <option value="2019" class="bg-gray-800">2019</option>
+                                        <option value="2018" class="bg-gray-800">2018</option>
+                                        <option value="2017" class="bg-gray-800">2017</option>
+                                        <option value="2016" class="bg-gray-800">2016</option>
+                                        <option value="2015" class="bg-gray-800">2015</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium booking-text-white-90 mb-2">Cor</label>
+                                    <input type="text" id="newVehicleCor" class="w-full px-4 py-3 booking-input rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent" placeholder="Ex: Branco">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium booking-text-white-90 mb-2">Placa *</label>
+                                    <input type="text" id="newVehiclePlaca" required maxlength="8" class="w-full px-4 py-3 booking-input rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent" placeholder="ABC-1234" style="text-transform: uppercase;">
+                                </div>
+                            </div>
+
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-sm font-medium booking-text-white-90 mb-2">Categoria</label>
+                                    <select id="newVehicleCategoria" class="w-full px-4 py-3 booking-select rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent">
+                                        <option value="sedan" class="bg-gray-800">Sedan</option>
+                                        <option value="hatch" class="bg-gray-800">Hatchback</option>
+                                        <option value="suv" class="bg-gray-800">SUV</option>
+                                        <option value="pickup" class="bg-gray-800">Pickup</option>
+                                        <option value="van" class="bg-gray-800">Van</option>
+                                        <option value="motorcycle" class="bg-gray-800">Motocicleta</option>
+                                        <option value="other" class="bg-gray-800">Outro</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium booking-text-white-90 mb-2">Quilometragem (km)</label>
+                                    <input type="number" id="newVehicleQuilometragem" class="w-full px-4 py-3 booking-input rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent" placeholder="Ex: 50000">
+                                </div>
+                            </div>
+
+                            <div class="flex justify-end pt-4">
+                                <button onclick="saveNewVehicle()" class="inline-flex items-center px-6 py-3 booking-btn-success rounded-xl transition-all duration-300 font-medium">
+                                    <i data-lucide="check" class="w-4 h-4 mr-2"></i>
+                                    Salvar e Continuar
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flex justify-between pt-8 border-t booking-border-white">
+                    <button id="prevStep2" class="px-8 py-3 booking-btn-secondary rounded-xl transition-all duration-300 font-medium">
+                        <i data-lucide="arrow-left" class="w-4 h-4 mr-2 inline"></i>
+                        Voltar
+                    </button>
+                    <button id="nextStep2" class="px-8 py-3 booking-btn-primary rounded-xl transition-all duration-300 font-medium" disabled>
+                        Próximo: Data e Hora
+                        <i data-lucide="arrow-right" class="w-4 h-4 ml-2 inline"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Step 3: Data/Hora (Hidden initially) -->
+            <div id="step3" class="p-8 hidden">
+                <h2 class="text-2xl font-semibold booking-text-white mb-8">Escolha Data e Horário</h2>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <div>
+                        <label class="block text-sm font-medium booking-text-white-90 mb-3">Data do Serviço</label>
+                        <input type="date" id="serviceDate" class="w-full px-4 py-3 booking-input rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium booking-text-white-90 mb-3">Horário</label>
+                        <select id="serviceTime" class="w-full px-4 py-3 booking-select rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent">
+                            <option value="" class="bg-gray-800 text-white">Selecione o horário</option>
+                            <option value="08:00" class="bg-gray-800 text-white">08:00</option>
+                            <option value="09:00" class="bg-gray-800 text-white">09:00</option>
+                            <option value="10:00" class="bg-gray-800 text-white">10:00</option>
+                            <option value="11:00" class="bg-gray-800 text-white">11:00</option>
+                            <option value="14:00" class="bg-gray-800 text-white">14:00</option>
+                            <option value="15:00" class="bg-gray-800 text-white">15:00</option>
+                            <option value="16:00" class="bg-gray-800 text-white">16:00</option>
+                            <option value="17:00" class="bg-gray-800 text-white">17:00</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="mt-8">
+                    <label class="block text-sm font-medium booking-text-white-90 mb-3">Observações (opcional)</label>
+                    <textarea id="serviceNotes" rows="4" class="w-full px-4 py-3 booking-input rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent" placeholder="Alguma observação especial sobre o serviço..."></textarea>
+                </div>
+
+                <div class="flex justify-between pt-8 border-t booking-border-white">
+                    <button id="prevStep3" class="px-8 py-3 booking-btn-secondary rounded-xl transition-all duration-300 font-medium">
+                        <i data-lucide="arrow-left" class="w-4 h-4 mr-2 inline"></i>
+                        Voltar
+                    </button>
+                    <button id="nextStep3" class="px-8 py-3 booking-btn-primary rounded-xl transition-all duration-300 font-medium" disabled>
+                        Próximo: Pagamento
+                        <i data-lucide="arrow-right" class="w-4 h-4 ml-2 inline"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Step 4: Pagamento (Hidden initially) -->
+            <div id="step4" class="p-8 hidden">
+                <h2 class="text-2xl font-semibold booking-text-white mb-8">Forma de Pagamento</h2>
+                
+                <div class="space-y-6">
+                    <div class="booking-payment-option rounded-xl p-6 hover:scale-105 transition-all duration-300 cursor-pointer payment-option" data-payment="credit">
+                        <div class="flex items-center space-x-4">
+                            <input type="radio" name="payment" value="credit" class="w-5 h-5 text-blue-400 bg-white/10 border-white/30">
+                            <div class="flex-1">
+                                <h4 class="font-semibold booking-text-white text-lg">Cartão de Crédito</h4>
+                                <p class="text-sm text-white/80">Pagamento seguro com cartão de crédito</p>
+                            </div>
+                            <i data-lucide="credit-card" class="w-6 h-6 text-white/60"></i>
+                        </div>
+                    </div>
+
+                    <div class="booking-payment-option rounded-xl p-6 hover:scale-105 transition-all duration-300 cursor-pointer payment-option" data-payment="pix">
+                        <div class="flex items-center space-x-4">
+                            <input type="radio" name="payment" value="pix" class="w-5 h-5 text-blue-400 bg-white/10 border-white/30">
+                            <div class="flex-1">
+                                <h4 class="font-semibold booking-text-white text-lg">PIX</h4>
+                                <p class="text-sm text-white/80">Pagamento instantâneo via PIX</p>
+                            </div>
+                            <i data-lucide="smartphone" class="w-6 h-6 text-white/60"></i>
+                        </div>
+                    </div>
+
+                    <div class="booking-payment-option rounded-xl p-6 hover:scale-105 transition-all duration-300 cursor-pointer payment-option" data-payment="money">
+                        <div class="flex items-center space-x-4">
+                            <input type="radio" name="payment" value="money" class="w-5 h-5 text-blue-400 bg-white/10 border-white/30">
+                            <div class="flex-1">
+                                <h4 class="font-semibold booking-text-white text-lg">Dinheiro</h4>
+                                <p class="text-sm text-white/80">Pagamento em dinheiro no local</p>
+                            </div>
+                            <i data-lucide="banknote" class="w-6 h-6 text-white/60"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Resumo do Agendamento -->
+                <div class="mt-10 booking-summary-card rounded-xl p-8">
+                    <h3 class="font-bold text-white mb-6 text-xl">Resumo do Agendamento</h3>
+                    <div class="space-y-4">
+                        <div class="flex justify-between items-center py-2 border-b booking-border-white">
+                            <span class="text-white/80 font-medium">Serviço:</span>
+                            <span id="summaryService" class="text-white font-semibold">-</span>
+                        </div>
+                        <div class="flex justify-between items-center py-2 border-b booking-border-white">
+                            <span class="text-white/80 font-medium">Veículo:</span>
+                            <span id="summaryVehicle" class="text-white font-semibold">-</span>
+                        </div>
+                        <div class="flex justify-between items-center py-2 border-b booking-border-white">
+                            <span class="text-white/80 font-medium">Data/Hora:</span>
+                            <span id="summaryDateTime" class="text-white font-semibold">-</span>
+                        </div>
+                        <div class="flex justify-between items-center py-3 pt-4">
+                            <span class="text-white font-bold text-lg">Total:</span>
+                            <span class="text-green-400 font-bold text-2xl" id="summaryTotal">R$ 0,00</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flex justify-between pt-8 border-t booking-border-white">
+                    <button id="prevStep4" class="px-8 py-3 booking-btn-secondary rounded-xl transition-all duration-300 font-medium">
+                        <i data-lucide="arrow-left" class="w-4 h-4 mr-2 inline"></i>
+                        Voltar
+                    </button>
+                    <button id="confirmBooking" class="px-8 py-4 booking-btn-success rounded-xl transition-all duration-300 font-bold text-lg" disabled>
+                        <i data-lucide="check-circle" class="w-5 h-5 mr-2 inline"></i>
+                        Confirmar Agendamento
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Inicializar ícones Lucide
+lucide.createIcons();
+
+// Variáveis globais para armazenar as seleções
+let selectedService = null;
+let selectedVehicle = null;
+let selectedPayment = null;
+
+// Step 1: Serviços
+document.querySelectorAll('.service-card').forEach(card => {
+    card.addEventListener('click', function() {
+        document.querySelectorAll('.service-card').forEach(c => {
+            c.classList.remove('selected');
+        });
+        this.classList.add('selected');
+        selectedService = this.dataset.service;
+        document.getElementById('nextStep1').disabled = false;
+    });
+});
+
+document.getElementById('nextStep1').addEventListener('click', function() {
+    if (selectedService) {
+        document.getElementById('step1').classList.add('hidden');
+        document.getElementById('step2').classList.remove('hidden');
+        updateStepIndicator(2);
+    }
+});
+
+// Step 2: Veículos
+document.querySelectorAll('.vehicle-card').forEach(card => {
+    card.addEventListener('click', function() {
+        document.querySelectorAll('.vehicle-card').forEach(c => {
+            c.classList.remove('selected');
+        });
+        this.classList.add('selected');
+        selectedVehicle = this.dataset.vehicle;
+        document.getElementById('nextStep2').disabled = false;
+    });
+});
+
+// Funções para o formulário de novo veículo
+function showNewVehicleForm() {
+    document.getElementById('vehiclesList').classList.add('hidden');
+    document.getElementById('newVehicleForm').classList.remove('hidden');
+    // Desselecionar veículos
+    document.querySelectorAll('.vehicle-card').forEach(c => {
+        c.classList.remove('ring-2', 'ring-blue-400', 'bg-white/30');
+        c.classList.add('bg-white/20');
+    });
+    selectedVehicle = null;
+    document.getElementById('nextStep2').disabled = true;
+    lucide.createIcons();
+}
+
+function hideNewVehicleForm() {
+    document.getElementById('newVehicleForm').classList.add('hidden');
+    document.getElementById('vehiclesList').classList.remove('hidden');
+    lucide.createIcons();
+}
+
+function saveNewVehicle() {
+    const marca = document.getElementById('newVehicleMarca').value.trim();
+    const modelo = document.getElementById('newVehicleModelo').value.trim();
+    const ano = document.getElementById('newVehicleAno').value;
+    const cor = document.getElementById('newVehicleCor').value.trim();
+    const placa = document.getElementById('newVehiclePlaca').value.trim().toUpperCase();
+    const categoria = document.getElementById('newVehicleCategoria').value;
+    const quilometragem = document.getElementById('newVehicleQuilometragem').value;
+
+    // Validação
+    if (!marca || !modelo || !ano || !placa) {
+        alert('Por favor, preencha todos os campos obrigatórios (Marca, Modelo, Ano e Placa).');
+        return;
+    }
+
+    // Validação da placa (formato brasileiro)
+    const placaRegex = /^[A-Z]{3}-?\d{4}$|^[A-Z]{3}\d[A-Z]\d{2}$/;
+    if (!placaRegex.test(placa)) {
+        alert('Formato de placa inválido. Use o formato ABC-1234 ou ABC1D23.');
+        return;
+    }
+
+    // Enviar para o servidor via AJAX
+    fetch('/dashboard/vehicles/', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+        },
+        body: new URLSearchParams({
+            'marca': marca,
+            'modelo': modelo,
+            'ano': ano,
+            'cor': cor,
+            'placa': placa,
+            'categoria': categoria,
+            'quilometragem': quilometragem
+        })
+    })
+    .then(response => {
+        if (response.ok) {
+            // Criar card temporário para o veículo recém-cadastrado
+            const newVehicleCard = document.createElement('div');
+            newVehicleCard.className = 'booking-vehicle-card rounded-xl p-6 hover:scale-105 transition-all duration-300 cursor-pointer vehicle-card ring-2 ring-blue-400 bg-white/30';
+            newVehicleCard.dataset.vehicle = 'new';
+            newVehicleCard.dataset.vehicleName = `${marca} ${modelo}`;
+            newVehicleCard.dataset.vehiclePlate = placa;
+            newVehicleCard.innerHTML = `
+                <div class="flex items-center space-x-4">
+                    <div class="w-16 h-16 booking-icon-bg rounded-xl flex items-center justify-center">
+                        <i data-lucide="car" class="w-8 h-8 text-blue-300"></i>
+                    </div>
+                    <div class="flex-1">
+                        <h3 class="font-semibold booking-text-white">${marca} ${modelo}</h3>
+                        <p class="text-white/80">${ano} • ${placa}</p>
+                        <p class="text-sm booking-text-white-60">${cor || 'Cor não informada'}</p>
+                    </div>
+                </div>
+            `;
+            
+            // Adicionar ao grid de veículos
+            const vehiclesGrid = document.querySelector('#vehiclesList .grid');
+            if (vehiclesGrid) {
+                vehiclesGrid.appendChild(newVehicleCard);
+            } else {
+                // Se não há grid (não tinha veículos), criar um
+                document.getElementById('vehiclesList').innerHTML = `
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                        ${newVehicleCard.outerHTML}
+                    </div>
+                    <div class="text-center pt-4 border-t booking-border-white">
+                        <button onclick="showNewVehicleForm()" class="inline-flex items-center px-6 py-3 booking-btn-secondary rounded-xl transition-all duration-300 font-medium">
+                            <i data-lucide="plus" class="w-4 h-4 mr-2"></i>
+                            Cadastrar Novo Veículo
+                        </button>
+                    </div>
+                `;
+            }
+
+            // Mostrar lista de veículos e selecionar o novo
+            hideNewVehicleForm();
+            selectedVehicle = 'new';
+            document.getElementById('nextStep2').disabled = false;
+            
+            // Reinicializar ícones
+            lucide.createIcons();
+            
+            // Mostrar mensagem de sucesso
+            alert('Veículo cadastrado com sucesso!');
+        } else {
+            return response.text().then(text => {
+                throw new Error(text);
+            });
+        }
+    })
+    .catch(error => {
+        console.error('Erro:', error);
+        alert('Erro ao cadastrar veículo. Por favor, tente novamente.');
+    });
+}
+
+document.getElementById('prevStep2').addEventListener('click', function() {
+    document.getElementById('step2').classList.add('hidden');
+    document.getElementById('step1').classList.remove('hidden');
+    updateStepIndicator(1);
+});
+
+document.getElementById('nextStep2').addEventListener('click', function() {
+    if (selectedVehicle) {
+        document.getElementById('step2').classList.add('hidden');
+        document.getElementById('step3').classList.remove('hidden');
+        updateStepIndicator(3);
+    }
+});
+
+// Step 3: Data/Hora
+document.getElementById('serviceDate').addEventListener('change', checkStep3);
+document.getElementById('serviceTime').addEventListener('change', checkStep3);
+
+function checkStep3() {
+    const date = document.getElementById('serviceDate').value;
+    const time = document.getElementById('serviceTime').value;
+    document.getElementById('nextStep3').disabled = !date || !time;
+}
+
+document.getElementById('prevStep3').addEventListener('click', function() {
+    document.getElementById('step3').classList.add('hidden');
+    document.getElementById('step2').classList.remove('hidden');
+    updateStepIndicator(2);
+});
+
+document.getElementById('nextStep3').addEventListener('click', function() {
+    document.getElementById('step3').classList.add('hidden');
+    document.getElementById('step4').classList.remove('hidden');
+    updateStepIndicator(4);
+    updateSummary();
+});
+
+// Step 4: Pagamento
+document.querySelectorAll('.payment-option').forEach(option => {
+    option.addEventListener('click', function() {
+        document.querySelectorAll('.payment-option').forEach(o => {
+            o.classList.remove('selected');
+        });
+        this.classList.add('selected');
+        this.querySelector('input[type="radio"]').checked = true;
+        selectedPayment = this.dataset.payment;
+        document.getElementById('confirmBooking').disabled = false;
+    });
+});
+
+document.getElementById('prevStep4').addEventListener('click', function() {
+    document.getElementById('step4').classList.add('hidden');
+    document.getElementById('step3').classList.remove('hidden');
+    updateStepIndicator(3);
+});
+
+document.getElementById('confirmBooking').addEventListener('click', function() {
+    // Validar se todos os dados foram selecionados
+    if (!selectedService || !selectedVehicle || !selectedPayment) {
+        alert('Por favor, complete todas as etapas antes de confirmar o agendamento.');
+        return;
+    }
+
+    const date = document.getElementById('serviceDate').value;
+    const time = document.getElementById('serviceTime').value;
+    const notes = document.getElementById('serviceNotes').value;
+
+    if (!date || !time) {
+        alert('Por favor, selecione data e horário.');
+        return;
+    }
+
+    // Desabilitar botão para evitar cliques múltiplos
+    const confirmBtn = document.getElementById('confirmBooking');
+    confirmBtn.disabled = true;
+    confirmBtn.innerHTML = '<i data-lucide="loader" class="w-5 h-5 mr-2 inline animate-spin"></i> Processando...';
+    lucide.createIcons();
+
+    // Preparar dados para envio
+    const bookingData = {
+        service_id: selectedService,
+        vehicle_id: selectedVehicle,
+        date: date,
+        time: time,
+        notes: notes,
+        payment_method: selectedPayment
+    };
+
+    // Enviar para o servidor
+    fetch('/dashboard/booking/', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+        },
+        body: JSON.stringify(bookingData)
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // Mostrar mensagem de sucesso
+            alert(`✅ Agendamento confirmado com sucesso!\n\nNúmero do Agendamento: #${data.appointment_id}\n\nVocê receberá uma confirmação em breve.`);
+            
+            // Redirecionar para a página de agendamentos
+            window.location.href = '/dashboard/appointments/';
+        } else {
+            throw new Error(data.error || 'Erro ao criar agendamento');
+        }
+    })
+    .catch(error => {
+        console.error('Erro:', error);
+        alert('❌ Erro ao confirmar agendamento: ' + error.message);
+        
+        // Reabilitar botão
+        confirmBtn.disabled = false;
+        confirmBtn.innerHTML = '<i data-lucide="check-circle" class="w-5 h-5 mr-2 inline"></i> Confirmar Agendamento';
+        lucide.createIcons();
+    });
+});
+
+function updateStepIndicator(currentStep) {
+    // Reset all steps
+    for (let i = 1; i <= 4; i++) {
+        const stepDiv = document.querySelector(`div:nth-child(${i*2-1}) .w-10`);
+        const stepText = document.querySelector(`div:nth-child(${i*2-1}) span`);
+        
+        if (i <= currentStep) {
+            stepDiv.classList.remove('booking-step-inactive', 'booking-text-white-60');
+            stepDiv.classList.add('booking-step-active', 'booking-text-white');
+            stepText.classList.remove('booking-text-white-60');
+            stepText.classList.add('booking-text-white');
+        } else {
+            stepDiv.classList.remove('booking-step-active', 'booking-text-white');
+            stepDiv.classList.add('booking-step-inactive', 'booking-text-white-60');
+            stepText.classList.remove('booking-text-white');
+            stepText.classList.add('booking-text-white-60');
+        }
+    }
+}
+
+function updateSummary() {
+    // Atualizar resumo com as informações selecionadas
+    if (selectedService) {
+        const serviceCard = document.querySelector(`[data-service="${selectedService}"]`);
+        const serviceName = serviceCard.querySelector('h4').textContent;
+        const servicePrice = serviceCard.querySelector('.booking-price').textContent;
+        document.getElementById('summaryService').textContent = serviceName.substring(0, 50) + '...';
+        document.getElementById('summaryTotal').textContent = servicePrice;
+    }
+    
+    if (selectedVehicle) {
+        const vehicleCard = document.querySelector(`[data-vehicle="${selectedVehicle}"]`);
+        if (vehicleCard) {
+            const vehicleName = vehicleCard.dataset.vehicleName || vehicleCard.querySelector('h3').textContent;
+            const vehiclePlate = vehicleCard.dataset.vehiclePlate || vehicleCard.querySelector('p').textContent.split('•')[1]?.trim();
+            document.getElementById('summaryVehicle').textContent = `${vehicleName} - ${vehiclePlate}`;
+        }
+    }
+    
+    const date = document.getElementById('serviceDate').value;
+    const time = document.getElementById('serviceTime').value;
+    if (date && time) {
+        document.getElementById('summaryDateTime').textContent = new Date(date).toLocaleDateString('pt-BR') + ' às ' + time;
+    }
+}
+</script>
+{% endblock %}

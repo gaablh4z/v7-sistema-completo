@@ -1,0 +1,216 @@
+{% extends 'admin_new/base.html' %}
+
+{% block page_subtitle %}
+    {% if produto %}
+        Editar informações do produto
+    {% else %}
+        Adicionar novo produto ao estoque
+    {% endif %}
+{% endblock %}
+
+{% block page_actions %}
+    <a href="{% url 'admin_new:estoque' %}" class="btn-secondary">
+        <i data-lucide="arrow-left" class="w-5 h-5 mr-2"></i>
+        Voltar ao Estoque
+    </a>
+{% endblock %}
+
+{% block content %}
+<div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
+    <div class="mb-6">
+        <h2 class="text-xl font-semibold text-gray-900 dark:text-white">
+            {% if produto %}Editar Produto{% else %}Adicionar Produto{% endif %}
+        </h2>
+        <p class="text-gray-600 dark:text-gray-400">
+            {% if produto %}
+                Atualize as informações do produto abaixo.
+            {% else %}
+                Preencha as informações do novo produto.
+            {% endif %}
+        </p>
+    </div>
+
+    <form method="POST" class="space-y-6">
+        {% csrf_token %}
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <!-- Nome do Produto -->
+            <div>
+                <label for="nome" class="form-label">Nome do Produto *</label>
+                <input type="text" 
+                       id="nome" 
+                       name="nome" 
+                       value="{{ produto.nome|default:'' }}"
+                       required
+                       class="form-input"
+                       placeholder="Digite o nome do produto">
+            </div>
+
+            <!-- Categoria -->
+            <div>
+                <label for="categoria" class="form-label">Categoria *</label>
+                <select id="categoria" name="categoria" required class="form-select">
+                    <option value="">Selecione uma categoria</option>
+                    {% for categoria in categorias %}
+                        <option value="{{ categoria.id }}" 
+                                {% if produto and categoria.id == produto.categoria.id %}selected{% endif %}>
+                            {{ categoria.nome }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <!-- SKU -->
+            <div>
+                <label for="sku" class="form-label">SKU (opcional)</label>
+                <input type="text" 
+                       id="sku" 
+                       name="sku" 
+                       value="{{ produto.sku|default:'' }}"
+                       class="form-input"
+                       placeholder="Código interno do produto (opcional)">
+            </div>
+
+            <!-- Código de Barras -->
+            <div>
+                <label for="codigo_barras" class="form-label">Código de Barras (opcional)</label>
+                <input type="text" 
+                       id="codigo_barras" 
+                       name="codigo_barras" 
+                       value="{{ produto.codigo_barras|default:'' }}"
+                       class="form-input"
+                       placeholder="Código de barras do produto (opcional)">
+                       class="form-input"
+                       placeholder="Código de barras do produto">
+            </div>
+
+            <!-- Fornecedor -->
+            <div>
+                <label for="fornecedor" class="form-label">Fornecedor</label>
+                <select id="fornecedor" name="fornecedor" class="form-select">
+                    <option value="">Nenhum fornecedor</option>
+                    {% for fornecedor in fornecedores %}
+                        <option value="{{ fornecedor.id }}" 
+                                {% if produto and produto.fornecedor and fornecedor.id == produto.fornecedor.id %}selected{% endif %}>
+                            {{ fornecedor.nome }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <!-- Quantidade Mínima -->
+            <div>
+                <label for="quantidade_minima" class="form-label">Quantidade Mínima</label>
+                <input type="number" 
+                       id="quantidade_minima" 
+                       name="quantidade_minima" 
+                       value="{{ produto.quantidade_minima|default:'0' }}"
+                       min="0"
+                       class="form-input"
+                       placeholder="0">
+            </div>
+
+            <!-- Preço Unitário -->
+            <div>
+                <label for="preco_unitario" class="form-label">Preço Unitário (R$) *</label>
+                <input type="number" 
+                       id="preco_unitario" 
+                       name="preco_unitario" 
+                       value="{{ produto.preco_unitario|default:'0.00' }}"
+                       step="0.01"
+                       min="0"
+                       required
+                       class="form-input"
+                       placeholder="0.00">
+            </div>
+
+            <!-- Preço de Custo -->
+            <div>
+                <label for="preco_custo" class="form-label">Preço de Custo (R$)</label>
+                <input type="number" 
+                       id="preco_custo" 
+                       name="preco_custo" 
+                       value="{{ produto.preco_custo|default:'0.00' }}"
+                       step="0.01"
+                       min="0"
+                       class="form-input"
+                       placeholder="0.00">
+            </div>
+
+            <!-- Localização -->
+            <div>
+                <label for="localizacao" class="form-label">Localização no Estoque</label>
+                <input type="text" 
+                       id="localizacao" 
+                       name="localizacao" 
+                       value="{{ produto.localizacao|default:'' }}"
+                       placeholder="Ex: A1-B2, Galpão 1, Prateleira 3..."
+                       class="form-input">
+            </div>
+
+            <!-- Quantidade Inicial (apenas para criação) -->
+            {% if not produto %}
+            <div>
+                <label for="quantidade" class="form-label">Quantidade Inicial</label>
+                <input type="number" 
+                       id="quantidade" 
+                       name="quantidade" 
+                       value="0"
+                       min="0"
+                       class="form-input"
+                       placeholder="0">
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Descrição -->
+        <div>
+            <label for="descricao" class="form-label">Descrição</label>
+            <textarea id="descricao" 
+                      name="descricao" 
+                      rows="3" 
+                      class="form-input">{{ produto.descricao|default:'' }}</textarea>
+        </div>
+
+        <!-- Informações Atuais (apenas para edição) -->
+        {% if produto %}
+        <div class="bg-gray-50 dark:bg-gray-700 rounded-lg p-4">
+            <h3 class="text-sm font-medium text-gray-900 dark:text-white mb-2">Informações Atuais</h3>
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+                <div>
+                    <span class="text-gray-600 dark:text-gray-400">Quantidade Atual:</span>
+                    <span class="font-medium text-gray-900 dark:text-white ml-1">{{ produto.quantidade }} unidades</span>
+                </div>
+                <div>
+                    <span class="text-gray-600 dark:text-gray-400">Criado em:</span>
+                    <span class="font-medium text-gray-900 dark:text-white ml-1">{{ produto.criado_em|date:"d/m/Y" }}</span>
+                </div>
+                <div>
+                    <span class="text-gray-600 dark:text-gray-400">Atualizado em:</span>
+                    <span class="font-medium text-gray-900 dark:text-white ml-1">{{ produto.atualizado_em|date:"d/m/Y H:i" }}</span>
+                </div>
+                <div>
+                    <span class="text-gray-600 dark:text-gray-400">Status:</span>
+                    {% if produto.quantidade == 0 %}
+                        <span class="status-badge status-error ml-1">Em Falta</span>
+                    {% elif produto.quantidade <= produto.quantidade_minima %}
+                        <span class="status-badge status-warning ml-1">Baixo Estoque</span>
+                    {% else %}
+                        <span class="status-badge status-success ml-1">Disponível</span>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Botões de Ação -->
+        <div class="flex justify-end space-x-3 pt-6">
+            <a href="{% url 'admin_new:estoque' %}" class="btn-secondary">Cancelar</a>
+            <button type="submit" class="btn-primary">
+                <i data-lucide="save" class="w-4 h-4 mr-2"></i>
+                {% if produto %}Salvar Alterações{% else %}Criar Produto{% endif %}
+            </button>
+        </div>
+    </form>
+</div>
+{% endblock %}

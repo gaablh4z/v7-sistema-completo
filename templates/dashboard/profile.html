@@ -1,0 +1,589 @@
+{% extends 'dashboard/layout.html' %}
+
+{% block title %}Meu Perfil - AutoV7{% endblock %}
+
+{% block dashboard_content %}
+<div class="profile-page">
+    <!-- Hero -->
+    <section class="profile-hero">
+        <div class="profile-hero__identity">
+            <div class="profile-hero__avatar">
+                {% if user.foto_perfil %}
+                    <img src="{{ user.foto_perfil.url }}" alt="Avatar" class="profile-hero__avatar-img">
+                {% else %}
+                    <div class="profile-hero__avatar-placeholder">
+                        {{ user.first_name|first|default:'A'|upper }}{{ user.last_name|first|default:'V'|upper }}
+                    </div>
+                {% endif %}
+                <button type="button" class="profile-hero__avatar-btn" onclick="document.getElementById('foto_perfil').click()">
+                    <i data-lucide="camera"></i>
+                </button>
+            </div>
+            <div>
+                <p class="profile-hero__eyebrow">Conta verificada</p>
+                <h1>Olá, {{ user.first_name|default:user.username }} 👋</h1>
+                <p class="profile-hero__subtitle">Atualize suas informações pessoais, preferências e segurança para manter sua experiência impecável.</p>
+                <div class="profile-hero__meta">
+                    <div>
+                        <span>ID usuário</span>
+                        <strong>#{{ user.id }}</strong>
+                    </div>
+                    <div>
+                        <span>E-mail</span>
+                        <strong>{{ user.email }}</strong>
+                    </div>
+                    <div>
+                        <span>Último acesso</span>
+                        <strong>{{ user.last_login|date:'d/m/Y H:i'|default:'Nunca' }}</strong>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="profile-hero__actions">
+            <button type="button" class="profile-hero__primary" onclick="document.getElementById('profile-form').scrollIntoView({ behavior: 'smooth' })">
+                <i data-lucide="edit"></i>
+                <span>Editar dados</span>
+            </button>
+            <button type="button" class="profile-hero__ghost" onclick="document.getElementById('security-form').scrollIntoView({ behavior: 'smooth' })">
+                <i data-lucide="shield"></i>
+                <span>Segurança</span>
+            </button>
+        </div>
+    </section>
+
+    <div class="profile-content">
+        <!-- Informações Pessoais -->
+        <section class="profile-card" id="profile-form">
+            <div class="profile-card__header">
+                <div>
+                    <p class="profile-card__eyebrow">Seus dados</p>
+                    <h3>Informações pessoais</h3>
+                    <p>Organizamos todos os campos essenciais para que você personalize sua conta rapidamente.</p>
+                </div>
+            </div>
+            <div class="profile-card__body">
+                <form method="post" enctype="multipart/form-data" class="profile-form">
+                    {% csrf_token %}
+                    
+                    <!-- Foto de Perfil -->
+                    <div class="profile-form__avatar">
+                        <div class="shrink-0">
+                            {% if user.foto_perfil %}
+                                <img src="{{ user.foto_perfil.url }}" alt="Profile" id="preview-image" class="w-32 h-32 rounded-full object-cover border-4 border-white shadow-lg">
+                            {% else %}
+                                <div id="preview-placeholder" class="w-32 h-32 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full flex items-center justify-center border-4 border-white shadow-lg">
+                                    <i data-lucide="user" class="w-16 h-16 text-white"></i>
+                                </div>
+                            {% endif %}
+                        </div>
+                        <div class="flex-1">
+                            <h4>Foto do perfil</h4>
+                            <p>Formatos suportados JPG, PNG ou GIF (máx. 2MB)</p>
+                            <div class="profile-form__avatar-actions">
+                                <label for="foto_perfil" class="profile-btn profile-btn--primary">
+                                    <i data-lucide="upload"></i>
+                                    <span>Enviar nova foto</span>
+                                </label>
+                                <input type="file" id="foto_perfil" name="foto_perfil" class="hidden" accept="image/*" onchange="previewImage(event)">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Campos do Formulário -->
+                    <div class="profile-grid">
+                        <div>
+                            <label for="first_name">Nome completo</label>
+                            <input type="text" id="first_name" name="first_name" value="{{ user.first_name }}" placeholder="Digite seu nome completo">
+                        </div>
+                        
+                        <div>
+                            <label for="email">E-mail</label>
+                            <input type="email" id="email" name="email" value="{{ user.email }}" placeholder="seuemail@exemplo.com">
+                        </div>
+
+                        <div>
+                            <label for="telefone">Telefone</label>
+                            <input type="tel" id="telefone" name="telefone" value="{{ user.telefone|default:'' }}" placeholder="(11) 99999-9999">
+                        </div>
+
+                        <div>
+                            <label for="endereco">Endereço</label>
+                            <input type="text" id="endereco" name="endereco" value="{{ user.endereco|default:'' }}" placeholder="Rua, número, bairro">
+                        </div>
+                    </div>
+
+                    <!-- Info Badge -->
+                    <div class="profile-alert profile-alert--success">
+                        <i data-lucide="shield-check"></i>
+                        <div>
+                            <p class="profile-alert__title">Conta ativa</p>
+                            <p>Você tem acesso completo a todos os recursos e notificações.</p>
+                        </div>
+                    </div>
+
+                    <!-- Botão Salvar -->
+                    <div class="profile-form__actions">
+                        <button type="reset" class="profile-btn profile-btn--ghost">
+                            <i data-lucide="refresh-cw"></i>
+                            <span>Descartar</span>
+                        </button>
+                        <button type="submit" class="profile-btn profile-btn--primary">
+                            <i data-lucide="check"></i>
+                            <span>Salvar Alterações</span>
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </section>
+
+        <!-- Alterar Senha -->
+        <section class="profile-card" id="security-form">
+            <div class="profile-card__header">
+                <div>
+                    <p class="profile-card__eyebrow">Proteção</p>
+                    <h3>Segurança da conta</h3>
+                    <p>Atualize sua senha regularmente e mantenha sua conta protegida.</p>
+                </div>
+            </div>
+            <div class="profile-card__body">
+                <form method="post" action="/dashboard/change-password/" class="profile-form">
+                    {% csrf_token %}
+                    
+                    <div class="profile-alert profile-alert--warning">
+                        <i data-lucide="alert-triangle"></i>
+                        <div>
+                            <p class="profile-alert__title">Dica de segurança</p>
+                            <p>Combine letras, números e símbolos para criar uma senha forte.</p>
+                        </div>
+                    </div>
+                    
+                    <div class="profile-grid">
+                        <div>
+                            <label for="current_password">Senha atual</label>
+                            <input type="password" id="current_password" name="current_password" required placeholder="Digite sua senha atual">
+                        </div>
+                        <div>
+                            <label for="new_password">Nova senha</label>
+                            <input type="password" id="new_password" name="new_password" required placeholder="Digite a nova senha">
+                        </div>
+                        <div>
+                            <label for="confirm_password">Confirmar nova senha</label>
+                            <input type="password" id="confirm_password" name="confirm_password" required placeholder="Digite a senha novamente">
+                        </div>
+                    </div>
+
+                    <div class="profile-form__actions">
+                        <button type="submit" class="profile-btn profile-btn--primary">
+                            <i data-lucide="lock"></i>
+                            <span>Alterar senha</span>
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </section>
+    </div>
+</div>
+
+<script>
+// Inicializar ícones Lucide
+lucide.createIcons();
+
+// Preview da imagem selecionada
+function previewImage(event) {
+    const file = event.target.files[0];
+    if (file) {
+        // Validar tamanho (2MB)
+        if (file.size > 2 * 1024 * 1024) {
+            alert('❌ Arquivo muito grande! O tamanho máximo é 2MB.');
+            event.target.value = '';
+            return;
+        }
+        
+        // Validar tipo
+        if (!file.type.match('image.*')) {
+            alert('❌ Por favor, selecione apenas imagens (JPG, PNG ou GIF).');
+            event.target.value = '';
+            return;
+        }
+        
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            const previewImg = document.getElementById('preview-image');
+            const previewPlaceholder = document.getElementById('preview-placeholder');
+            
+            if (previewImg) {
+                previewImg.src = e.target.result;
+            } else if (previewPlaceholder) {
+                const newImg = document.createElement('img');
+                newImg.id = 'preview-image';
+                newImg.src = e.target.result;
+                newImg.alt = 'Profile';
+                newImg.className = 'w-32 h-32 rounded-full object-cover border-4 border-white shadow-lg';
+                previewPlaceholder.parentNode.replaceChild(newImg, previewPlaceholder);
+            }
+        };
+        reader.readAsDataURL(file);
+    }
+}
+
+// Validação do formulário de senha
+document.querySelector('form[action="/dashboard/change-password/"]').addEventListener('submit', function(e) {
+    const newPassword = document.getElementById('new_password').value;
+    const confirmPassword = document.getElementById('confirm_password').value;
+    
+    if (newPassword !== confirmPassword) {
+        e.preventDefault();
+        alert('❌ As senhas não coincidem. Por favor, verifique e tente novamente.');
+        return false;
+    }
+    
+    if (newPassword.length < 6) {
+        e.preventDefault();
+        alert('❌ A senha deve ter no mínimo 6 caracteres.');
+        return false;
+    }
+});
+</script>
+
+<style>
+.profile-page {
+    position: relative;
+    padding: 2.5rem;
+    min-height: 100vh;
+    background: radial-gradient(circle at top, rgba(96, 165, 250, 0.08), transparent 55%),
+                linear-gradient(135deg, #0b1221, #0f172a 45%, #18253f);
+}
+
+.profile-page::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(circle at 85% 20%, rgba(99, 102, 241, 0.15), transparent 35%);
+    pointer-events: none;
+}
+
+.profile-content {
+    position: relative;
+    z-index: 1;
+    max-width: 1100px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+}
+
+.profile-hero {
+    position: relative;
+    z-index: 1;
+    max-width: 1100px;
+    margin: 0 auto 2rem;
+    padding: 2.5rem;
+    border-radius: 32px;
+    border: 1px solid rgba(148, 163, 184, 0.25);
+    background: rgba(13, 19, 33, 0.85);
+    backdrop-filter: blur(18px);
+    box-shadow: 0 40px 70px rgba(2, 6, 23, 0.6);
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+}
+
+.profile-hero__identity {
+    display: flex;
+    gap: 2rem;
+    align-items: center;
+}
+
+.profile-hero__avatar {
+    position: relative;
+    width: 120px;
+    height: 120px;
+}
+
+.profile-hero__avatar-img,
+.profile-hero__avatar-placeholder {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    border: 4px solid rgba(255, 255, 255, 0.2);
+    object-fit: cover;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2.5rem;
+    font-weight: 600;
+    color: white;
+    background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+    box-shadow: 0 25px 45px rgba(59, 130, 246, 0.35);
+}
+
+.profile-hero__avatar-btn {
+    position: absolute;
+    bottom: -6px;
+    right: -6px;
+    width: 44px;
+    height: 44px;
+    border-radius: 14px;
+    border: none;
+    background: linear-gradient(135deg, #2563eb, #3b82f6);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 15px 30px rgba(37, 99, 235, 0.4);
+    cursor: pointer;
+}
+
+.profile-hero__eyebrow {
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    font-size: 0.75rem;
+    color: rgba(226, 232, 240, 0.7);
+    margin-bottom: 0.5rem;
+}
+
+.profile-hero h1 {
+    margin: 0 0 0.5rem;
+    color: white;
+    font-size: 2.25rem;
+}
+
+.profile-hero__subtitle {
+    margin: 0 0 1.5rem;
+    color: rgba(226, 232, 240, 0.8);
+    max-width: 640px;
+    line-height: 1.6;
+}
+
+.profile-hero__meta {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 1rem;
+}
+
+.profile-hero__meta span {
+    display: block;
+    font-size: 0.75rem;
+    color: rgba(226, 232, 240, 0.6);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin-bottom: 0.25rem;
+}
+
+.profile-hero__meta strong {
+    color: white;
+    font-size: 1rem;
+}
+
+.profile-hero__actions {
+    display: flex;
+    gap: 1rem;
+}
+
+.profile-hero__primary,
+.profile-hero__ghost {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    border-radius: 16px;
+    border: 1px solid rgba(148, 163, 184, 0.25);
+    background: rgba(15, 23, 42, 0.6);
+    color: rgba(226, 232, 240, 0.85);
+    padding: 0.9rem 1.5rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.profile-hero__primary {
+    background: linear-gradient(135deg, #3b82f6, #2563eb);
+    color: white;
+    border: none;
+    box-shadow: 0 20px 35px rgba(59, 130, 246, 0.35);
+}
+
+.profile-hero__primary:hover {
+    box-shadow: 0 25px 45px rgba(59, 130, 246, 0.45);
+    transform: translateY(-1px);
+}
+
+.profile-hero__ghost:hover {
+    border-color: rgba(99, 102, 241, 0.4);
+    color: white;
+}
+
+.profile-card {
+    background: rgba(13, 19, 33, 0.9);
+    border-radius: 28px;
+    border: 1px solid rgba(148, 163, 184, 0.2);
+    box-shadow: 0 35px 60px rgba(2, 6, 23, 0.55);
+    backdrop-filter: blur(18px);
+}
+
+.profile-card__header {
+    padding: 2rem 2.5rem 0;
+}
+
+.profile-card__eyebrow {
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    font-size: 0.75rem;
+    color: rgba(226, 232, 240, 0.6);
+    margin-bottom: 0.5rem;
+}
+
+.profile-card__header h3 {
+    margin: 0;
+    color: white;
+    font-size: 1.5rem;
+}
+
+.profile-card__header p {
+    margin: 0.5rem 0 0;
+    color: rgba(226, 232, 240, 0.75);
+}
+
+.profile-card__body {
+    padding: 2.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.profile-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1.75rem;
+}
+
+.profile-form__avatar {
+    display: flex;
+    gap: 1.5rem;
+    align-items: center;
+    padding: 1.5rem;
+    border-radius: 20px;
+    border: 1px solid rgba(148, 163, 184, 0.2);
+    background: rgba(15, 23, 42, 0.7);
+}
+
+.profile-form__avatar h4 {
+    margin: 0 0 0.35rem;
+    color: white;
+    font-size: 1.125rem;
+}
+
+.profile-form__avatar p {
+    margin: 0 0 1rem;
+    color: rgba(226, 232, 240, 0.7);
+}
+
+.profile-form__avatar-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+}
+
+.profile-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 1.25rem;
+}
+
+.profile-grid label {
+    display: block;
+    margin-bottom: 0.5rem;
+    color: rgba(226, 232, 240, 0.8);
+    font-weight: 600;
+}
+
+.profile-grid input {
+    width: 100%;
+    padding: 0.85rem 1rem;
+    border-radius: 14px;
+    border: 1px solid rgba(148, 163, 184, 0.3);
+    background: rgba(15, 23, 42, 0.65);
+    color: white;
+}
+
+.profile-grid input:focus {
+    outline: none;
+    border-color: rgba(96, 165, 250, 0.7);
+    box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.15);
+}
+
+.profile-alert {
+    display: flex;
+    gap: 1rem;
+    padding: 1rem 1.25rem;
+    border-radius: 18px;
+    border: 1px solid rgba(96, 165, 250, 0.3);
+    background: rgba(96, 165, 250, 0.1);
+    color: rgba(226, 232, 240, 0.85);
+}
+
+.profile-alert--warning {
+    border-color: rgba(251, 191, 36, 0.3);
+    background: rgba(251, 191, 36, 0.12);
+}
+
+.profile-alert__title {
+    margin: 0 0 0.25rem;
+    font-weight: 600;
+}
+
+.profile-form__actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 1rem;
+    border-top: 1px solid rgba(148, 163, 184, 0.2);
+    padding-top: 1.5rem;
+}
+
+.profile-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    border-radius: 14px;
+    border: none;
+    cursor: pointer;
+    font-weight: 600;
+    padding: 0.85rem 1.4rem;
+    transition: transform 0.2s ease;
+}
+
+.profile-btn--primary {
+    background: linear-gradient(135deg, #3b82f6, #2563eb);
+    color: white;
+    box-shadow: 0 20px 35px rgba(59, 130, 246, 0.35);
+}
+
+.profile-btn--ghost {
+    background: rgba(15, 23, 42, 0.6);
+    color: rgba(226, 232, 240, 0.8);
+    border: 1px solid rgba(148, 163, 184, 0.25);
+}
+
+.profile-btn:hover {
+    transform: translateY(-1px);
+}
+
+@media (max-width: 768px) {
+    .profile-page {
+        padding: 1.5rem;
+    }
+    .profile-hero {
+        padding: 1.5rem;
+    }
+    .profile-hero__identity {
+        flex-direction: column;
+        text-align: center;
+    }
+    .profile-hero__avatar {
+        margin-bottom: 1rem;
+    }
+    .profile-hero__actions {
+        flex-direction: column;
+    }
+}
+</style>
+{% endblock %}

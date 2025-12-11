@@ -1,0 +1,157 @@
+{% extends 'admin_new/base.html' %}
+
+{% block page_subtitle %}
+    {% if cliente %}Editar informações do cliente{% else %}Cadastrar novo cliente no sistema{% endif %}
+{% endblock %}
+
+{% block page_actions %}
+<div class="flex items-center space-x-3">
+    <a href="{% url 'admin_new:clientes' %}" class="btn-secondary">
+        <i data-lucide="arrow-left" class="w-5 h-5 mr-2"></i>
+        Voltar
+    </a>
+    <button type="submit" form="clienteForm" class="btn-primary">
+        <i data-lucide="save" class="w-5 h-5 mr-2"></i>
+        {% if cliente %}Atualizar{% else %}Cadastrar{% endif %}
+    </button>
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto">
+    <form id="clienteForm" method="POST" enctype="multipart/form-data" class="space-y-6">
+        {% csrf_token %}
+        
+        <!-- Informações Pessoais -->
+        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
+            <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-6">Informações Pessoais</h3>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="form-group">
+                    <label for="first_name" class="form-label">Nome *</label>
+                    <input type="text" id="first_name" name="first_name" 
+                           value="{{ cliente.first_name|default:'' }}" 
+                           class="form-input" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="last_name" class="form-label">Sobrenome *</label>
+                    <input type="text" id="last_name" name="last_name" 
+                           value="{{ cliente.last_name|default:'' }}" 
+                           class="form-input" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="email" class="form-label">E-mail *</label>
+                    <input type="email" id="email" name="email" 
+                           value="{{ cliente.email|default:'' }}" 
+                           class="form-input" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="telefone" class="form-label">Telefone</label>
+                    <input type="text" id="telefone" name="telefone" 
+                           value="{{ cliente.telefone|default:'' }}" 
+                           class="form-input" placeholder="(11) 99999-9999">
+                </div>
+                
+                <div class="form-group">
+                    <label for="data_nascimento" class="form-label">Data de Nascimento</label>
+                    <input type="date" id="data_nascimento" name="data_nascimento" 
+                           value="{{ cliente.data_nascimento|date:'Y-m-d'|default:'' }}" 
+                           class="form-input">
+                </div>
+                
+                <div class="form-group">
+                    <label for="foto_perfil" class="form-label">Foto do Perfil</label>
+                    <input type="file" id="foto_perfil" name="foto_perfil" 
+                           class="form-input" accept="image/*">
+                    {% if cliente.foto_perfil %}
+                    <p class="form-help">Arquivo atual: {{ cliente.foto_perfil.name }}</p>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label for="endereco" class="form-label">Endereço</label>
+                <textarea id="endereco" name="endereco" rows="3" 
+                          class="form-textarea">{{ cliente.endereco|default:'' }}</textarea>
+            </div>
+        </div>
+
+        <!-- Informações de Acesso -->
+        {% if not cliente %}
+        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
+            <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-6">Informações de Acesso</h3>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="form-group">
+                    <label for="username" class="form-label">Usuário *</label>
+                    <input type="text" id="username" name="username" 
+                           class="form-input" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="password" class="form-label">Senha *</label>
+                    <input type="password" id="password" name="password" 
+                           class="form-input" required minlength="8">
+                    <p class="form-help">Mínimo de 6 caracteres</p>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Configurações -->
+        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
+            <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-6">Configurações</h3>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="form-group">
+                    <label class="flex items-center">
+                        <input type="checkbox" name="ativo" 
+                               {% if not cliente or cliente.ativo %}checked{% endif %}
+                               class="rounded border-gray-300 text-admin-primary focus:ring-admin-primary focus:ring-offset-0">
+                        <span class="ml-2 text-sm text-gray-900 dark:text-gray-100">Cliente ativo</span>
+                    </label>
+                </div>
+                
+                <div class="form-group">
+                    <label class="flex items-center">
+                        <input type="checkbox" name="aceita_marketing" 
+                               {% if cliente.aceita_marketing %}checked{% endif %}
+                               class="rounded border-gray-300 text-admin-primary focus:ring-admin-primary focus:ring-offset-0">
+                        <span class="ml-2 text-sm text-gray-900 dark:text-gray-100">Aceita receber marketing</span>
+                    </label>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Máscara para telefone
+document.getElementById('telefone').addEventListener('input', function(e) {
+    let value = e.target.value.replace(/\D/g, '');
+    if (value.length <= 11) {
+        value = value.replace(/(\d{2})(\d{5})(\d{4})/, '($1) $2-$3');
+        e.target.value = value;
+    }
+});
+
+// Validação do formulário
+document.getElementById('clienteForm').addEventListener('submit', function(e) {
+    const email = document.getElementById('email').value;
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    
+    if (!emailRegex.test(email)) {
+        e.preventDefault();
+        alert('Por favor, insira um e-mail válido.');
+        return false;
+    }
+    
+    return true;
+});
+</script>
+{% endblock %}

@@ -1,0 +1,9 @@
+<svg width="800" height="600" viewBox="0 0 800 600" fill="none" xmlns="http://www.w3.org/2000/svg">
+<rect width="800" height="600" fill="#1E293B"/>
+<path d="M300 200H500V400H300V200Z" fill="#3B82F6"/>
+<circle cx="350" cy="300" r="25" fill="#60A5FA"/>
+<circle cx="450" cy="300" r="25" fill="#60A5FA"/>
+<text x="400" y="480" fill="#FFFFFF" font-family="Arial" font-size="24" text-anchor="middle" font-weight="bold">LAVAGEM PREMIUM</text>
+<text x="400" y="510" fill="#FFFFFF" font-family="Arial" font-size="16" text-anchor="middle">Resultado Impecável</text>
+<text x="400" y="540" fill="#94A3B8" font-family="Arial" font-size="14" text-anchor="middle">static/images/gallery/trabalho-01.jpg</text>
+</svg>

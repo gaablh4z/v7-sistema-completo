@@ -1,0 +1,382 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Dashboard · AutoV7{% endblock %}</title>
+
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+
+    <link rel="stylesheet" href="{% static 'css/websocket-notifications.css' %}">
+
+    <style>
+        :root {
+            --panel-bg: #01050f;
+            --panel-gradient: radial-gradient(circle at top, rgba(56, 189, 248, 0.12), transparent 60%), #020617;
+            --panel-card: rgba(15, 23, 42, 0.9);
+            --panel-outline: rgba(148, 163, 184, 0.25);
+            --panel-text: #e2e8f0;
+            --panel-muted: #94a3b8;
+            --panel-accent: #38bdf8;
+            --panel-accent-2: #818cf8;
+            --panel-danger: #fb7185;
+            --panel-success: #4ade80;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            min-height: 100vh;
+            margin: 0;
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: var(--panel-gradient);
+            color: var(--panel-text);
+            -webkit-font-smoothing: antialiased;
+        }
+
+        body.dashboard-mobile-open {
+            overflow: hidden;
+        }
+
+        .dashboard-shell {
+            min-height: 100vh;
+        }
+
+        .dashboard-navbar {
+            position: sticky;
+            top: 0;
+            z-index: 40;
+            padding: 0.7rem 1.2rem;
+            background: rgba(3, 7, 18, 0.96);
+            border-bottom: 1px solid var(--panel-outline);
+            backdrop-filter: blur(18px);
+        }
+
+        .dashboard-navbar-inner {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1rem;
+        }
+
+        .dashboard-logo {
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+        }
+
+        .dashboard-logo-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 0.9rem;
+            display: grid;
+            place-items: center;
+            background: linear-gradient(135deg, rgba(56, 189, 248, 0.35), rgba(14, 165, 233, 0.6));
+            color: #0f172a;
+            font-weight: 700;
+        }
+
+        .dashboard-logo-text {
+            display: flex;
+            flex-direction: column;
+            gap: 0.1rem;
+        }
+
+        .dashboard-logo-title {
+            font-size: 0.85rem;
+            font-weight: 600;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+        }
+
+        .dashboard-logo-subtitle {
+            font-size: 0.75rem;
+            color: var(--panel-muted);
+        }
+
+        .dashboard-main {
+            min-height: calc(100vh - 64px);
+            padding: 1.25rem 2.25rem 2.25rem;
+        }
+
+        .dashboard-main-inner {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .dashboard-sidebar-user {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.9rem;
+            border-radius: 1.1rem;
+            border: 1px solid var(--panel-outline);
+            background: rgba(15, 23, 42, 0.9);
+        }
+
+        .dashboard-sidebar-avatar {
+            width: 44px;
+            height: 44px;
+            border-radius: 1rem;
+            background: linear-gradient(135deg, rgba(56, 189, 248, 0.3), rgba(14, 165, 233, 0.5));
+            display: grid;
+            place-items: center;
+            font-weight: 600;
+            color: #e5e7eb;
+        }
+
+        .dashboard-sidebar-user-info {
+            flex: 1;
+            min-width: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 0.1rem;
+        }
+
+        .dashboard-sidebar-user-name {
+            font-size: 0.95rem;
+        }
+
+        .dashboard-sidebar-user-email {
+            display: none;
+        }
+
+        .dashboard-logout-btn {
+            width: 38px;
+            height: 38px;
+            border-radius: 0.9rem;
+            border: 1px solid rgba(248, 113, 113, 0.6);
+            background: radial-gradient(circle at top, rgba(248, 113, 113, 0.16), transparent 70%);
+            color: #fecaca;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+        }
+
+        .dashboard-nav {
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+        }
+
+        .dashboard-nav-link {
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+            padding: 0.45rem 0.85rem;
+            border-radius: 0.9rem;
+            color: rgba(226, 232, 240, 0.85);
+            text-decoration: none;
+            border: 1px solid transparent;
+            font-size: 0.9rem;
+            transition: background 0.2s ease, border-color 0.2s ease, transform 0.15s ease;
+        }
+
+        .dashboard-nav-link i {
+            width: 18px;
+            height: 18px;
+        }
+
+        .dashboard-nav-link:hover {
+            background: rgba(56, 189, 248, 0.12);
+            border-color: rgba(56, 189, 248, 0.35);
+            color: #f9fafb;
+            transform: translateY(-1px);
+        }
+
+        .dashboard-nav-link.is-active {
+            background: linear-gradient(120deg, rgba(56, 189, 248, 0.23), rgba(129, 140, 248, 0.3));
+            border-color: rgba(56, 189, 248, 0.6);
+            color: #f9fafb;
+            box-shadow: 0 18px 35px rgba(2, 6, 23, 0.7);
+        }
+
+        .dashboard-topbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 0.75rem;
+            margin-bottom: 1.25rem;
+        }
+
+        .dashboard-topbar-left {
+            display: flex;
+            align-items: center;
+            gap: 0.65rem;
+        }
+
+        .dashboard-mobile-toggle {
+            display: none;
+            width: 40px;
+            height: 40px;
+            border-radius: 999px;
+            border: 1px solid var(--panel-outline);
+            background: rgba(15, 23, 42, 0.9);
+            color: var(--panel-text);
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+        }
+
+        .dashboard-topbar-title {
+            font-size: 1.35rem;
+            font-weight: 600;
+        }
+
+        .dashboard-topbar-subtitle {
+            font-size: 0.9rem;
+            color: var(--panel-muted);
+        }
+
+        .dashboard-topbar {
+            margin-bottom: 1.25rem;
+        }
+        .dashboard-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(15, 23, 42, 0.7);
+            z-index: 30;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.2s ease;
+        }
+
+        .dashboard-overlay.is-visible {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        @media (max-width: 1024px) {
+            .dashboard-mobile-toggle {
+                display: inline-flex;
+            }
+            .dashboard-nav {
+                display: none;
+            }
+            .dashboard-nav.is-open {
+                display: flex;
+                flex-direction: column;
+                position: absolute;
+                top: 100%;
+                left: 0;
+                right: 0;
+                padding: 0.75rem 1rem 0.9rem;
+                background: rgba(3, 7, 18, 0.98);
+                border-bottom: 1px solid var(--panel-outline);
+            }
+        }
+
+        @media (max-width: 640px) {
+            .dashboard-main {
+                padding: 0.85rem;
+            }
+        }
+    </style>
+
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+<div class="dashboard-shell">
+    <header class="dashboard-navbar">
+        <div class="dashboard-navbar-inner">
+            <div class="dashboard-logo">
+                <div class="dashboard-logo-icon">
+                    <i data-lucide="car"></i>
+                </div>
+                <div class="dashboard-logo-text">
+                    <span class="dashboard-logo-title">AutoV7</span>
+                    <span class="dashboard-logo-subtitle">Dashboard do Cliente</span>
+                </div>
+            </div>
+
+            <button class="dashboard-mobile-toggle" type="button" id="dashboardMobileToggle" aria-label="Abrir menu">
+                <i data-lucide="menu"></i>
+            </button>
+
+            <nav class="dashboard-nav" id="dashboardNav">
+                <a href="/dashboard/" class="dashboard-nav-link {% if request.resolver_match.url_name == 'dashboard_home' %}is-active{% endif %}">
+                    <i data-lucide="home"></i>
+                    <span>Início</span>
+                </a>
+                <a href="/dashboard/vehicles/" class="dashboard-nav-link {% if request.resolver_match.url_name == 'vehicles_page' %}is-active{% endif %}">
+                    <i data-lucide="car"></i>
+                    <span>Meus Veículos</span>
+                </a>
+                <a href="/dashboard/booking/" class="dashboard-nav-link {% if request.resolver_match.url_name == 'booking_page' %}is-active{% endif %}">
+                    <i data-lucide="calendar-plus"></i>
+                    <span>Agendar Serviço</span>
+                </a>
+                <a href="/dashboard/appointments/" class="dashboard-nav-link {% if request.resolver_match.url_name == 'appointments_page' %}is-active{% endif %}">
+                    <i data-lucide="history"></i>
+                    <span>Histórico</span>
+                </a>
+                <a href="/dashboard/profile/" class="dashboard-nav-link {% if request.resolver_match.url_name == 'profile_page' %}is-active{% endif %}">
+                    <i data-lucide="user"></i>
+                    <span>Perfil</span>
+                </a>
+                <form method="post" action="/accounts/logout/" style="margin-left: 0.5rem;">
+                    {% csrf_token %}
+                    <button type="submit" class="dashboard-logout-btn" title="Sair">
+                        <i data-lucide="log-out"></i>
+                    </button>
+                </form>
+            </nav>
+        </div>
+    </header>
+
+        <main class="dashboard-main" id="dashboardMain">
+            <div class="dashboard-main-inner">
+            <div class="dashboard-topbar"></div>
+            <div data-user-id="{{ user.id }}" style="display: none;"></div>
+
+            {% if messages %}
+            <div class="dashboard-messages">
+                {% for message in messages %}
+                <div class="dashboard-message {{ message.tags|default:'info' }}">{{ message }}</div>
+                {% endfor %}
+            </div>
+            {% endif %}
+
+            {% block dashboard_content %}{% endblock %}
+        </div>
+    </main>
+</div>
+
+<script src="{% static 'js/websocket-client.js' %}"></script>
+<script>
+    lucide.createIcons();
+
+    const main = document.getElementById('dashboardMain');
+    const mobileToggle = document.getElementById('dashboardMobileToggle');
+    const nav = document.getElementById('dashboardNav');
+
+    if (mobileToggle && nav) {
+        mobileToggle.addEventListener('click', () => {
+            const isOpen = nav.classList.toggle('is-open');
+            mobileToggle.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+        });
+    }
+
+    window.addEventListener('appointment:status_changed', (event) => {
+        if (window.location.pathname.includes('/dashboard/appointments')) {
+            location.reload();
+        }
+    });
+
+    window.addEventListener('appointment:confirmed', (event) => {
+        console.log('Agendamento confirmado:', event.detail);
+    });
+</script>
+
+{% block extra_js %}{% endblock %}
+
+</body>
+</html>

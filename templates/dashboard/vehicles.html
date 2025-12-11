@@ -1,0 +1,1584 @@
+{% extends 'dashboard/layout.html' %}
+
+{% block title %}Meus Veículos - AutoV7{% endblock %}
+
+{% block dashboard_content %}
+<div class="vehicles-page">
+<div class="vehicles-page-shell">
+<!-- Cabeçalho Moderno -->
+<section class="vehicles-hero">
+    <div class="vehicles-hero__content">
+        <div class="vehicles-hero__title">
+            <div class="vehicles-hero__icon">
+                <i data-lucide="car" class="vehicles-hero__icon-img"></i>
+            </div>
+            <div>
+                <p class="vehicles-hero__status">Sistema ativo</p>
+                <h1>Meus Veículos</h1>
+                <p class="vehicles-hero__subtitle">
+                    Gerencie e organize sua frota de veículos com facilidade e segurança.
+                </p>
+                <ul class="vehicles-hero__pill-list">
+                    <li>
+                        <i data-lucide="shield-check"></i>
+                        <span>Seguro e confiável</span>
+                    </li>
+                    <li>
+                        <i data-lucide="clock"></i>
+                        <span>Acesso 24/7</span>
+                    </li>
+                    <li>
+                        <i data-lucide="users"></i>
+                        <span>Suporte especializado</span>
+                    </li>
+                </ul>
+            </div>
+        </div>
+        <div class="vehicles-hero__actions">
+            <button type="button" onclick="openAddModal()" class="vehicles-hero__primary">
+                <i data-lucide="plus"></i>
+                <span>Adicionar veículo</span>
+            </button>
+            <div class="vehicles-hero__secondary">
+                <button type="button" class="vehicles-hero__ghost">
+                    <i data-lucide="download"></i>
+                    <span>Exportar</span>
+                </button>
+                <button type="button" class="vehicles-hero__ghost">
+                    <i data-lucide="settings"></i>
+                    <span>Configurações</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div class="vehicles-hero__filters">
+        <div class="vehicles-filter__head">
+            <div>
+                <h3>Filtros de pesquisa</h3>
+                <p>Encontre rapidamente o veículo desejado.</p>
+            </div>
+            <div class="vehicles-filter__count">
+                <span id="vehicleCount">0</span>
+                <small>veículos encontrados</small>
+            </div>
+        </div>
+
+        <div class="vehicles-filter__grid">
+            <div class="vehicles-filter__field vehicles-filter__field--wide">
+                <label for="searchVehicles">Busca inteligente</label>
+                <div class="vehicles-filter__search">
+                    <i data-lucide="search"></i>
+                    <input type="text" id="searchVehicles" placeholder="Digite marca, modelo, placa ou qualquer informação...">
+                    <button type="button" class="vehicles-filter__icon-btn" aria-label="Ativar microfone">
+                        <i data-lucide="mic"></i>
+                    </button>
+                </div>
+            </div>
+
+            <div class="vehicles-filter__field">
+                <label for="filterYear">Ano de fabricação</label>
+                <div class="vehicles-filter__select">
+                    <select id="filterYear">
+                        <option value="">Todos os anos</option>
+                        <option value="2025">2025 (mais recente)</option>
+                        <option value="2024">2024</option>
+                        <option value="2023">2023</option>
+                        <option value="2022">2022</option>
+                        <option value="2021">2021</option>
+                        <option value="2020">2020</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="vehicles-filter__field">
+                <label for="filterCategory">Tipo de veículo</label>
+                <div class="vehicles-filter__select">
+                    <select id="filterCategory">
+                        <option value="">Todas as categorias</option>
+                        <option value="sedan">Sedan</option>
+                        <option value="hatch">Hatch</option>
+                        <option value="suv">SUV</option>
+                        <option value="pickup">Pickup</option>
+                        <option value="van">Van</option>
+                        <option value="moto">Motocicleta</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <div class="vehicles-filter__footer">
+            <div id="activeFilters" class="vehicles-active-filters"></div>
+            <button type="button" class="vehicles-filter__clear" onclick="clearAllFilters()">
+                Limpar filtros
+            </button>
+        </div>
+    </div>
+</section>
+
+<!-- Grid de Veículos Responsivo -->
+<div class="vehicles-grid">
+    {% if vehicles %}
+        {% for vehicle in vehicles %}
+        <div class="vehicle-card" data-marca="{{ vehicle.marca }}" data-modelo="{{ vehicle.modelo }}" data-placa="{{ vehicle.placa }}" data-ano="{{ vehicle.ano }}" data-categoria="{{ vehicle.categoria }}">
+            <!-- Header do Card -->
+            <div class="vehicle-card-header">
+                <div class="flex items-center justify-between">
+                    <div class="vehicle-brand-badge">
+                        {{ vehicle.marca }}
+                    </div>
+                    <div class="vehicle-actions-mobile">
+                        <button class="vehicle-action-btn" onclick="toggleMenu(this)">
+                            <i data-lucide="more-vertical" class="w-4 h-4"></i>
+                        </button>
+                        <div class="vehicle-dropdown hidden">
+                            <button onclick="editVehicle({{ vehicle.id }})">
+                                <i data-lucide="edit" class="w-4 h-4"></i>
+                                <span>Editar</span>
+                            </button>
+                            <button onclick="quickBook({{ vehicle.id }})">
+                                <i data-lucide="calendar" class="w-4 h-4"></i>
+                                <span>Agendar</span>
+                            </button>
+                            <button onclick="deleteVehicle({{ vehicle.id }})" class="text-red-400">
+                                <i data-lucide="trash-2" class="w-4 h-4"></i>
+                                <span>Excluir</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Ícone do Veículo -->
+            <div class="vehicle-icon-container">
+                <div class="vehicle-icon">
+                    <i data-lucide="car" class="w-8 h-8 md:w-10 md:h-10"></i>
+                </div>
+            </div>
+            
+            <!-- Informações do Veículo -->
+            <div class="vehicle-info">
+                <h3 class="vehicle-title">{{ vehicle.modelo }}</h3>
+                <p class="vehicle-subtitle">{{ vehicle.marca }} • {{ vehicle.ano }}</p>
+                
+                <div class="vehicle-details">
+                    <div class="vehicle-detail-item">
+                        <span class="vehicle-detail-label">Placa:</span>
+                        <span class="vehicle-detail-value">{{ vehicle.placa }}</span>
+                    </div>
+                    
+                    {% if vehicle.cor %}
+                    <div class="vehicle-detail-item">
+                        <span class="vehicle-detail-label">Cor:</span>
+                        <span class="vehicle-detail-value">{{ vehicle.cor }}</span>
+                    </div>
+                    {% endif %}
+                    
+                    {% if vehicle.categoria %}
+                    <div class="vehicle-detail-item">
+                        <span class="vehicle-detail-label">Categoria:</span>
+                        <span class="vehicle-detail-value">{{ vehicle.categoria|capfirst }}</span>
+                    </div>
+                    {% endif %}
+                    
+                    {% if vehicle.quilometragem %}
+                    <div class="vehicle-detail-item">
+                        <span class="vehicle-detail-label">KM:</span>
+                        <span class="vehicle-detail-value">{{ vehicle.quilometragem|floatformat:0 }} km</span>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <!-- Ações do Veículo -->
+            <div class="vehicle-actions">
+                <button onclick="quickBook({{ vehicle.id }})" class="vehicle-btn vehicle-btn-primary">
+                    <i data-lucide="calendar" class="w-4 h-4"></i>
+                    <span>Agendar</span>
+                </button>
+                
+                <div class="vehicle-actions-secondary">
+                    <button onclick="editVehicle({{ vehicle.id }})" class="vehicle-btn vehicle-btn-secondary" title="Editar">
+                        <i data-lucide="edit" class="w-4 h-4"></i>
+                    </button>
+                    <button onclick="deleteVehicle({{ vehicle.id }})" class="vehicle-btn vehicle-btn-danger" title="Excluir">
+                        <i data-lucide="trash-2" class="w-4 h-4"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+        
+    {% else %}
+        <!-- Estado Vazio -->
+        <div class="empty-state">
+            <div class="empty-state-icon">
+                <i data-lucide="car" class="w-16 h-16 md:w-20 md:h-20"></i>
+            </div>
+            <h3 class="empty-state-title">Nenhum veículo cadastrado</h3>
+            <p class="empty-state-description">Adicione seu primeiro veículo para começar a usar nossos serviços.</p>
+            <button onclick="openAddModal()" class="empty-state-button">
+                <i data-lucide="plus" class="w-4 h-4"></i>
+                <span>Adicionar Primeiro Veículo</span>
+            </button>
+        </div>
+    {% endif %}
+</div>
+</div>
+
+<!-- Modal Adicionar Veículo -->
+<div id="addVehicleModal" style="
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.8);
+    z-index: 99999;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+">
+    <div onclick="event.stopPropagation()" style="
+        background: #1e293b;
+        border-radius: 15px;
+        width: 100%;
+        max-width: 500px;
+        box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+        position: relative;
+    ">
+        <!-- Cabeçalho -->
+        <div style="
+            background: linear-gradient(135deg, #334155, #1e293b);
+            padding: 20px;
+            border-radius: 15px 15px 0 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #475569;
+        ">
+            <h3 style="color: white; margin: 0; font-size: 18px; font-weight: 600;">
+                <i data-lucide="car" style="width: 20px; height: 20px; margin-right: 10px; vertical-align: middle;"></i>
+                Adicionar Novo Veículo
+            </h3>
+            <button onclick="closeModal()" style="
+                background: none;
+                border: none;
+                color: #94a3b8;
+                cursor: pointer;
+                font-size: 24px;
+                padding: 5px;
+                border-radius: 5px;
+                width: 30px;
+                height: 30px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            " onmouseover="this.style.background='rgba(255,255,255,0.1)'" onmouseout="this.style.background='none'">×</button>
+        </div>
+        
+        <!-- Formulário -->
+        <form id="vehicleForm" style="padding: 20px;">
+            {% csrf_token %}
+            
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
+                <div>
+                    <label style="color: #e5e7eb; font-weight: 500; margin-bottom: 5px; display: block;">Marca *</label>
+                    <input type="text" name="marca" required placeholder="Ex: Toyota" style="
+                        width: 100%;
+                        padding: 10px;
+                        border: 2px solid #374151;
+                        background: #374151;
+                        color: white;
+                        border-radius: 8px;
+                        box-sizing: border-box;
+                    ">
+                </div>
+                <div>
+                    <label style="color: #e5e7eb; font-weight: 500; margin-bottom: 5px; display: block;">Modelo *</label>
+                    <input type="text" name="modelo" required placeholder="Ex: Corolla" style="
+                        width: 100%;
+                        padding: 10px;
+                        border: 2px solid #374151;
+                        background: #374151;
+                        color: white;
+                        border-radius: 8px;
+                        box-sizing: border-box;
+                    ">
+                </div>
+            </div>
+            
+            <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-bottom: 15px;">
+                <div>
+                    <label style="color: #e5e7eb; font-weight: 500; margin-bottom: 5px; display: block;">Ano *</label>
+                    <select name="ano" required style="
+                        width: 100%;
+                        padding: 10px;
+                        border: 2px solid #374151;
+                        background: #374151;
+                        color: white;
+                        border-radius: 8px;
+                        box-sizing: border-box;
+                    ">
+                        <option value="">Ano</option>
+                        <option value="2025">2025</option>
+                        <option value="2024">2024</option>
+                        <option value="2023">2023</option>
+                        <option value="2022">2022</option>
+                        <option value="2021">2021</option>
+                        <option value="2020">2020</option>
+                        <option value="2019">2019</option>
+                        <option value="2018">2018</option>
+                        <option value="2017">2017</option>
+                        <option value="2016">2016</option>
+                        <option value="2015">2015</option>
+                    </select>
+                </div>
+                <div>
+                    <label style="color: #e5e7eb; font-weight: 500; margin-bottom: 5px; display: block;">Cor</label>
+                    <input type="text" name="cor" placeholder="Ex: Branco" style="
+                        width: 100%;
+                        padding: 10px;
+                        border: 2px solid #374151;
+                        background: #374151;
+                        color: white;
+                        border-radius: 8px;
+                        box-sizing: border-box;
+                    ">
+                </div>
+                <div>
+                    <label style="color: #e5e7eb; font-weight: 500; margin-bottom: 5px; display: block;">Placa *</label>
+                    <input type="text" name="placa" required placeholder="ABC-1234" maxlength="8" style="
+                        width: 100%;
+                        padding: 10px;
+                        border: 2px solid #374151;
+                        background: #374151;
+                        color: white;
+                        border-radius: 8px;
+                        box-sizing: border-box;
+                        text-transform: uppercase;
+                    ">
+                </div>
+            </div>
+            
+            <div style="margin-bottom: 20px;">
+                <label style="color: #e5e7eb; font-weight: 500; margin-bottom: 5px; display: block;">Categoria</label>
+                <select name="categoria" style="
+                    width: 100%;
+                    padding: 10px;
+                    border: 2px solid #374151;
+                    background: #374151;
+                    color: white;
+                    border-radius: 8px;
+                    box-sizing: border-box;
+                ">
+                    <option value="">Selecionar categoria...</option>
+                    <option value="sedan">Sedan</option>
+                    <option value="hatch">Hatch</option>
+                    <option value="suv">SUV</option>
+                    <option value="pickup">Pickup</option>
+                    <option value="van">Van</option>
+                    <option value="moto">Motocicleta</option>
+                </select>
+            </div>
+        </form>
+        
+        <!-- Botões -->
+        <div style="
+            padding: 15px 20px;
+            border-top: 1px solid #475569;
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            background: rgba(0,0,0,0.2);
+            border-radius: 0 0 15px 15px;
+        ">
+            <button type="button" onclick="closeModal()" style="
+                padding: 8px 16px;
+                background: #6b7280;
+                color: white;
+                border: none;
+                border-radius: 6px;
+                cursor: pointer;
+                font-weight: 500;
+            " onmouseover="this.style.background='#9ca3af'" onmouseout="this.style.background='#6b7280'">
+                Cancelar
+            </button>
+            <button type="submit" form="vehicleForm" style="
+                padding: 8px 16px;
+                background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+                color: white;
+                border: none;
+                border-radius: 6px;
+                cursor: pointer;
+                font-weight: 500;
+            " onmouseover="this.style.transform='translateY(-1px)'" onmouseout="this.style.transform='none'">
+                Salvar Veículo
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- CSS Responsivo -->
+<style>
+:root {
+    --vehicles-bg-start: #0f172a;
+    --vehicles-bg-mid: #162337;
+    --vehicles-bg-end: #1f2d44;
+    --vehicles-glass: rgba(15, 23, 42, 0.88);
+    --vehicles-glass-soft: rgba(15, 23, 42, 0.65);
+    --vehicles-border: rgba(148, 163, 184, 0.25);
+    --vehicles-border-strong: rgba(148, 163, 184, 0.45);
+    --vehicles-highlight: #60a5fa;
+    --vehicles-highlight-strong: #3b82f6;
+    --vehicles-text-soft: #cbd5f5;
+    --vehicles-text-muted: #94a3b8;
+}
+
+.vehicles-page {
+    position: relative;
+    min-height: 100vh;
+    padding: 2.5rem;
+    background: radial-gradient(circle at top, rgba(96, 165, 250, 0.08), transparent 45%),
+                linear-gradient(135deg, var(--vehicles-bg-start), var(--vehicles-bg-mid) 55%, var(--vehicles-bg-end));
+}
+
+.vehicles-page::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(circle at 10% 20%, rgba(99, 102, 241, 0.12), transparent 35%);
+    pointer-events: none;
+}
+
+.vehicles-page-shell {
+    position: relative;
+    z-index: 1;
+    max-width: 1280px;
+    margin: 0 auto;
+}
+
+/* Cabeçalho e filtros */
+.vehicles-hero {
+    position: relative;
+    background: linear-gradient(135deg, rgba(12, 18, 32, 0.95), rgba(18, 31, 50, 0.95));
+    border: 1px solid var(--vehicles-border);
+    border-radius: 28px;
+    padding: 2.5rem;
+    margin-bottom: 2.5rem;
+    overflow: hidden;
+    box-shadow: 0 30px 60px rgba(2, 6, 23, 0.55);
+}
+
+.vehicles-hero::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(circle at 15% 20%, rgba(96, 165, 250, 0.25), transparent 45%),
+                radial-gradient(circle at 85% 20%, rgba(79, 70, 229, 0.25), transparent 35%);
+    pointer-events: none;
+}
+
+.vehicles-hero__content {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+    z-index: 1;
+}
+
+.vehicles-hero__title {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1.5rem;
+    align-items: flex-start;
+}
+
+.vehicles-hero__icon {
+    width: 72px;
+    height: 72px;
+    border-radius: 20px;
+    background: linear-gradient(135deg, #3b82f6, #6366f1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 20px 35px rgba(59, 130, 246, 0.35);
+}
+
+.vehicles-hero__icon-img {
+    width: 36px;
+    height: 36px;
+    color: white;
+}
+
+.vehicles-hero__status {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.35rem 0.9rem;
+    border-radius: 999px;
+    border: 1px solid rgba(59, 130, 246, 0.4);
+    background: rgba(59, 130, 246, 0.15);
+    color: #bfdbfe;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-bottom: 0.5rem;
+}
+
+.vehicles-hero__title h1 {
+    font-size: 2.5rem;
+    margin: 0;
+    color: white;
+    letter-spacing: -0.02em;
+}
+
+.vehicles-hero__subtitle {
+    margin: 0;
+    color: #cbd5f5;
+    max-width: 640px;
+    line-height: 1.6;
+}
+
+.vehicles-hero__pill-list {
+    list-style: none;
+    margin: 1rem 0 0 0;
+    padding: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+}
+
+.vehicles-hero__pill-list li {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.35rem 0.9rem;
+    border-radius: 999px;
+    background: rgba(15, 23, 42, 0.4);
+    border: 1px solid rgba(226, 232, 240, 0.15);
+    color: #e2e8f0;
+    font-size: 0.85rem;
+    font-weight: 600;
+}
+
+.vehicles-hero__pill-list i {
+    width: 16px;
+    height: 16px;
+}
+
+.vehicles-hero__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    align-items: center;
+    justify-content: flex-end;
+}
+
+.vehicles-hero__primary {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.6rem;
+    padding: 0.95rem 1.5rem;
+    border-radius: 16px;
+    border: none;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    background: linear-gradient(135deg, #3b82f6, #2563eb);
+    color: white;
+    box-shadow: 0 16px 35px rgba(37, 99, 235, 0.35);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.vehicles-hero__primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 20px 45px rgba(37, 99, 235, 0.45);
+}
+
+.vehicles-hero__primary i,
+.vehicles-hero__ghost i {
+    width: 18px;
+    height: 18px;
+}
+
+.vehicles-hero__secondary {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+}
+
+.vehicles-hero__ghost {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.8rem 1.2rem;
+    border-radius: 14px;
+    border: 1px solid rgba(148, 163, 184, 0.4);
+    background: rgba(15, 23, 42, 0.45);
+    color: #e2e8f0;
+    font-weight: 600;
+    cursor: pointer;
+    transition: border-color 0.2s ease, background 0.2s ease;
+}
+
+.vehicles-hero__ghost:hover {
+    border-color: rgba(99, 102, 241, 0.6);
+    background: rgba(30, 58, 138, 0.5);
+}
+
+.vehicles-hero__filters {
+    position: relative;
+    margin-top: 2rem;
+    padding: 1.75rem;
+    border-radius: 22px;
+    border: 1px solid var(--vehicles-border);
+    background: var(--vehicles-glass);
+    box-shadow: 0 20px 50px rgba(2, 6, 23, 0.45);
+    backdrop-filter: blur(20px);
+}
+
+.vehicles-filter__head {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 1rem;
+    align-items: flex-start;
+}
+
+.vehicles-filter__head h3 {
+    margin: 0;
+    color: white;
+    font-size: 1.25rem;
+}
+
+.vehicles-filter__head p {
+    margin: 0.25rem 0 0 0;
+    color: var(--vehicles-text-soft);
+    font-size: 0.95rem;
+}
+
+.vehicles-filter__count {
+    text-align: right;
+    color: #94a3b8;
+}
+
+.vehicles-filter__count span {
+    display: block;
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: white;
+}
+
+.vehicles-filter__count small {
+    text-transform: uppercase;
+    font-size: 0.75rem;
+    letter-spacing: 0.08em;
+    color: var(--vehicles-text-muted);
+}
+
+.vehicles-filter__grid {
+    margin-top: 1.5rem;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 1.25rem;
+}
+
+.vehicles-filter__field label {
+    display: block;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #e2e8f0;
+    margin-bottom: 0.5rem;
+}
+
+.vehicles-filter__field--wide {
+    grid-column: span 2;
+}
+
+@media (max-width: 900px) {
+    .vehicles-filter__field--wide {
+        grid-column: span 1;
+    }
+}
+
+.vehicles-filter__search,
+.vehicles-filter__select select {
+    width: 100%;
+}
+
+.vehicles-filter__search {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.85rem 1rem;
+    border-radius: 16px;
+    border: 1px solid var(--vehicles-border-strong);
+    background: var(--vehicles-glass-soft);
+    backdrop-filter: blur(12px);
+}
+
+.vehicles-filter__search input {
+    flex: 1;
+    background: transparent;
+    border: none;
+    color: white;
+    font-size: 0.95rem;
+}
+
+.vehicles-filter__search input::placeholder {
+    color: var(--vehicles-text-muted);
+}
+
+.vehicles-filter__search input:focus {
+    outline: none;
+}
+
+.vehicles-filter__icon-btn {
+    background: none;
+    border: none;
+    color: #94a3b8;
+    cursor: pointer;
+    padding: 0;
+    transition: color 0.2s ease;
+}
+
+.vehicles-filter__icon-btn:hover {
+    color: white;
+}
+
+.vehicles-filter__select {
+    position: relative;
+    border-radius: 16px;
+    border: 1px solid var(--vehicles-border-strong);
+    background: var(--vehicles-glass-soft);
+    backdrop-filter: blur(12px);
+}
+
+.vehicles-filter__select select {
+    padding: 0.85rem 1rem;
+    border: none;
+    background: transparent;
+    color: white;
+    font-size: 0.95rem;
+    appearance: none;
+}
+
+.vehicles-filter__select select:focus {
+    outline: none;
+}
+
+.vehicles-filter__footer {
+    margin-top: 1.75rem;
+    padding-top: 1.25rem;
+    border-top: 1px solid rgba(148, 163, 184, 0.2);
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.vehicles-active-filters {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+}
+
+.vehicles-filter__clear {
+    border: none;
+    background: transparent;
+    color: #93c5fd;
+    font-weight: 600;
+    cursor: pointer;
+    transition: color 0.2s ease;
+}
+
+.vehicles-filter__clear:hover {
+    color: white;
+}
+
+.filter-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    padding: 0.35rem 0.8rem;
+    border-radius: 999px;
+    background: rgba(59, 130, 246, 0.15);
+    border: 1px solid rgba(59, 130, 246, 0.35);
+    color: #bfdbfe;
+    font-size: 0.85rem;
+    font-weight: 600;
+}
+
+.filter-badge__icon,
+.filter-badge__remove i {
+    width: 14px;
+    height: 14px;
+}
+
+.filter-badge__icon {
+    color: var(--vehicles-highlight);
+}
+
+.filter-badge__remove {
+    background: none;
+    border: none;
+    color: inherit;
+    cursor: pointer;
+    padding: 0;
+    display: flex;
+    align-items: center;
+}
+
+.vehicles-filter__search i,
+.vehicles-filter__select i {
+    width: 18px;
+    height: 18px;
+    color: var(--vehicles-text-muted);
+}
+
+@media (max-width: 768px) {
+    .vehicles-hero {
+        padding: 1.75rem;
+    }
+
+    .vehicles-hero__actions {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .vehicles-hero__secondary {
+        width: 100%;
+        justify-content: space-between;
+    }
+
+    .vehicles-filter__head,
+    .vehicles-filter__count {
+        text-align: left;
+    }
+}
+
+/* Grid Responsivo de Veículos */
+.vehicles-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+@media (max-width: 768px) {
+    .vehicles-grid {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+}
+
+/* Card do Veículo */
+.vehicle-card {
+    background: var(--vehicles-glass);
+    border-radius: 20px;
+    padding: 1.75rem;
+    border: 1px solid var(--vehicles-border);
+    backdrop-filter: blur(18px);
+    transition: all 0.35s ease;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 25px 45px rgba(2, 6, 23, 0.45);
+}
+
+.vehicle-card > * {
+    position: relative;
+    z-index: 1;
+}
+
+.vehicle-card:hover {
+    transform: translateY(-4px);
+    border-color: var(--vehicles-highlight);
+    box-shadow: 0 35px 65px rgba(2, 6, 23, 0.55);
+}
+
+.vehicle-card::before {
+    content: '';
+    position: absolute;
+    inset: 1px;
+    border-radius: 18px;
+    background: linear-gradient(120deg, rgba(96, 165, 250, 0.08), rgba(99, 102, 241, 0.06));
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    pointer-events: none;
+}
+
+.vehicle-card:hover::before {
+    opacity: 1;
+}
+
+/* Header do Card */
+.vehicle-card-header {
+    margin-bottom: 1rem;
+}
+
+.vehicle-brand-badge {
+    display: inline-block;
+    padding: 0.25rem 0.75rem;
+    background: rgba(96, 165, 250, 0.18);
+    color: var(--vehicles-highlight);
+    border-radius: 9999px;
+    border: 1px solid rgba(96, 165, 250, 0.35);
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.vehicle-actions-mobile {
+    position: relative;
+    display: block;
+}
+
+@media (min-width: 768px) {
+    .vehicle-actions-mobile {
+        display: none;
+    }
+}
+
+.vehicle-action-btn {
+    padding: 0.5rem;
+    background: rgba(255, 255, 255, 0.1);
+    border: none;
+    border-radius: 8px;
+    color: #94a3b8;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.vehicle-action-btn:hover {
+    background: rgba(255, 255, 255, 0.2);
+    color: white;
+}
+
+.vehicle-dropdown {
+    position: absolute;
+    top: 100%;
+    right: 0;
+    margin-top: 0.5rem;
+    background: #1e293b;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    padding: 0.5rem;
+    min-width: 120px;
+    z-index: 10;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+}
+
+.vehicle-dropdown button {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    width: 100%;
+    padding: 0.5rem;
+    background: none;
+    border: none;
+    color: #e5e7eb;
+    cursor: pointer;
+    border-radius: 4px;
+    font-size: 0.875rem;
+    transition: background 0.2s ease;
+}
+
+.vehicle-dropdown button:hover {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+/* Ícone do Veículo */
+.vehicle-icon-container {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 1.5rem;
+}
+
+.vehicle-icon {
+    width: 60px;
+    height: 60px;
+    background: linear-gradient(135deg, var(--vehicles-highlight), var(--vehicles-highlight-strong));
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    box-shadow: 0 8px 25px rgba(59, 130, 246, 0.3);
+}
+
+@media (min-width: 768px) {
+    .vehicle-icon {
+        width: 80px;
+        height: 80px;
+    }
+}
+
+/* Informações do Veículo */
+.vehicle-info {
+    text-align: center;
+    margin-bottom: 1.5rem;
+}
+
+.vehicle-title {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: white;
+    margin: 0 0 0.25rem 0;
+}
+
+@media (min-width: 768px) {
+    .vehicle-title {
+        font-size: 1.5rem;
+    }
+}
+
+.vehicle-subtitle {
+    color: #94a3b8;
+    margin: 0 0 1rem 0;
+    font-size: 0.875rem;
+}
+
+.vehicle-details {
+    display: grid;
+    gap: 0.5rem;
+}
+
+.vehicle-detail-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.5rem;
+    background: rgba(15, 23, 42, 0.6);
+    border-radius: 10px;
+    border: 1px solid var(--vehicles-border);
+    font-size: 0.875rem;
+}
+
+.vehicle-detail-label {
+    color: #94a3b8;
+    font-weight: 500;
+}
+
+.vehicle-detail-value {
+    color: #e5e7eb;
+    font-weight: 600;
+    text-align: right;
+}
+
+/* Ações do Veículo */
+.vehicle-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+@media (min-width: 768px) {
+    .vehicle-actions {
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: center;
+    }
+}
+
+.vehicle-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 0.625rem 1rem;
+    border-radius: 8px;
+    border: none;
+    font-weight: 600;
+    font-size: 0.875rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-decoration: none;
+}
+
+.vehicle-btn-primary {
+    background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+    color: white;
+    box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3);
+}
+
+.vehicle-btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(59, 130, 246, 0.4);
+}
+
+.vehicle-btn-secondary {
+    background: rgba(15, 23, 42, 0.65);
+    color: var(--vehicles-text-muted);
+    border: 1px solid var(--vehicles-border);
+}
+
+.vehicle-btn-secondary:hover {
+    background: rgba(148, 163, 184, 0.15);
+    color: white;
+}
+
+.vehicle-btn-danger {
+    background: rgba(239, 68, 68, 0.1);
+    color: #f87171;
+    border: 1px solid rgba(239, 68, 68, 0.3);
+}
+
+.vehicle-btn-danger:hover {
+    background: rgba(239, 68, 68, 0.2);
+    color: #fca5a5;
+}
+
+.vehicle-actions-secondary {
+    display: flex;
+    gap: 0.5rem;
+}
+
+@media (max-width: 767px) {
+    .vehicle-actions-secondary {
+        display: none;
+    }
+}
+
+/* Estado Vazio */
+.empty-state {
+    grid-column: 1 / -1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 3rem 1rem;
+    background: rgba(255, 255, 255, 0.03);
+    border-radius: 16px;
+    border: 2px dashed rgba(255, 255, 255, 0.1);
+}
+
+.empty-state-icon {
+    width: 80px;
+    height: 80px;
+    background: rgba(59, 130, 246, 0.1);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #60a5fa;
+    margin-bottom: 1.5rem;
+}
+
+.empty-state-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: white;
+    margin: 0 0 0.5rem 0;
+}
+
+.empty-state-description {
+    color: #94a3b8;
+    margin: 0 0 2rem 0;
+    max-width: 400px;
+    line-height: 1.6;
+}
+
+.empty-state-button {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1.5rem;
+    background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+    color: white;
+    border: none;
+    border-radius: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3);
+}
+
+.empty-state-button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(59, 130, 246, 0.4);
+}
+
+/* Responsividade adicional */
+@media (max-width: 640px) {
+    .vehicle-card {
+        padding: 1rem;
+    }
+    
+    .vehicle-detail-item {
+        font-size: 0.8rem;
+        padding: 0.4rem;
+    }
+    
+    .vehicle-btn {
+        padding: 0.5rem 0.75rem;
+        font-size: 0.8rem;
+    }
+}
+
+/* Garantir visibilidade das fontes */
+* {
+    color: inherit;
+}
+
+input, select, label {
+    color: white !important;
+}
+
+input::placeholder {
+    color: #94a3b8 !important;
+}
+
+option {
+    background-color: #1e293b !important;
+    color: white !important;
+}
+
+/* Melhorar contraste dos textos */
+.text-slate-300 {
+    color: #d1d5db !important;
+}
+
+.text-slate-400 {
+    color: #9ca3af !important;
+}
+
+.text-slate-500 {
+    color: #6b7280 !important;
+}
+</style>
+
+<script>
+// Inicializar ícones Lucide
+lucide.createIcons();
+
+// Variáveis globais
+let vehicles = [];
+let filteredVehicles = [];
+
+// Funções do modal
+function openAddModal() {
+    const modal = document.getElementById('addVehicleModal');
+    if (modal) {
+        modal.style.display = 'flex';
+        document.body.style.overflow = 'hidden';
+        lucide.createIcons();
+    }
+}
+
+function closeModal() {
+    const modal = document.getElementById('addVehicleModal');
+    if (modal) {
+        modal.style.display = 'none';
+        document.body.style.overflow = 'auto';
+    }
+}
+
+// Função para alternar menu mobile
+function toggleMenu(button) {
+    const dropdown = button.parentNode.querySelector('.vehicle-dropdown');
+    const allDropdowns = document.querySelectorAll('.vehicle-dropdown');
+    
+    // Fechar todos os outros dropdowns
+    allDropdowns.forEach(d => {
+        if (d !== dropdown) {
+            d.classList.add('hidden');
+        }
+    });
+    
+    // Alternar o dropdown atual
+    dropdown.classList.toggle('hidden');
+}
+
+// Fechar dropdowns ao clicar fora
+document.addEventListener('click', function(e) {
+    if (!e.target.closest('.vehicle-actions-mobile')) {
+        document.querySelectorAll('.vehicle-dropdown').forEach(dropdown => {
+            dropdown.classList.add('hidden');
+        });
+    }
+});
+
+// Inicialização
+document.addEventListener('DOMContentLoaded', function() {
+    initializeFilters();
+    loadVehicleData();
+    updateVehicleCount();
+    
+    // Ocultar filtros ativos inicialmente
+    const activeFiltersContainer = document.getElementById('activeFilters');
+    if (activeFiltersContainer) {
+        activeFiltersContainer.style.display = 'none';
+    }
+    
+    // Submit do formulário
+    const form = document.getElementById('vehicleForm');
+    if (form) {
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            // Simular salvamento
+            const submitBtn = form.querySelector('button[type="submit"]');
+            const originalText = submitBtn.innerHTML;
+            
+            submitBtn.innerHTML = '<span>Salvando...</span>';
+            submitBtn.disabled = true;
+            
+            setTimeout(() => {
+                submitBtn.innerHTML = originalText;
+                submitBtn.disabled = false;
+                closeModal();
+                
+                // Toast de sucesso
+                showToast('Veículo adicionado com sucesso!', 'success');
+                
+                // Recarregar dados e contador
+                loadVehicleData();
+                updateVehicleCount();
+            }, 1500);
+        });
+    }
+    
+    // Fechar modal com ESC
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+            closeModal();
+        }
+    });
+});
+
+// Carregar dados dos veículos
+function loadVehicleData() {
+    const vehicleElements = document.querySelectorAll('.vehicle-card');
+    vehicles = Array.from(vehicleElements).map(el => ({
+        element: el,
+        marca: el.dataset.marca,
+        modelo: el.dataset.modelo,
+        placa: el.dataset.placa,
+        ano: el.dataset.ano,
+        categoria: el.dataset.categoria
+    }));
+    filteredVehicles = [...vehicles];
+}
+
+// Inicializar filtros
+function initializeFilters() {
+    const searchInput = document.getElementById('searchVehicles');
+    const filterYear = document.getElementById('filterYear');
+    const filterCategory = document.getElementById('filterCategory');
+
+    if (searchInput) {
+        searchInput.addEventListener('input', applyFilters);
+    }
+    if (filterYear) {
+        filterYear.addEventListener('change', applyFilters);
+    }
+    if (filterCategory) {
+        filterCategory.addEventListener('change', applyFilters);
+    }
+}
+
+// Aplicar filtros
+function applyFilters() {
+    const searchTerm = document.getElementById('searchVehicles')?.value.toLowerCase() || '';
+    const yearFilter = document.getElementById('filterYear')?.value || '';
+    const categoryFilter = document.getElementById('filterCategory')?.value || '';
+    
+    filteredVehicles = vehicles.filter(vehicle => {
+        const matchesSearch = !searchTerm || 
+            vehicle.marca.toLowerCase().includes(searchTerm) ||
+            vehicle.modelo.toLowerCase().includes(searchTerm) ||
+            vehicle.placa.toLowerCase().includes(searchTerm);
+        
+        const matchesYear = !yearFilter || vehicle.ano === yearFilter;
+        const matchesCategory = !categoryFilter || vehicle.categoria === categoryFilter;
+        
+        return matchesSearch && matchesYear && matchesCategory;
+    });
+    
+    updateVehicleDisplay();
+    updateActiveFilters(searchTerm, yearFilter, categoryFilter);
+}
+
+// Atualizar indicadores de filtros ativos
+function updateActiveFilters(searchTerm, yearFilter, categoryFilter) {
+    const activeFiltersContainer = document.getElementById('activeFilters');
+    if (!activeFiltersContainer) return;
+    
+    // Limpar filtros existentes
+    const existingFilters = activeFiltersContainer.querySelectorAll('.filter-badge');
+    existingFilters.forEach(filter => filter.remove());
+    
+    // Adicionar filtros ativos
+    if (searchTerm) {
+        addFilterBadge(activeFiltersContainer, `Busca: "${searchTerm}"`, 'search', () => {
+            document.getElementById('searchVehicles').value = '';
+            applyFilters();
+        });
+    }
+    
+    if (yearFilter) {
+        addFilterBadge(activeFiltersContainer, `Ano: ${yearFilter}`, 'calendar', () => {
+            document.getElementById('filterYear').value = '';
+            applyFilters();
+        });
+    }
+    
+    if (categoryFilter) {
+        const categoryNames = {
+            'sedan': 'Sedan',
+            'hatch': 'Hatch', 
+            'suv': 'SUV',
+            'pickup': 'Pickup',
+            'van': 'Van',
+            'moto': 'Motocicleta'
+        };
+        addFilterBadge(activeFiltersContainer, `Categoria: ${categoryNames[categoryFilter]}`, 'tag', () => {
+            document.getElementById('filterCategory').value = '';
+            applyFilters();
+        });
+    }
+    
+    // Mostrar/ocultar container baseado na presença de filtros
+    const hasActiveFilters = searchTerm || yearFilter || categoryFilter;
+    activeFiltersContainer.style.display = hasActiveFilters ? 'flex' : 'none';
+}
+
+// Adicionar badge de filtro ativo
+function addFilterBadge(container, text, icon, removeCallback) {
+    const badge = document.createElement('div');
+    badge.className = 'filter-badge';
+    badge.innerHTML = `
+        <i data-lucide="${icon}" class="filter-badge__icon"></i>
+        <span>${text}</span>
+        <button type="button" class="filter-badge__remove" aria-label="Remover filtro ativo">
+            <i data-lucide="x"></i>
+        </button>
+    `;
+    
+    // Adicionar evento de remoção
+    const removeBtn = badge.querySelector('.filter-badge__remove');
+    removeBtn.addEventListener('click', (event) => {
+        event.stopPropagation();
+        removeCallback();
+    });
+    
+    container.appendChild(badge);
+    lucide.createIcons();
+}
+
+// Atualizar exibição dos veículos
+function updateVehicleDisplay() {
+    vehicles.forEach(vehicle => {
+        vehicle.element.style.display = 'none';
+    });
+    
+    filteredVehicles.forEach(vehicle => {
+        vehicle.element.style.display = 'block';
+    });
+    
+    // Atualizar contador
+    updateVehicleCount();
+}
+
+// Atualizar contador de veículos
+function updateVehicleCount() {
+    const countElement = document.getElementById('vehicleCount');
+    if (countElement) {
+        countElement.textContent = filteredVehicles.length;
+    }
+}
+
+// Limpar todos os filtros
+function clearAllFilters() {
+    const searchInput = document.getElementById('searchVehicles');
+    const filterYear = document.getElementById('filterYear');
+    const filterCategory = document.getElementById('filterCategory');
+    
+    if (searchInput) searchInput.value = '';
+    if (filterYear) filterYear.value = '';
+    if (filterCategory) filterCategory.value = '';
+    
+    applyFilters();
+}
+
+// Funções de ação
+function quickBook(vehicleId) {
+    window.location.href = `/dashboard/booking/?vehicle=${vehicleId}`;
+}
+
+function editVehicle(vehicleId) {
+    showToast('Funcionalidade de edição em desenvolvimento', 'info');
+}
+
+function deleteVehicle(vehicleId) {
+    if (confirm('Tem certeza que deseja excluir este veículo?')) {
+        showToast('Veículo excluído com sucesso!', 'success');
+    }
+}
+
+// Toast de notificação
+function showToast(message, type = 'success') {
+    const toast = document.createElement('div');
+    toast.style.cssText = `
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        z-index: 10001;
+        padding: 12px 20px;
+        border-radius: 8px;
+        color: white;
+        font-weight: 600;
+        max-width: 300px;
+        animation: slideInRight 0.3s ease-out;
+        ${type === 'success' ? 'background: linear-gradient(135deg, #10b981, #059669);' : ''}
+        ${type === 'info' ? 'background: linear-gradient(135deg, #3b82f6, #1d4ed8);' : ''}
+        ${type === 'error' ? 'background: linear-gradient(135deg, #ef4444, #dc2626);' : ''}
+    `;
+    
+    toast.textContent = message;
+    document.body.appendChild(toast);
+    
+    setTimeout(() => {
+        toast.style.animation = 'slideOutRight 0.3s ease-out';
+        setTimeout(() => {
+            if (toast.parentNode) {
+                toast.remove();
+            }
+        }, 300);
+    }, 3000);
+}
+
+// Animações CSS
+const style = document.createElement('style');
+style.textContent = `
+    @keyframes slideInRight {
+        from {
+            opacity: 0;
+            transform: translateX(100%);
+        }
+        to {
+            opacity: 1;
+            transform: translateX(0);
+        }
+    }
+    
+    @keyframes slideOutRight {
+        from {
+            opacity: 1;
+            transform: translateX(0);
+        }
+        to {
+            opacity: 0;
+            transform: translateX(100%);
+        }
+    }
+`;
+document.head.appendChild(style);
+</script>
+
+{% endblock %}

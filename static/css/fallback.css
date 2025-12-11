@@ -1,0 +1,118 @@
+/* 
+ * CSS de Fallback - Garante que a interface funcione mesmo sem dependências externas
+ */
+
+/* Se o CSS principal não carregar, pelo menos ter uma interface básica */
+.sidebar-professional {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 280px;
+    height: 100vh;
+    background: #1a1d29;
+    border-right: 1px solid #333;
+    z-index: 1000;
+    transition: all 0.3s ease;
+    overflow-y: auto;
+}
+
+.sidebar-professional.collapsed {
+    width: 80px;
+}
+
+.main-content {
+    margin-left: 280px;
+    transition: margin-left 0.3s ease;
+    min-height: 100vh;
+    background: #0f172a;
+    color: white;
+}
+
+.sidebar-professional.collapsed ~ .main-content {
+    margin-left: 80px;
+}
+
+.sidebar-toggle {
+    position: absolute;
+    top: 20px;
+    right: -15px;
+    width: 30px;
+    height: 30px;
+    background: #3b82f6;
+    border: none;
+    border-radius: 50%;
+    color: white;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.nav-link-custom {
+    display: flex;
+    align-items: center;
+    padding: 12px 20px;
+    color: #cbd5e1;
+    text-decoration: none;
+    transition: all 0.3s ease;
+}
+
+.nav-link-custom:hover,
+.nav-link-custom.active {
+    background: rgba(59, 130, 246, 0.2);
+    color: white;
+    text-decoration: none;
+}
+
+.nav-icon {
+    width: 20px;
+    height: 20px;
+    margin-right: 12px;
+}
+
+.sidebar-professional.collapsed .nav-text {
+    display: none;
+}
+
+/* Loading overlay */
+.loading-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.9);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+}
+
+.loading-spinner {
+    border: 4px solid rgba(255, 255, 255, 0.3);
+    border-top: 4px solid #3b82f6;
+    border-radius: 50%;
+    width: 50px;
+    height: 50px;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Mobile */
+@media (max-width: 992px) {
+    .sidebar-professional {
+        transform: translateX(-100%);
+    }
+    
+    .sidebar-professional.show {
+        transform: translateX(0);
+    }
+    
+    .main-content {
+        margin-left: 0 !important;
+    }
+}

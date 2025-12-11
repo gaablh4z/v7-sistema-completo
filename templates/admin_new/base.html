@@ -1,0 +1,766 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}AutoV7 · Painel Administrativo{% endblock %}</title>
+    {% load static %}
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'Segoe UI', 'system-ui', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
+
+    <link rel="stylesheet" href="{% static 'css/admin_new.css' %}">
+    <link rel="stylesheet" href="{% static 'css/admin_forms.css' %}">
+
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+    <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
+
+    {% block extra_css %}{% endblock %}
+
+    <style>
+        :root {
+            --panel-bg: #01050f;
+            --panel-gradient: radial-gradient(circle at top, rgba(56, 189, 248, 0.12), transparent 60%), #020617;
+            --panel-card: rgba(15, 23, 42, 0.82);
+            --panel-card-strong: rgba(15, 23, 42, 0.92);
+            --panel-outline: rgba(148, 163, 184, 0.2);
+            --panel-text: #e2e8f0;
+            --panel-muted: #94a3b8;
+            --panel-accent: #38bdf8;
+            --panel-accent-2: #818cf8;
+            --panel-danger: #fb7185;
+            --panel-success: #4ade80;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            background: var(--panel-gradient);
+            color: var(--panel-text);
+            font-family: 'Inter', 'Segoe UI', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+            line-height: 1.6;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        body.shell-mobile-open {
+            overflow: hidden;
+        }
+
+        .admin-shell {
+            min-height: 100vh;
+            position: relative;
+            margin-left: 280px;
+            transition: margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            width: calc(100% - 280px);
+        }
+
+        .shell-collapsed .admin-shell {
+            margin-left: 92px;
+            width: calc(100% - 92px);
+        }
+
+        .admin-shell::before,
+        .admin-shell::after {
+            content: '';
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(32px);
+            opacity: 0.9;
+        }
+
+        .admin-shell::before {
+            width: 420px;
+            height: 420px;
+            top: -140px;
+            left: -120px;
+            background: radial-gradient(circle, rgba(56, 189, 248, 0.35), transparent 65%);
+        }
+
+        .admin-shell::after {
+            width: 520px;
+            height: 520px;
+            bottom: -200px;
+            right: -60px;
+            background: radial-gradient(circle, rgba(99, 102, 241, 0.28), transparent 70%);
+        }
+
+        .admin-shell > * {
+            position: relative;
+            z-index: 1;
+        }
+
+        .panel-sidebar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 280px;
+            padding: 1.5rem 1.25rem 2rem;
+            background: rgba(3, 7, 18, 0.92);
+            backdrop-filter: blur(20px);
+            border-right: 1px solid var(--panel-outline);
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+            transition: width 0.3s ease, padding 0.3s ease, transform 0.3s ease;
+            overflow-y: auto;
+            height: 100vh;
+            z-index: 100;
+        }
+
+        .shell-collapsed .panel-sidebar {
+            width: 92px;
+            padding: 1.5rem 0.75rem;
+        }
+
+        .panel-sidebar__brand {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 0.75rem;
+            padding: 0.75rem 0.9rem;
+            border-radius: 1rem;
+            border: 1px solid var(--panel-outline);
+            background: rgba(15, 23, 42, 0.7);
+        }
+
+        .panel-logo {
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+            text-transform: uppercase;
+            letter-spacing: 0.12em;
+            font-weight: 600;
+            font-size: 0.85rem;
+        }
+
+        .panel-logo__dot {
+            width: 38px;
+            height: 38px;
+            border-radius: 12px;
+            display: grid;
+            place-items: center;
+            background: linear-gradient(135deg, rgba(56, 189, 248, 0.35), rgba(14, 165, 233, 0.55));
+            color: #0f172a;
+            font-weight: 700;
+        }
+
+        .panel-sidebar__menu {
+            width: 42px;
+            height: 42px;
+            border-radius: 0.9rem;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            background: rgba(15, 23, 42, 0.6);
+            color: var(--panel-text);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+        }
+
+        .panel-sidebar__user {
+            display: flex;
+            align-items: center;
+            gap: 0.85rem;
+            padding: 0.9rem;
+            background: rgba(15, 23, 42, 0.6);
+            border: 1px solid var(--panel-outline);
+            border-radius: 1.25rem;
+        }
+
+        .panel-sidebar__user-avatar {
+            width: 46px;
+            height: 46px;
+            border-radius: 1rem;
+            background: linear-gradient(135deg, rgba(56, 189, 248, 0.2), rgba(14, 165, 233, 0.4));
+            display: grid;
+            place-items: center;
+            font-weight: 600;
+            color: #e2e8f0;
+        }
+
+        .panel-sidebar__user-info {
+            display: flex;
+            flex-direction: column;
+            gap: 0.15rem;
+        }
+
+        .panel-sidebar__user-info strong {
+            font-size: 0.95rem;
+        }
+
+        .panel-sidebar__user-info span {
+            font-size: 0.8rem;
+            color: var(--panel-muted);
+        }
+
+        .panel-sidebar__section {
+            display: flex;
+            flex-direction: column;
+            gap: 0.4rem;
+        }
+
+        .panel-sidebar__label {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.12em;
+            color: rgba(148, 163, 184, 0.7);
+            padding-left: 0.4rem;
+            margin-bottom: 0.3rem;
+        }
+
+        .nav-link {
+            display: flex;
+            align-items: center;
+            gap: 0.85rem;
+            padding: 0.75rem 0.95rem;
+            text-decoration: none;
+            color: rgba(226, 232, 240, 0.85);
+            border-radius: 1rem;
+            border: 1px solid transparent;
+            transition: 0.2s ease;
+        }
+
+        .nav-link i {
+            width: 18px;
+            height: 18px;
+        }
+
+        .nav-link:hover {
+            color: #fff;
+            border-color: rgba(56, 189, 248, 0.35);
+            background: rgba(56, 189, 248, 0.12);
+        }
+
+        .nav-link.is-active {
+            border-color: rgba(56, 189, 248, 0.6);
+            background: linear-gradient(120deg, rgba(56, 189, 248, 0.25), rgba(99, 102, 241, 0.25));
+            color: #fff;
+            box-shadow: 0 20px 40px rgba(2, 6, 23, 0.45);
+        }
+
+        .panel-sidebar__footer {
+            margin-top: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 0.6rem;
+        }
+
+        .nav-link.logout-btn {
+            color: rgba(248, 113, 113, 0.85) !important;
+        }
+
+        .nav-link.logout-btn:hover {
+            color: rgba(248, 113, 113, 1) !important;
+            border-color: rgba(248, 113, 113, 0.35) !important;
+            background: rgba(185, 28, 28, 0.15) !important;
+        }
+
+        .panel-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(2, 6, 23, 0.65);
+            backdrop-filter: blur(2px);
+            z-index: 25;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+
+        .shell-mobile-open .panel-overlay {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .panel-topbar {
+            display: none;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1rem;
+        }
+
+        .panel-topbar__title {
+            font-size: 1rem;
+            color: var(--panel-muted);
+            letter-spacing: 0.05em;
+        }
+
+        .panel-mobile-trigger {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.45rem;
+            border-radius: 999px;
+            padding: 0.5rem 1.1rem;
+            border: 1px solid rgba(148, 163, 184, 0.35);
+            background: rgba(15, 23, 42, 0.6);
+            color: var(--panel-text);
+            font-size: 0.9rem;
+        }
+
+        .panel-sidebar__status {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            font-size: 0.78rem;
+            border-radius: 999px;
+            padding: 0.35rem 0.85rem;
+            border: 1px solid rgba(74, 222, 128, 0.35);
+            background: rgba(15, 185, 129, 0.12);
+            color: var(--panel-success);
+        }
+
+        .panel-sidebar__collapse {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.35rem;
+            padding: 0.55rem 0.85rem;
+            border-radius: 0.95rem;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            background: rgba(15, 23, 42, 0.55);
+            color: var(--panel-text);
+            cursor: pointer;
+        }
+
+        .shell-collapsed .panel-sidebar__label,
+        .shell-collapsed .panel-sidebar__user-info,
+        .shell-collapsed .nav-link span,
+        .shell-collapsed .panel-sidebar__status,
+        .shell-collapsed .panel-logo strong {
+            display: none;
+        }
+
+        .panel-main {
+            flex: 1;
+            min-height: 100vh;
+            padding: 2rem 2.5rem 3rem;
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .panel-hero {
+            border-radius: 2rem;
+            border: 1px solid var(--panel-outline);
+            background: linear-gradient(135deg, rgba(15, 23, 42, 0.8), rgba(2, 6, 23, 0.9));
+            padding: 2rem;
+            box-shadow: 0 25px 80px rgba(2, 6, 23, 0.6);
+            display: flex;
+            flex-direction: column;
+            gap: 1.25rem;
+        }
+
+        .panel-hero__top {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1.5rem;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .panel-hero__info {
+            display: flex;
+            gap: 1.25rem;
+            flex: 1 1 320px;
+            align-items: center;
+        }
+
+        .panel-hero__icon {
+            width: 72px;
+            height: 72px;
+            border-radius: 1.5rem;
+            background: linear-gradient(150deg, rgba(56, 189, 248, 0.2), rgba(129, 140, 248, 0.35));
+            display: grid;
+            place-items: center;
+            color: #e0f2fe;
+        }
+
+        .panel-hero__title h1 {
+            margin: 0;
+            font-size: clamp(1.6rem, 2vw, 2.1rem);
+            letter-spacing: -0.02em;
+        }
+
+        .panel-hero__title p {
+            margin: 0.15rem 0 0;
+            color: var(--panel-muted);
+        }
+
+        .panel-hero__meta {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.85rem;
+            color: var(--panel-muted);
+            font-size: 0.9rem;
+        }
+
+        .panel-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.75rem;
+        }
+
+        .panel-content {
+            flex: 1;
+            border-radius: 1.75rem;
+            border: 1px solid rgba(148, 163, 184, 0.18);
+            background: rgba(15, 23, 42, 0.78);
+            padding: 1.5rem;
+            backdrop-filter: blur(12px);
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.02);
+        }
+
+        .panel-content__inner {
+            display: flex;
+            flex-direction: column;
+            gap: 1.25rem;
+        }
+
+        .panel-empty {
+            border: 1px dashed rgba(148, 163, 184, 0.4);
+            border-radius: 1.5rem;
+            padding: 2.5rem;
+            text-align: center;
+            color: var(--panel-muted);
+        }
+
+        .panel-empty i {
+            width: 42px;
+            height: 42px;
+            margin-bottom: 1rem;
+            color: rgba(56, 189, 248, 0.7);
+        }
+
+        .panel-alerts {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+
+        .panel-alert {
+            border-radius: 1rem;
+            padding: 0.9rem 1.1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.65rem;
+            font-size: 0.95rem;
+            border: 1px solid rgba(148, 163, 184, 0.3);
+            background: rgba(15, 23, 42, 0.6);
+        }
+
+        .panel-alert--success {
+            border-color: rgba(74, 222, 128, 0.35);
+            background: rgba(13, 148, 136, 0.12);
+        }
+
+        .panel-alert--error {
+            border-color: rgba(248, 113, 113, 0.4);
+            background: rgba(185, 28, 28, 0.12);
+        }
+
+        .btn-primary,
+        .btn-secondary,
+        .btn-ghost {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.45rem;
+            border-radius: 999px;
+            padding: 0.55rem 1.35rem;
+            font-size: 0.92rem;
+            font-weight: 500;
+            border: 1px solid transparent;
+            cursor: pointer;
+            transition: transform 0.15s ease, box-shadow 0.15s ease;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #38bdf8, #6366f1);
+            color: #fff;
+            box-shadow: 0 15px 35px rgba(14, 165, 233, 0.3);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-1px);
+        }
+
+        .btn-secondary {
+            border-color: rgba(148, 163, 184, 0.4);
+            color: var(--panel-text);
+            background: rgba(15, 23, 42, 0.55);
+        }
+
+        .btn-ghost {
+            color: var(--panel-muted);
+            background: transparent;
+        }
+
+        .stat-card {
+            border-radius: 1.25rem;
+            border: 1px solid rgba(226, 232, 240, 0.08);
+            background: rgba(15, 23, 42, 0.62);
+            padding: 1rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.4rem;
+        }
+
+        .status-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.35rem;
+            border-radius: 999px;
+            padding: 0.3rem 0.9rem;
+            font-size: 0.78rem;
+            border: 1px solid rgba(56, 189, 248, 0.35);
+            color: rgba(56, 189, 248, 0.95);
+            background: rgba(56, 189, 248, 0.15);
+        }
+
+        @media (max-width: 1024px) {
+            .admin-shell {
+                margin-left: 0 !important;
+                width: 100% !important;
+            }
+            
+            .shell-collapsed .admin-shell {
+                margin-left: 0 !important;
+                width: 100% !important;
+            }
+            
+            .panel-sidebar {
+                position: fixed;
+                inset: 0 auto 0 0;
+                transform: translateX(-100%);
+                width: 280px;
+                z-index: 30;
+                box-shadow: 0 30px 60px rgba(2, 6, 23, 0.65);
+            }
+
+            .shell-mobile-open .panel-sidebar {
+                transform: translateX(0);
+            }
+
+            .panel-main {
+                padding: 1.5rem;
+            }
+
+            .panel-topbar {
+                display: flex;
+            }
+        }
+
+        @media (max-width: 640px) {
+            .panel-hero,
+            .panel-content {
+                padding: 1.2rem;
+            }
+
+            .panel-actions {
+                width: 100%;
+                justify-content: flex-start;
+            }
+        }
+    </style>
+</head>
+<body x-data="adminPanelState()" x-init="init()" x-bind:class="{'shell-collapsed': !sidebarOpen, 'shell-mobile-open': mobileSidebar, 'dark': darkMode}">
+    <div class="panel-overlay" @click="toggleSidebar" x-show="mobileSidebar" x-transition.opacity></div>
+        <aside class="panel-sidebar">
+
+            <div class="panel-sidebar__user">
+                <div class="panel-sidebar__user-avatar">
+                    {% if request.user.first_name %}
+                        {{ request.user.first_name|first }}{{ request.user.last_name|first }}
+                    {% else %}
+                        {{ request.user.username|slice:":2"|upper }}
+                    {% endif %}
+                </div>
+                <div class="panel-sidebar__user-info">
+                    <strong>{{ request.user.get_full_name|default:request.user.username }}</strong>
+                    <span>Administrativo</span>
+                </div>
+            </div>
+
+            <div class="panel-sidebar__section">
+                <p class="panel-sidebar__label">Visão geral</p>
+                <a href="{% url 'admin_new:dashboard' %}" class="nav-link {% if active_page == 'dashboard' %}is-active{% endif %}" @click="handleNavClick">
+                    <i data-lucide="layout-dashboard"></i>
+                    <span>Dashboard</span>
+                </a>
+                <a href="{% url 'admin_new:agendamentos' %}" class="nav-link {% if active_page == 'agendamentos' %}is-active{% endif %}" @click="handleNavClick">
+                    <i data-lucide="calendar-days"></i>
+                    <span>Agendamentos</span>
+                </a>
+                <a href="{% url 'admin_new:clientes' %}" class="nav-link {% if active_page == 'clientes' %}is-active{% endif %}" @click="handleNavClick">
+                    <i data-lucide="users"></i>
+                    <span>Clientes & Veículos</span>
+                </a>
+            </div>
+
+            <div class="panel-sidebar__section">
+                <p class="panel-sidebar__label">Operações</p>
+                <a href="{% url 'admin_new:servicos' %}" class="nav-link {% if active_page == 'servicos' %}is-active{% endif %}" @click="handleNavClick">
+                    <i data-lucide="wrench"></i>
+                    <span>Serviços</span>
+                </a>
+                <a href="{% url 'admin_new:estoque' %}" class="nav-link {% if active_page == 'estoque' %}is-active{% endif %}" @click="handleNavClick">
+                    <i data-lucide="boxes"></i>
+                    <span>Estoque</span>
+                </a>
+                <a href="{% url 'admin_new:relatorios' %}" class="nav-link {% if active_page == 'relatorios' %}is-active{% endif %}" @click="handleNavClick">
+                    <i data-lucide="line-chart"></i>
+                    <span>Relatórios</span>
+                </a>
+            </div>
+
+            <div class="panel-sidebar__footer">
+                <a href="{% url 'logout' %}" class="nav-link logout-btn" onclick="return confirm('Tem certeza que deseja sair?')">
+                    <i data-lucide="log-out"></i>
+                    <span>Sair da conta</span>
+                </a>
+                <button type="button" class="panel-sidebar__collapse" @click="toggleSidebar">
+                    <i data-lucide="chevrons-left"></i>
+                    <span>Recolher</span>
+                </button>
+            </div>
+        </aside>
+
+    <div class="admin-shell">
+        <main class="panel-main">
+            <div class="panel-topbar">
+                <button type="button" class="panel-mobile-trigger" @click="toggleSidebar">
+                    <i data-lucide="menu"></i>
+                    Menu
+                </button>
+                <span class="panel-topbar__title">{{ page_title|default:'Administração' }}</span>
+            </div>
+            <header class="panel-hero">
+                <div class="panel-hero__top">
+                    <div class="panel-hero__info">
+                        <div class="panel-hero__icon">
+                            <i data-lucide="sparkles"></i>
+                        </div>
+                        <div class="panel-hero__title">
+                            <p class="status-pill">
+                                <i data-lucide="shield-check"></i>
+                                Operação segura
+                            </p>
+                            <h1>{{ page_title|default:'Painel Administrativo' }}</h1>
+                            <p>{% block page_subtitle %}Controle total da operação AutoV7{% endblock %}</p>
+                        </div>
+                    </div>
+                    <div class="panel-actions">
+                        {% block page_actions %}
+                            <button type="button" class="btn-secondary" onclick="window.location.href='{% url 'admin_new:dashboard' %}'">
+                                <i data-lucide="compass"></i>
+                                Visão geral
+                            </button>
+                            <a href="{% url 'admin_new:agendamentos' %}" class="btn-primary">
+                                <i data-lucide="calendar-plus"></i>
+                                Novo agendamento
+                            </a>
+                        {% endblock %}
+                    </div>
+                </div>
+                <div class="panel-hero__meta">
+                    <span>Usuário logado: <strong>{{ request.user.username }}</strong></span>
+                    <span>Último acesso: {{ request.user.last_login|date:"d/m/Y H:i" }}</span>
+                </div>
+            </header>
+
+            {% if messages %}
+                <div class="panel-alerts">
+                    {% for message in messages %}
+                        <div class="panel-alert panel-alert--{{ message.tags }}">
+                            <i data-lucide="info"></i>
+                            <span>{{ message }}</span>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+
+            <section class="panel-content">
+                <div class="panel-content__inner">
+                    {% block content %}
+                        <div class="panel-empty">
+                            <i data-lucide="layout-list"></i>
+                            <h3>Selecione um módulo para começar</h3>
+                            <p>Use o menu lateral para navegar entre os recursos administrativos.</p>
+                        </div>
+                    {% endblock %}
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script>
+        function adminPanelState() {
+            return {
+                sidebarOpen: true,
+                mobileSidebar: false,
+                darkMode: window.matchMedia('(prefers-color-scheme: dark)').matches,
+                toggleSidebar() {
+                    if (window.innerWidth < 1024) {
+                        this.mobileSidebar = !this.mobileSidebar;
+                    } else {
+                        this.sidebarOpen = !this.sidebarOpen;
+                        // Remove o setTimeout que estava forçando resize
+                    }
+                },
+                handleNavClick() {
+                    if (window.innerWidth < 1024) {
+                        this.mobileSidebar = false;
+                    }
+                },
+                init() {
+                    // Carrega o estado salvo da sidebar ou padrão (expandida)
+                    const savedState = localStorage.getItem('sidebarOpen');
+                    if (savedState !== null) {
+                        this.sidebarOpen = JSON.parse(savedState);
+                    }
+                    
+                    // Observa mudanças no estado da sidebar para salvar
+                    this.$watch('sidebarOpen', (value) => {
+                        localStorage.setItem('sidebarOpen', JSON.stringify(value));
+                    });
+                    
+                    window.addEventListener('resize', () => {
+                        // Apenas fecha o mobile sidebar, não força o desktop
+                        if (window.innerWidth >= 1024) {
+                            this.mobileSidebar = false;
+                        }
+                    });
+                    window.addEventListener('keydown', (event) => {
+                        if (event.key === 'Escape') {
+                            this.mobileSidebar = false;
+                        }
+                    });
+                }
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', function () {
+            if (window.lucide) {
+                lucide.createIcons();
+            }
+        });
+    </script>
+
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

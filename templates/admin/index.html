@@ -1,0 +1,358 @@
+{% extends "admin/base.html" %}
+{% load i18n static admin_urls %}
+
+{% block title %}{{ title }} | AutoV7 Admin{% endblock %}
+
+{% block branding %}
+<div class="admin-branding">
+    <h1 id="site-name">
+        <a href="{% url 'admin:index' %}">
+            <span class="logo-text">AutoV7</span>
+            <span class="logo-subtitle">Sistema Administrativo</span>
+        </a>
+    </h1>
+</div>
+{% endblock %}
+
+{% block nav-global %}{% endblock %}
+
+{% block content %}
+<div class="admin-dashboard">
+    <div class="dashboard-header">
+        <h1>Painel Administrativo</h1>
+        <p>Gerencie todos os aspectos do sistema AutoV7</p>
+    </div>
+    
+    <div class="dashboard-grid">
+        <!-- Funcionalidades -->
+        <div class="dashboard-section">
+            <h2>Funcionalidades</h2>
+            <div class="function-grid">
+                <div class="function-card">
+                    <div class="card-icon">
+                        <i class="icon-user-plus"></i>
+                    </div>
+                    <div class="card-content">
+                        <h3>Cadastrar novo funcionário</h3>
+                        <p>Adicionar novo membro à equipe</p>
+                        <a href="/admin/cadastrar-funcionario/" class="btn-primary">
+                            Cadastrar Funcionário
+                        </a>
+                    </div>
+                </div>
+                
+                <div class="function-card">
+                    <div class="card-icon">
+                        <i class="icon-users"></i>
+                    </div>
+                    <div class="card-content">
+                        <h3>Gerenciar usuários</h3>
+                        <p>Visualizar e editar usuários</p>
+                        {% url 'admin:core_user_changelist' as users_url %}
+                        {% if users_url %}
+                            <a href="{{ users_url }}" class="btn-secondary">Ver Usuários</a>
+                        {% else %}
+                            <span class="btn-disabled">Ver Usuários</span>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <div class="function-card">
+                    <div class="card-icon">
+                        <i class="icon-calendar"></i>
+                    </div>
+                    <div class="card-content">
+                        <h3>Agendamentos</h3>
+                        <p>Gerenciar agendamentos</p>
+                        <a href="#" class="btn-secondary" onclick="alert('Funcionalidade em desenvolvimento');">
+                            Ver Agendamentos
+                        </a>
+                    </div>
+                </div>
+                
+                <div class="function-card">
+                    <div class="card-icon">
+                        <i class="icon-car"></i>
+                    </div>
+                    <div class="card-content">
+                        <h3>Veículos</h3>
+                        <p>Gerenciar veículos</p>
+                        <a href="#" class="btn-secondary" onclick="alert('Funcionalidade em desenvolvimento');">
+                            Ver Veículos
+                        </a>
+                    </div>
+                </div>
+                
+                <div class="function-card">
+                    <div class="card-icon">
+                        <i class="icon-package"></i>
+                    </div>
+                    <div class="card-content">
+                        <h3>Estoque</h3>
+                        <p>Controle de estoque</p>
+                        <a href="#" class="btn-secondary" onclick="alert('Funcionalidade em desenvolvimento');">
+                            Ver Estoque
+                        </a>
+                    </div>
+                </div>
+                
+                <div class="function-card">
+                    <div class="card-icon">
+                        <i class="icon-wrench"></i>
+                    </div>
+                    <div class="card-content">
+                        <h3>Serviços</h3>
+                        <p>Gerenciar serviços</p>
+                        <a href="#" class="btn-secondary" onclick="alert('Funcionalidade em desenvolvimento');">
+                            Ver Serviços
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Onde colocar? -->
+        <div class="dashboard-section">
+            <h2>Onde colocar?</h2>
+            <div class="help-grid">
+                <div class="help-card">
+                    <h3>Django Admin</h3>
+                    <p>Interface administrativa completa para gerenciamento de dados</p>
+                    <div class="help-features">
+                        <span>✓ CRUD completo</span>
+                        <span>✓ Filtros avançados</span>
+                        <span>✓ Busca integrada</span>
+                        <span>✓ Permissões</span>
+                    </div>
+                </div>
+                
+                <div class="help-card">
+                    <h3>Painel Customizado</h3>
+                    <p>Interface personalizada para operações específicas</p>
+                    <a href="/admin-panel/" class="btn-outline">
+                        Acessar Painel
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.admin-branding {
+    background: linear-gradient(135deg, #1e40af, #3b82f6);
+    padding: 1rem 2rem;
+    margin: -20px -20px 20px -20px;
+    border-radius: 0 0 12px 12px;
+}
+
+.admin-branding h1 {
+    margin: 0;
+}
+
+.admin-branding a {
+    color: white;
+    text-decoration: none;
+    display: flex;
+    flex-direction: column;
+}
+
+.logo-text {
+    font-size: 1.5rem;
+    font-weight: bold;
+    margin-bottom: 0.25rem;
+}
+
+.logo-subtitle {
+    font-size: 0.875rem;
+    opacity: 0.9;
+}
+
+.admin-dashboard {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2rem;
+}
+
+.dashboard-header {
+    text-align: center;
+    margin-bottom: 3rem;
+}
+
+.dashboard-header h1 {
+    font-size: 2.5rem;
+    color: #1f2937;
+    margin-bottom: 0.5rem;
+}
+
+.dashboard-header p {
+    color: #6b7280;
+    font-size: 1.125rem;
+}
+
+.dashboard-grid {
+    display: grid;
+    gap: 3rem;
+}
+
+.dashboard-section h2 {
+    color: #1f2937;
+    border-bottom: 2px solid #e5e7eb;
+    padding-bottom: 0.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.function-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 1.5rem;
+}
+
+.function-card {
+    background: white;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    padding: 1.5rem;
+    transition: all 0.2s ease;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.function-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 16px rgba(0,0,0,0.15);
+}
+
+.card-icon {
+    width: 48px;
+    height: 48px;
+    background: linear-gradient(135deg, #3b82f6, #1e40af);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 1rem;
+    color: white;
+    font-size: 1.5rem;
+}
+
+.card-content h3 {
+    color: #1f2937;
+    margin-bottom: 0.5rem;
+    font-size: 1.125rem;
+}
+
+.card-content p {
+    color: #6b7280;
+    margin-bottom: 1rem;
+    font-size: 0.875rem;
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, #3b82f6, #1e40af);
+    color: white;
+    padding: 0.75rem 1.5rem;
+    border-radius: 8px;
+    text-decoration: none;
+    display: inline-block;
+    font-weight: 500;
+    transition: all 0.2s ease;
+    border: none;
+    cursor: pointer;
+}
+
+.btn-primary:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(59, 130, 246, 0.4);
+    color: white;
+}
+
+.btn-secondary {
+    background: #f3f4f6;
+    color: #374151;
+    padding: 0.75rem 1.5rem;
+    border-radius: 8px;
+    text-decoration: none;
+    display: inline-block;
+    font-weight: 500;
+    transition: all 0.2s ease;
+    border: 1px solid #d1d5db;
+}
+
+.btn-secondary:hover {
+    background: #e5e7eb;
+    color: #1f2937;
+}
+
+.btn-outline {
+    background: transparent;
+    color: #3b82f6;
+    padding: 0.75rem 1.5rem;
+    border-radius: 8px;
+    text-decoration: none;
+    display: inline-block;
+    font-weight: 500;
+    transition: all 0.2s ease;
+    border: 2px solid #3b82f6;
+}
+
+.btn-outline:hover {
+    background: #3b82f6;
+    color: white;
+}
+
+.btn-disabled {
+    background: #f3f4f6;
+    color: #9ca3af;
+    padding: 0.75rem 1.5rem;
+    border-radius: 8px;
+    display: inline-block;
+    font-weight: 500;
+    border: 1px solid #e5e7eb;
+    cursor: not-allowed;
+    opacity: 0.6;
+}
+
+.help-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1.5rem;
+}
+
+.help-card {
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    padding: 1.5rem;
+}
+
+.help-card h3 {
+    color: #1e293b;
+    margin-bottom: 0.75rem;
+}
+
+.help-card p {
+    color: #64748b;
+    margin-bottom: 1rem;
+}
+
+.help-features {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.help-features span {
+    color: #059669;
+    font-size: 0.875rem;
+    font-weight: 500;
+}
+
+/* Ícones simples usando CSS */
+.icon-user-plus::before { content: "👥"; }
+.icon-users::before { content: "👤"; }
+.icon-calendar::before { content: "📅"; }
+.icon-car::before { content: "🚗"; }
+.icon-package::before { content: "📦"; }
+.icon-wrench::before { content: "🔧"; }
+</style>
+{% endblock %}

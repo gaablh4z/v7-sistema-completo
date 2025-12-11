@@ -1,0 +1,130 @@
+{% extends 'admin_new/base.html' %}
+
+{% block page_subtitle %}Relatórios e análises do sistema{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+    <!-- Cards de Resumo -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-sm font-medium text-gray-600 dark:text-gray-400">Receita do Mês</p>
+                    <p class="text-2xl font-bold text-gray-900 dark:text-white">R$ 15.240,00</p>
+                </div>
+                <div class="bg-green-100 dark:bg-green-900/50 p-3 rounded-full">
+                    <i data-lucide="dollar-sign" class="w-6 h-6 text-green-600 dark:text-green-400"></i>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-sm font-medium text-gray-600 dark:text-gray-400">Serviços Concluídos</p>
+                    <p class="text-2xl font-bold text-gray-900 dark:text-white">127</p>
+                </div>
+                <div class="bg-blue-100 dark:bg-blue-900/50 p-3 rounded-full">
+                    <i data-lucide="check-circle" class="w-6 h-6 text-blue-600 dark:text-blue-400"></i>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-sm font-medium text-gray-600 dark:text-gray-400">Novos Clientes</p>
+                    <p class="text-2xl font-bold text-gray-900 dark:text-white">23</p>
+                </div>
+                <div class="bg-purple-100 dark:bg-purple-900/50 p-3 rounded-full">
+                    <i data-lucide="user-plus" class="w-6 h-6 text-purple-600 dark:text-purple-400"></i>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-sm font-medium text-gray-600 dark:text-gray-400">Satisfação Média</p>
+                    <p class="text-2xl font-bold text-gray-900 dark:text-white">4.8/5</p>
+                </div>
+                <div class="bg-yellow-100 dark:bg-yellow-900/50 p-3 rounded-full">
+                    <i data-lucide="star" class="w-6 h-6 text-yellow-600 dark:text-yellow-400"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filtros de Data -->
+    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
+        <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Filtros de Relatório</h3>
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <div>
+                <label class="form-label">Data Inicial</label>
+                <input type="date" class="form-input">
+            </div>
+            <div>
+                <label class="form-label">Data Final</label>
+                <input type="date" class="form-input">
+            </div>
+            <div>
+                <label class="form-label">Tipo de Relatório</label>
+                <select class="form-select">
+                    <option>Receita</option>
+                    <option>Serviços</option>
+                    <option>Clientes</option>
+                    <option>Estoque</option>
+                </select>
+            </div>
+            <div class="flex items-end">
+                <button class="btn-primary w-full">
+                    <i data-lucide="search" class="w-4 h-4 mr-2"></i>
+                    Gerar Relatório
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Gráficos Placeholder -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
+            <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Receita Mensal</h3>
+            <div class="h-64 bg-gray-100 dark:bg-gray-700 rounded-lg flex items-center justify-center">
+                <div class="text-center">
+                    <i data-lucide="bar-chart-3" class="w-12 h-12 text-gray-400 mx-auto mb-2"></i>
+                    <p class="text-gray-500 dark:text-gray-400">Gráfico será implementado</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
+            <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Serviços Mais Solicitados</h3>
+            <div class="h-64 bg-gray-100 dark:bg-gray-700 rounded-lg flex items-center justify-center">
+                <div class="text-center">
+                    <i data-lucide="pie-chart" class="w-12 h-12 text-gray-400 mx-auto mb-2"></i>
+                    <p class="text-gray-500 dark:text-gray-400">Gráfico será implementado</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Exportar Relatórios -->
+    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
+        <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Exportar Dados</h3>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <button class="btn-secondary">
+                <i data-lucide="file-spreadsheet" class="w-4 h-4 mr-2"></i>
+                Exportar Excel
+            </button>
+            <button class="btn-secondary">
+                <i data-lucide="file-text" class="w-4 h-4 mr-2"></i>
+                Exportar PDF
+            </button>
+            <button class="btn-secondary">
+                <i data-lucide="file-text" class="w-4 h-4 mr-2"></i>
+                Exportar CSV
+            </button>
+        </div>
+    </div>
+</div>
+{% endblock %}
